@@ -1,0 +1,33 @@
+{
+  "shard_id": "84ff4a82-41f4-43e1-97a8-e05a1067e26d",
+  "updated_at": "2026-04-18T19:01:24.778688+00:00",
+  "family": {
+    "family_id": "zaiorg--glm",
+    "display_name": "GLM",
+    "publisher": "zai-org",
+    "baseline_model_ids": [
+      "GLM-4-9B-0414",
+      "glm-4-9b-chat-1m"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "GLM-4-9B-0414__hf-safetensors",
+      "model_id": "GLM-4-9B-0414",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/zaiorg--glm/GLM-4-9B-0414__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/zai-org/GLM-4-9B-0414",
+      "canonical_name": "GLM-4-9B-0414"
+    },
+    {
+      "asset_id": "glm-4-9b-chat-1m__hf-safetensors",
+      "model_id": "glm-4-9b-chat-1m",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/zaiorg--glm/glm-4-9b-chat-1m__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/zai-org/glm-4-9b-chat-1m",
+      "canonical_name": "glm-4-9b-chat-1m"
+    }
+  ]
+}

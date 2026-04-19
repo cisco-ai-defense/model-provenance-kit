@@ -1,0 +1,112 @@
+{
+  "bundle_id": "c62ad2d9-7a54-4e60-872d-6cb78279caf1",
+  "model_id": "falcon-11B",
+  "asset_id": "falcon-11B__hf-safetensors",
+  "family_id": "tiiuae--falcon",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T20:33:51.402777+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "falcon",
+    "architectures": [
+      "FalconForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 60,
+    "num_attention_heads": 32,
+    "num_key_value_heads": null,
+    "intermediate_size": 0,
+    "vocab_size": 65024,
+    "max_position_embeddings": 8192,
+    "hidden_act": null,
+    "rope_theta": 500042.0,
+    "rope_scaling": {
+      "rope_theta": 500042.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 500,
+    "eos_token_id": 11,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "RoPE",
+    "head_dim": 128,
+    "tokenizer_hash": "27d6eb8ff1ecf301f2971e19ab9afacaf2fb2b3149cea6d6eedf7d68445dc8f6",
+    "token_id_signature": "bos=500|eos=11",
+    "arch_hash": "6f62307f214b90cb68a83ae94b8eb47d237b2f247ee8f15ecd5a0eca628f9d80",
+    "family_hash": "a0fab825ad186ec277d446a8a750c8b47034100dc1e3a01492435a31dffc1de6"
+  },
+  "tfv": {
+    "vocab_size": 65024,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 500,
+    "eos_token_id": 11,
+    "pad_token_id": 11,
+    "num_added_tokens": 13,
+    "num_special_tokens": 13,
+    "num_merges": 64784,
+    "first_5_merges": [
+      "Ġ t",
+      "Ġ a",
+      "i n",
+      "h e",
+      "r e"
+    ],
+    "merge_rule_hash": "f1b12391533bd252593da78ac6d4d17a5fa7186abba8fc3c3ba025d2a4c7347a",
+    "special_token_ids": {
+      "pad": 11,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0035,
+    "avg_token_length": 6.26,
+    "max_token_length": 80,
+    "pct_whitespace_prefix": 0.6165,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9991,
+      "Other": 0.0009
+    }
+  },
+  "vocab": {
+    "size": 65024
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 60,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 122,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 499712,
+    "lep_profile_length": 60,
+    "wsp_signature_length": 120,
+    "wvc_layer_count": 60,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "falcon-11B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/tiiuae--falcon/falcon-11B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:4f6814474dfba1919928d10d67e274d9ff2608190b2efb2bfb66fd29f00a9464",
+      "availability": "local"
+    }
+  ]
+}

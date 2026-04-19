@@ -1,0 +1,112 @@
+{
+  "bundle_id": "4f140a1c-b574-4ea7-8d7c-8e1f8be99024",
+  "model_id": "Qwen2-Math-1.5B-Instruct",
+  "asset_id": "Qwen2-Math-1.5B-Instruct__hf-safetensors",
+  "family_id": "qwen--qwen",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T02:14:03.129788+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "qwen2",
+    "architectures": [
+      "Qwen2ForCausalLM"
+    ],
+    "hidden_size": 1536,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 12,
+    "num_key_value_heads": 2,
+    "intermediate_size": 8960,
+    "vocab_size": 151936,
+    "max_position_embeddings": 4096,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "gqa_ratio": 6.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "a3c8342f6bd4b566be3319558b0bbde51519cb6daa8850901f6567dbe1ca571d",
+    "token_id_signature": "bos=None|eos=151645",
+    "arch_hash": "f118d6defc48af1d50dae2ce3764a26809d90315742c5c51faa8136e858b36a1",
+    "family_hash": "35a7f11c7c52c18821def8db2282ae87fbdf57f65b33066397cdede84f858c06"
+  },
+  "tfv": {
+    "vocab_size": 151646,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "pad_token_id": 151643,
+    "num_added_tokens": 3,
+    "num_special_tokens": 3,
+    "num_merges": 151387,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 151643,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 6.44,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.3496,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.987,
+      "Other": 0.013
+    }
+  },
+  "vocab": {
+    "size": 151646
+  },
+  "signals": {
+    "hidden_size": 1536,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 57,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 87552,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Qwen2-Math-1.5B-Instruct-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/qwen--qwen/Qwen2-Math-1.5B-Instruct__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:8d302d5fb0f0400ea6124f64d24b79574236b124974218d9598fbc3e7196574e",
+      "availability": "local"
+    }
+  ]
+}

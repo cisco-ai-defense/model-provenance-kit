@@ -1,0 +1,43 @@
+{
+  "shard_id": "c23664e4-27c8-4d0f-b518-739f1aec13d2",
+  "updated_at": "2026-04-18T18:55:01.500293+00:00",
+  "family": {
+    "family_id": "stabilityai--stablelm",
+    "display_name": "StableLM",
+    "publisher": "stabilityai",
+    "baseline_model_ids": [
+      "stablelm-2-12b",
+      "stablelm-2-1_6b",
+      "stablelm-3b-4e1t"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "stablelm-2-12b__hf-safetensors",
+      "model_id": "stablelm-2-12b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/stabilityai--stablelm/stablelm-2-12b__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/stabilityai/stablelm-2-12b",
+      "canonical_name": "stablelm-2-12b"
+    },
+    {
+      "asset_id": "stablelm-2-1_6b__hf-safetensors",
+      "model_id": "stablelm-2-1_6b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/stabilityai--stablelm/stablelm-2-1_6b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/stabilityai/stablelm-2-1_6b",
+      "canonical_name": "stablelm-2-1_6b"
+    },
+    {
+      "asset_id": "stablelm-3b-4e1t__hf-safetensors",
+      "model_id": "stablelm-3b-4e1t",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/stabilityai--stablelm/stablelm-3b-4e1t__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/stabilityai/stablelm-3b-4e1t",
+      "canonical_name": "stablelm-3b-4e1t"
+    }
+  ]
+}

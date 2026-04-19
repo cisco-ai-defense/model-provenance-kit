@@ -1,0 +1,112 @@
+{
+  "bundle_id": "241af81d-ab4d-4c33-b3a0-66ef7bce6e18",
+  "model_id": "Magistral-Small-2506",
+  "asset_id": "Magistral-Small-2506__hf-safetensors",
+  "family_id": "mistralai--mistral",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T03:18:11.577617+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "mistral",
+    "architectures": [
+      "MistralForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 32768,
+    "vocab_size": 131072,
+    "max_position_embeddings": 40960,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "b06eb40210e4e5962f5af7feea0cf111b33591c5239a91d7b25b5e38b4a4b65e",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "40cf81eb18614b9f0634bc4ea27660b0539bb1dea43d5d9b13139e92571bc6c9",
+    "family_hash": "8a02ffa70d42a864681d324eac4726614d34314069b017b17fe2ea1ac42bd650"
+  },
+  "tfv": {
+    "vocab_size": 151000,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 2,
+    "num_special_tokens": 2,
+    "num_merges": 313316,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "e <SPECIAL_114>",
+      "i n",
+      "Ġ <SPECIAL_293>"
+    ],
+    "merge_rule_hash": "74055c5b3e0695c666554176c3d84dec073f6b98f1e3fa4a925c4858c7349e88",
+    "special_token_ids": {
+      "pad": null,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 6.94,
+    "max_token_length": 78,
+    "pct_whitespace_prefix": 0.5757,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9867,
+      "Other": 0.0133
+    }
+  },
+  "vocab": {
+    "size": 151000
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 81,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 414720,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Magistral-Small-2506-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/mistralai--mistral/Magistral-Small-2506__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:2b06423281218d74d578935d255562a26f2bf8323fba046e474b05fd25793336",
+      "availability": "local"
+    }
+  ]
+}

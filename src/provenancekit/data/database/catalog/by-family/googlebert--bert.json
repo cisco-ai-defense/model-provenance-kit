@@ -1,0 +1,23 @@
+{
+  "shard_id": "a67ea46b-1348-4306-98a0-65e4f5266c7b",
+  "updated_at": "2026-04-18T18:55:01.500142+00:00",
+  "family": {
+    "family_id": "googlebert--bert",
+    "display_name": "BERT",
+    "publisher": "google-bert",
+    "baseline_model_ids": [
+      "bert-base-uncased"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "bert-base-uncased__hf-safetensors",
+      "model_id": "bert-base-uncased",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/googlebert--bert/bert-base-uncased__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/google-bert/bert-base-uncased",
+      "canonical_name": "bert-base-uncased"
+    }
+  ]
+}

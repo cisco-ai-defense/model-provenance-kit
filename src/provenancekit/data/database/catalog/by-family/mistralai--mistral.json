@@ -1,0 +1,73 @@
+{
+  "shard_id": "31576e02-496b-49a7-939f-44ef037e8799",
+  "updated_at": "2026-04-18T18:55:01.500256+00:00",
+  "family": {
+    "family_id": "mistralai--mistral",
+    "display_name": "Mistral",
+    "publisher": "mistralai",
+    "baseline_model_ids": [
+      "Codestral-22B-v0.1",
+      "Magistral-Small-2506",
+      "Mistral-7B-Instruct-v0.3",
+      "Mistral-7B-v0.1",
+      "Mistral-Nemo-Instruct-2407",
+      "Mistral-Small-24B-Instruct-2501"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Codestral-22B-v0.1__hf-safetensors",
+      "model_id": "Codestral-22B-v0.1",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Codestral-22B-v0.1__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/mistralai/Codestral-22B-v0.1",
+      "canonical_name": "Codestral-22B-v0.1"
+    },
+    {
+      "asset_id": "Magistral-Small-2506__hf-safetensors",
+      "model_id": "Magistral-Small-2506",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Magistral-Small-2506__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/mistralai/Magistral-Small-2506",
+      "canonical_name": "Magistral-Small-2506"
+    },
+    {
+      "asset_id": "Mistral-7B-Instruct-v0.3__hf-safetensors",
+      "model_id": "Mistral-7B-Instruct-v0.3",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Mistral-7B-Instruct-v0.3__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+      "canonical_name": "Mistral-7B-Instruct-v0.3"
+    },
+    {
+      "asset_id": "Mistral-7B-v0.1__hf-safetensors",
+      "model_id": "Mistral-7B-v0.1",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Mistral-7B-v0.1__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Mistral-7B-v0.1",
+      "canonical_name": "Mistral-7B-v0.1"
+    },
+    {
+      "asset_id": "Mistral-Nemo-Instruct-2407__hf-safetensors",
+      "model_id": "Mistral-Nemo-Instruct-2407",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Mistral-Nemo-Instruct-2407__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407",
+      "canonical_name": "Mistral-Nemo-Instruct-2407"
+    },
+    {
+      "asset_id": "Mistral-Small-24B-Instruct-2501__hf-safetensors",
+      "model_id": "Mistral-Small-24B-Instruct-2501",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--mistral/Mistral-Small-24B-Instruct-2501__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/mistralai/Mistral-Small-24B-Instruct-2501",
+      "canonical_name": "Mistral-Small-24B-Instruct-2501"
+    }
+  ]
+}

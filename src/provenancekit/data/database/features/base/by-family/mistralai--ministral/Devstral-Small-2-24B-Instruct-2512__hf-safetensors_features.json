@@ -1,0 +1,120 @@
+{
+  "bundle_id": "1a451f27-de43-4047-9530-de58e3278893",
+  "model_id": "Devstral-Small-2-24B-Instruct-2512",
+  "asset_id": "Devstral-Small-2-24B-Instruct-2512__hf-safetensors",
+  "family_id": "mistralai--ministral",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T03:47:50.978813+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "mistral3",
+    "architectures": [
+      "Mistral3ForConditionalGeneration"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 32768,
+    "vocab_size": 131072,
+    "max_position_embeddings": 393216,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "beta_fast": 32.0,
+      "beta_slow": 1.0,
+      "factor": 48.0,
+      "llama_4_scaling_beta": 0.1,
+      "mscale": 1.0,
+      "mscale_all_dim": 1.0,
+      "original_max_position_embeddings": 8192,
+      "rope_theta": 100000000.0,
+      "rope_type": "yarn",
+      "type": "yarn"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "54837f0aa7807aecb5d0ca7542c3c07941a6f7d294e97c03374b0a1c69c412ce",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "17d6a7c720af4f71ce9187e7de1004a6a231d5a2574eca2732249ee514412cd3",
+    "family_hash": "47816518479e9ef12322bb56ce0657fa27a5b5d3f843d4c86ac5d8553296e53d"
+  },
+  "tfv": {
+    "vocab_size": 131072,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": 11,
+    "num_added_tokens": 1000,
+    "num_special_tokens": 1000,
+    "num_merges": 269443,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "e r",
+      "i n",
+      "Ġ ĠĠĠ"
+    ],
+    "merge_rule_hash": "1be96ec6fd09be7e237edcdfa7c3030b490786476bbc84e391c9efaab27ced1b",
+    "special_token_ids": {
+      "pad": 11,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.8,
+    "max_token_length": 76,
+    "pct_whitespace_prefix": 0.5678,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9871,
+      "Other": 0.0129
+    }
+  },
+  "vocab": {
+    "size": 131072
+  },
+  "signals": {
+    "hidden_size": 0,
+    "num_layers": 0,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 131,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 524,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 57344
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Devstral-Small-2-24B-Instruct-2512-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/mistralai--ministral/Devstral-Small-2-24B-Instruct-2512__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:b7893ca06ed9bea2eb2a28c778abbc2ea7ff42434e84660051a19f415c746441",
+      "availability": "local"
+    }
+  ]
+}

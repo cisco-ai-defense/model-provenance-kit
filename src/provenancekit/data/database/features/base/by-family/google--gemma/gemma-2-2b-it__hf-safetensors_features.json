@@ -1,0 +1,116 @@
+{
+  "bundle_id": "1134738b-fd29-4fda-8ec7-1a7734743539",
+  "model_id": "gemma-2-2b-it",
+  "asset_id": "gemma-2-2b-it__hf-safetensors",
+  "family_id": "google--gemma",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T17:14:48.750550+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "gemma2",
+    "architectures": [
+      "Gemma2ForCausalLM"
+    ],
+    "hidden_size": 2304,
+    "num_hidden_layers": 26,
+    "num_attention_heads": 8,
+    "num_key_value_heads": 4,
+    "intermediate_size": 9216,
+    "vocab_size": 256000,
+    "max_position_embeddings": 8192,
+    "hidden_act": "gelu_pytorch_tanh",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 2,
+    "eos_token_id": 1,
+    "gqa_ratio": 2.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": true,
+    "pos_encoding": "absolute",
+    "head_dim": 256,
+    "tokenizer_hash": "6ccd20d9c7c00a2a20dbdc68fed83faa8b14813320bb565cd36a65a852689313",
+    "token_id_signature": "bos=2|eos=1",
+    "arch_hash": "a3a7c9e32877634ccaf2e5efa3461ba4c6eed280186039cc712efa681685360f",
+    "family_hash": "52f85735bb556fa3ff90d671cfb134c347a8a16cde9e3b20a253b7996a144a8e"
+  },
+  "tfv": {
+    "vocab_size": 256000,
+    "tokenizer_class": "GemmaTokenizer",
+    "bos_token_id": 2,
+    "eos_token_id": 1,
+    "pad_token_id": 0,
+    "num_added_tokens": 249,
+    "num_special_tokens": 7,
+    "num_merges": 580604,
+    "first_5_merges": [
+      "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n",
+      "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ ▁",
+      "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t \t",
+      "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n",
+      "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ ▁▁"
+    ],
+    "merge_rule_hash": "be080950a972fa8f2c93eef763e6b6fdd810aab3d416711d61eb0d9c8b586746",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": 3,
+      "mask": 4
+    },
+    "pct_single_char": 0.0809,
+    "avg_token_length": 5.53,
+    "max_token_length": 31,
+    "pct_whitespace_prefix": 0.4893,
+    "pct_byte_tokens": 0.001,
+    "script_distribution": {
+      "Latin": 0.8764,
+      "Cyrillic": 0.0485,
+      "CJK": 0.0455,
+      "Arabic": 0.0167,
+      "Other": 0.0107,
+      "Devanagari": 0.0022
+    }
+  },
+  "vocab": {
+    "size": 256000
+  },
+  "signals": {
+    "hidden_size": 2304,
+    "num_layers": 26,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 105,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 241920,
+    "lep_profile_length": 26,
+    "wsp_signature_length": 52,
+    "wvc_layer_count": 26,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "gemma-2-2b-it-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/google--gemma/gemma-2-2b-it__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:b61524614097448bc6807b4783de3715bf61a90c05fdc61ce4e239a593d5f46d",
+      "availability": "local"
+    }
+  ]
+}

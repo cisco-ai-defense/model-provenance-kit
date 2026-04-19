@@ -1,0 +1,43 @@
+{
+  "shard_id": "416a42d8-58b2-47c1-a6a7-496971ef5798",
+  "updated_at": "2026-04-18T18:55:01.500272+00:00",
+  "family": {
+    "family_id": "openaicommunity--gpt",
+    "display_name": "GPT",
+    "publisher": "openai-community",
+    "baseline_model_ids": [
+      "gpt2-medium",
+      "gpt2-xl",
+      "gpt2"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "gpt2-medium__hf-safetensors",
+      "model_id": "gpt2-medium",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/openaicommunity--gpt/gpt2-medium__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/openai-community/gpt2-medium",
+      "canonical_name": "gpt2-medium"
+    },
+    {
+      "asset_id": "gpt2-xl__hf-safetensors",
+      "model_id": "gpt2-xl",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/openaicommunity--gpt/gpt2-xl__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/openai-community/gpt2-xl",
+      "canonical_name": "gpt2-xl"
+    },
+    {
+      "asset_id": "gpt2__hf-safetensors",
+      "model_id": "gpt2",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/openaicommunity--gpt/gpt2__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/openai-community/gpt2",
+      "canonical_name": "gpt2"
+    }
+  ]
+}

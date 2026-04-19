@@ -1,0 +1,116 @@
+{
+  "bundle_id": "120ce868-3cb9-4f4a-a6f9-6b96a4f83b55",
+  "model_id": "Llama-2-13b-chat-hf",
+  "asset_id": "Llama-2-13b-chat-hf__hf-safetensors",
+  "family_id": "metallama--llama",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T02:54:18.209944+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 40,
+    "num_key_value_heads": 40,
+    "intermediate_size": 13824,
+    "vocab_size": 32000,
+    "max_position_embeddings": 4096,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "422610068ad9cdea4ccf4fe587219721b4bf0d1238dd161ea6ece6c3562831b6",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "6350292034ad40f1a3266e535ea149727cb8ebf2d160cf19e04cea11cda17731",
+    "family_hash": "0aa77a9344e241cdc10ba60f5979e4d4243356adc7d483bb657f02d96cb5a556"
+  },
+  "tfv": {
+    "vocab_size": 32000,
+    "tokenizer_class": "LlamaTokenizer",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 3,
+    "num_special_tokens": 3,
+    "num_merges": 61249,
+    "first_5_merges": [
+      "▁ t",
+      "e r",
+      "i n",
+      "▁ a",
+      "e n"
+    ],
+    "merge_rule_hash": "92d6a430b70e5847d2e46d8dea2d121d63b52da0e82e88121c0fa944086fcf1a",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0665,
+    "avg_token_length": 5.06,
+    "max_token_length": 16,
+    "pct_whitespace_prefix": 0.5128,
+    "pct_byte_tokens": 0.008,
+    "script_distribution": {
+      "Latin": 0.9151,
+      "Cyrillic": 0.0754,
+      "CJK": 0.0067,
+      "Other": 0.0023,
+      "Arabic": 0.0003,
+      "Devanagari": 0.0002
+    }
+  },
+  "vocab": {
+    "size": 32000
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 81,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 414720,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Llama-2-13b-chat-hf-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/metallama--llama/Llama-2-13b-chat-hf__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:788e35d527c75910c8fedec30d5028f8d54edd60a554ca707cc70a30f5e1b3c8",
+      "availability": "local"
+    }
+  ]
+}

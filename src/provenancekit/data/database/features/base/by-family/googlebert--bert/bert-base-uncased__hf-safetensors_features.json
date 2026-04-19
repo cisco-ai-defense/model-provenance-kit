@@ -1,0 +1,107 @@
+{
+  "bundle_id": "2e2d4212-6ce8-4fcc-8dd9-31a842aedad8",
+  "model_id": "bert-base-uncased",
+  "asset_id": "bert-base-uncased__hf-safetensors",
+  "family_id": "googlebert--bert",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:27:53.857225+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "bert",
+    "architectures": [
+      "BertForMaskedLM"
+    ],
+    "hidden_size": 768,
+    "num_hidden_layers": 12,
+    "num_attention_heads": 12,
+    "num_key_value_heads": null,
+    "intermediate_size": 3072,
+    "vocab_size": 30522,
+    "max_position_embeddings": 512,
+    "hidden_act": "gelu",
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": true,
+    "bos_token_id": null,
+    "eos_token_id": null,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "9114256b104cca80e04367526f03f46aa3c443c2ed174904142a73bbf13b9fbb",
+    "token_id_signature": "bos=None|eos=None",
+    "arch_hash": "3992f4eb5feeb354e368032d6e4f3c34a8b816a83935e4b2600dc15b549579c5",
+    "family_hash": "e49be812c494557b8ad1065c0bd2f71d9fd22af3094da513a1dbf2ffc50dbe83"
+  },
+  "tfv": {
+    "vocab_size": 30522,
+    "tokenizer_class": "BertTokenizer",
+    "bos_token_id": null,
+    "eos_token_id": null,
+    "pad_token_id": 0,
+    "num_added_tokens": 5,
+    "num_special_tokens": 5,
+    "num_merges": 0,
+    "first_5_merges": [],
+    "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": 100,
+      "mask": 103
+    },
+    "pct_single_char": 0.0327,
+    "avg_token_length": 6.48,
+    "max_token_length": 18,
+    "pct_whitespace_prefix": 0.0,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.992,
+      "CJK": 0.0042,
+      "Other": 0.0024,
+      "Cyrillic": 0.0006,
+      "Arabic": 0.0005,
+      "Devanagari": 0.0003
+    }
+  },
+  "vocab": {
+    "size": 30522
+  },
+  "signals": {
+    "hidden_size": 768,
+    "num_layers": 12,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 52,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 39936,
+    "lep_profile_length": 12,
+    "wsp_signature_length": 24,
+    "wvc_layer_count": 12,
+    "wvc_layer_vector_length": 24576
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "bert-base-uncased-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/googlebert--bert/bert-base-uncased__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:1d2187d10b60d202a0c9f478a68ffd27ddf1fdc84465087a8e7b608e318ac592",
+      "availability": "local"
+    }
+  ]
+}

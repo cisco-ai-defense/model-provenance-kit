@@ -1,0 +1,113 @@
+{
+  "bundle_id": "7f972c29-af8c-4db1-b5cf-ae3ba73d17d8",
+  "model_id": "phi-2",
+  "asset_id": "phi-2__hf-safetensors",
+  "family_id": "microsoft--phi",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:27:59.716564+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "phi",
+    "architectures": [
+      "PhiForCausalLM"
+    ],
+    "hidden_size": 2560,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 32,
+    "intermediate_size": 10240,
+    "vocab_size": 51200,
+    "max_position_embeddings": 2048,
+    "hidden_act": "gelu_new",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000.0,
+      "partial_rotary_factor": 0.4,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "df2d78837fe041c6be53d7d081cb6c2d069e9973f618b17178d68f4041069a4b",
+    "token_id_signature": "bos=50256|eos=50256",
+    "arch_hash": "246f4cd2a61e30f8c3180d391e2e3cc16000fbd57d4c901acf31f8b6976904d9",
+    "family_hash": "d0fa2a0291ccb83d39c80bfa303ca19e5cbec7ac32ecde067738ba70ff9fed02"
+  },
+  "tfv": {
+    "vocab_size": 50295,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "pad_token_id": null,
+    "num_added_tokens": 39,
+    "num_special_tokens": 1,
+    "num_merges": 50000,
+    "first_5_merges": [
+      "Ġ t",
+      "Ġ a",
+      "h e",
+      "i n",
+      "r e"
+    ],
+    "merge_rule_hash": "8ccd0747ca3d0cebbdfa37b743f6f5f2723f9902ed8fb95048782a3df7f26906",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 50256,
+      "mask": null
+    },
+    "pct_single_char": 0.0051,
+    "avg_token_length": 6.39,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.6594,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9999,
+      "Other": 0.0001
+    }
+  },
+  "vocab": {
+    "size": 50295
+  },
+  "signals": {
+    "hidden_size": 2560,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 66,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 168960,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 24576
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "phi-2-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/microsoft--phi/phi-2__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:a18b5e739fcb54ef9c29eef15173444028f3ce1fd85c5acdeda26f696d0fc9ee",
+      "availability": "local"
+    }
+  ]
+}

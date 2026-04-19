@@ -1,0 +1,113 @@
+{
+  "bundle_id": "af68fc7d-7ff4-4b18-849d-92bb9d91d9e4",
+  "model_id": "RedPajama-INCITE-7B-Base",
+  "asset_id": "RedPajama-INCITE-7B-Base__hf-safetensors",
+  "family_id": "togethercomputer--redpajama",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:14:38.298158+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "gpt_neox",
+    "architectures": [
+      "GPTNeoXForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": null,
+    "intermediate_size": 16384,
+    "vocab_size": 50432,
+    "max_position_embeddings": 2048,
+    "hidden_act": "gelu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000,
+      "partial_rotary_factor": 1.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": true,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "1b0aca3746c0870daeb9137101cd89acbb38710fc433db83331287d5b0e47ee0",
+    "token_id_signature": "bos=0|eos=0",
+    "arch_hash": "72f3e8f1c79d374750957a244ba6db64329602366fd0b6bdf59c3787b917a593",
+    "family_hash": "8b9c76b9018b9d76df9bdca8f28324c382889fc7422fa5cbf86ee0e65df8df11"
+  },
+  "tfv": {
+    "vocab_size": 50277,
+    "tokenizer_class": "GPTNeoXTokenizer",
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "pad_token_id": 1,
+    "num_added_tokens": 25,
+    "num_special_tokens": 2,
+    "num_merges": 50009,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120 t",
+      "\u0120 a",
+      "h e",
+      "i n"
+    ],
+    "merge_rule_hash": "0871080c74d5f017f58f085a0250ba1ddecf34b834b3e9038b6e230388978071",
+    "special_token_ids": {
+      "pad": 1,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0048,
+    "avg_token_length": 6.22,
+    "max_token_length": 512,
+    "pct_whitespace_prefix": 0.5739,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9991,
+      "Other": 0.0009
+    }
+  },
+  "vocab": {
+    "size": 50277
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 130,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 532480,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "RedPajama-INCITE-7B-Base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/togethercomputer--redpajama/RedPajama-INCITE-7B-Base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:48374a8b31167766c9200a11ecbf73685781b74cfdcb570e9bffb4ec29cb7590",
+      "availability": "local"
+    }
+  ]
+}

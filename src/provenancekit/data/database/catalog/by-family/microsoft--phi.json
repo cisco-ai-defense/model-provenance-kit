@@ -1,0 +1,83 @@
+{
+  "shard_id": "b48a0508-2e56-4b0c-9740-4e8d47af18f5",
+  "updated_at": "2026-04-18T18:55:01.500244+00:00",
+  "family": {
+    "family_id": "microsoft--phi",
+    "display_name": "Phi",
+    "publisher": "microsoft",
+    "baseline_model_ids": [
+      "Phi-3-medium-4k-instruct",
+      "Phi-3-mini-4k-instruct",
+      "Phi-3.5-mini-instruct",
+      "Phi-4-mini-instruct",
+      "Phi-4-mini-reasoning",
+      "phi-1_5",
+      "phi-2"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Phi-3-medium-4k-instruct__hf-safetensors",
+      "model_id": "Phi-3-medium-4k-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/Phi-3-medium-4k-instruct__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/microsoft/Phi-3-medium-4k-instruct",
+      "canonical_name": "Phi-3-medium-4k-instruct"
+    },
+    {
+      "asset_id": "Phi-3-mini-4k-instruct__hf-safetensors",
+      "model_id": "Phi-3-mini-4k-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/Phi-3-mini-4k-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
+      "canonical_name": "Phi-3-mini-4k-instruct"
+    },
+    {
+      "asset_id": "Phi-3.5-mini-instruct__hf-safetensors",
+      "model_id": "Phi-3.5-mini-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/Phi-3.5-mini-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/Phi-3.5-mini-instruct",
+      "canonical_name": "Phi-3.5-mini-instruct"
+    },
+    {
+      "asset_id": "Phi-4-mini-instruct__hf-safetensors",
+      "model_id": "Phi-4-mini-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/Phi-4-mini-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+      "canonical_name": "Phi-4-mini-instruct"
+    },
+    {
+      "asset_id": "Phi-4-mini-reasoning__hf-safetensors",
+      "model_id": "Phi-4-mini-reasoning",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/Phi-4-mini-reasoning__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/Phi-4-mini-reasoning",
+      "canonical_name": "Phi-4-mini-reasoning"
+    },
+    {
+      "asset_id": "phi-1_5__hf-safetensors",
+      "model_id": "phi-1_5",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/phi-1_5__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/phi-1_5",
+      "canonical_name": "phi-1_5"
+    },
+    {
+      "asset_id": "phi-2__hf-safetensors",
+      "model_id": "phi-2",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/phi-2__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/phi-2",
+      "canonical_name": "phi-2"
+    }
+  ]
+}

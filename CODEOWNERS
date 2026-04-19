@@ -1,0 +1,4 @@
+# CODEOWNERS
+# The first matching pattern takes precedence.
+# Update this owner to your maintainer user/team as needed.
+* @cisco-ai-defense

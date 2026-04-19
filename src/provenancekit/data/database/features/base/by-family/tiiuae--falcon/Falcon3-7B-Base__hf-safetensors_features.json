@@ -1,0 +1,112 @@
+{
+  "bundle_id": "74ae1b3c-2474-4bf0-9dea-b786ff68d642",
+  "model_id": "Falcon3-7B-Base",
+  "asset_id": "Falcon3-7B-Base__hf-safetensors",
+  "family_id": "tiiuae--falcon",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T02:14:30.380019+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 3072,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 12,
+    "num_key_value_heads": 4,
+    "intermediate_size": 23040,
+    "vocab_size": 131072,
+    "max_position_embeddings": 32768,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000042,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 11,
+    "gqa_ratio": 3.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 256,
+    "tokenizer_hash": "633bffc1904290bc1012170cac136e1f014e07ae6e44f1a566e77727b78330a5",
+    "token_id_signature": "bos=None|eos=11",
+    "arch_hash": "7df2abd77363b436bd96a9cf0ed0fecad7c31c26df0aaa0ee6fe35cddea0a723",
+    "family_hash": "774ecc2e228ed7c3b45792f571c21c51c17e896c49c076ce02413881c56247ad"
+  },
+  "tfv": {
+    "vocab_size": 131072,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": null,
+    "eos_token_id": 11,
+    "pad_token_id": null,
+    "num_added_tokens": 2024,
+    "num_special_tokens": 24,
+    "num_merges": 128810,
+    "first_5_merges": [
+      "N E",
+      "\u0120 \u0120",
+      "\u0120 t",
+      "\u0120 a",
+      "> >"
+    ],
+    "merge_rule_hash": "6abdebe264aca872c3fbbcc0c7a4f18343aed7e5245ac2961eeafca961e46438",
+    "special_token_ids": {
+      "pad": null,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0018,
+    "avg_token_length": 6.99,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.5905,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9995,
+      "Other": 0.0005
+    }
+  },
+  "vocab": {
+    "size": 131072
+  },
+  "signals": {
+    "hidden_size": 3072,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 57,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 175104,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Falcon3-7B-Base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/tiiuae--falcon/Falcon3-7B-Base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:3b35138158dc23a0deb3d6f924772d3d91c1be051993e0839b87148481b16fe3",
+      "availability": "local"
+    }
+  ]
+}

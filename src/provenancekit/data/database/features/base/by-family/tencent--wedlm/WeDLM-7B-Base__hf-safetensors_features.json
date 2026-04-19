@@ -1,0 +1,109 @@
+{
+  "bundle_id": "552e8713-bea7-4b76-8c23-224947989e9d",
+  "model_id": "WeDLM-7B-Base",
+  "asset_id": "WeDLM-7B-Base__hf-safetensors",
+  "family_id": "tencent--wedlm",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T19:45:18.738555+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "wedlm",
+    "architectures": [
+      "WeDLMForCausalLM"
+    ],
+    "hidden_size": 3584,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 28,
+    "num_key_value_heads": 4,
+    "intermediate_size": 18944,
+    "vocab_size": 152064,
+    "max_position_embeddings": 16384,
+    "hidden_act": "silu",
+    "rope_theta": 1000000.0,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 151643,
+    "gqa_ratio": 7.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": true,
+    "qk_norm": false,
+    "pos_encoding": "RoPE",
+    "head_dim": 128,
+    "tokenizer_hash": "f884026e05f6dfffe68b72d580b588006d98b3bc0a128bb1ac425c76f7fc438c",
+    "token_id_signature": "bos=None|eos=151643",
+    "arch_hash": "732971eb1562bdb196d8623a6fabe2269ea19773a15727b1c9f51f93ba4d39bc",
+    "family_hash": "041e5b715382eb9b8ba968a0bf0c4c167173b93f5c5d2feef58e665efb6ca836"
+  },
+  "tfv": {
+    "vocab_size": 151665,
+    "tokenizer_class": "Qwen2TokenizerFast",
+    "bos_token_id": null,
+    "eos_token_id": 151643,
+    "pad_token_id": 151643,
+    "num_added_tokens": 22,
+    "num_special_tokens": 14,
+    "num_merges": 151387,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 151643,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 6.44,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.3496,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.987,
+      "Other": 0.013
+    }
+  },
+  "vocab": {
+    "size": 151665
+  },
+  "signals": {
+    "hidden_size": 3584,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 57,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 204288,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "WeDLM-7B-Base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/tencent--wedlm/WeDLM-7B-Base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:9ad2171abad4ba429300e1f6c66f093fb0b65054ed984ade73873e045cc5376b",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "bundle_id": "0421e19d-f23d-4982-81fe-889854fe09f4",
+  "model_id": "OLMo-2-1124-13B-Instruct",
+  "asset_id": "OLMo-2-1124-13B-Instruct__hf-safetensors",
+  "family_id": "allenai--olmo",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:57:06.635616+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "olmo2",
+    "architectures": [
+      "Olmo2ForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 40,
+    "num_key_value_heads": 40,
+    "intermediate_size": 13824,
+    "vocab_size": 100352,
+    "max_position_embeddings": 4096,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 500000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 100257,
+    "eos_token_id": 100257,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "f7499d393a5a28519bdb8de7300c517e1fb58070cfc36a25dbaecf426f824eb8",
+    "token_id_signature": "bos=100257|eos=100257",
+    "arch_hash": "bb84c2124ad0c3dfea3ba1f43bdb10c79ffc14cf3a42c641266fb83f1d472c71",
+    "family_hash": "4151d5b2f33d1114954b1810dd846e797cb2ede6a437626ab764feeec620352a"
+  },
+  "tfv": {
+    "vocab_size": 100278,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 100257,
+    "eos_token_id": 100257,
+    "pad_token_id": 100277,
+    "num_added_tokens": 22,
+    "num_special_tokens": 2,
+    "num_merges": 100000,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 100277,
+      "unk": 100257,
+      "mask": null
+    },
+    "pct_single_char": 0.0026,
+    "avg_token_length": 6.42,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4449,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9991,
+      "Other": 0.0009
+    }
+  },
+  "vocab": {
+    "size": 100278
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 161,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 824320,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "OLMo-2-1124-13B-Instruct-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/allenai--olmo/OLMo-2-1124-13B-Instruct__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:3b28875f2e7c7d7b97f438b5652dcc763ff86526707d03664783aa1cd1335d57",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "bundle_id": "7efddb81-861b-40f7-ab91-6744802f9720",
+  "model_id": "SmolLM2-1.7B",
+  "asset_id": "SmolLM2-1.7B__hf-safetensors",
+  "family_id": "huggingfacetb--smollm",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:28:04.336802+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 2048,
+    "num_hidden_layers": 24,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 32,
+    "intermediate_size": 8192,
+    "vocab_size": 49152,
+    "max_position_embeddings": 8192,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 130000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 64,
+    "tokenizer_hash": "7e0b8f35ca7f836d92d824d9e3db5747c22d9a1e2753ccf2ec9af24a8614e979",
+    "token_id_signature": "bos=0|eos=0",
+    "arch_hash": "28a9f229a863887b958684ed9f36d610266fdf88464ec709d78dfff7c14aba17",
+    "family_hash": "a60529bfc00971429a3143e661f2f5e9bd5c2e75aecf1ec28a397419b1f69a53"
+  },
+  "tfv": {
+    "vocab_size": 49152,
+    "tokenizer_class": "GPT2Tokenizer",
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "pad_token_id": null,
+    "num_added_tokens": 17,
+    "num_special_tokens": 17,
+    "num_merges": 48900,
+    "first_5_merges": [
+      "Ġ t",
+      "Ġ a",
+      "i n",
+      "h e",
+      "Ġ Ġ"
+    ],
+    "merge_rule_hash": "6f01498e3a7cf1decf20a1781b2c555c47406255bafe0a97426916a2f726cd30",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0048,
+    "avg_token_length": 6.76,
+    "max_token_length": 81,
+    "pct_whitespace_prefix": 0.6507,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9999,
+      "Other": 0.0001
+    }
+  },
+  "vocab": {
+    "size": 49152
+  },
+  "signals": {
+    "hidden_size": 2048,
+    "num_layers": 24,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 49,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 100352,
+    "lep_profile_length": 24,
+    "wsp_signature_length": 48,
+    "wvc_layer_count": 24,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "SmolLM2-1.7B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/huggingfacetb--smollm/SmolLM2-1.7B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:4b629e1978fd8d9bf604dcb1abbfc82f7c3a0d1edab86e78f5b257595c3de951",
+      "availability": "local"
+    }
+  ]
+}

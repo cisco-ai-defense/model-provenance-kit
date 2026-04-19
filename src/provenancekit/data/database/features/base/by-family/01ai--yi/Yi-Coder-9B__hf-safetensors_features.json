@@ -1,0 +1,116 @@
+{
+  "bundle_id": "39c0d885-993a-4ab4-bbce-5269dac4d9f0",
+  "model_id": "Yi-Coder-9B",
+  "asset_id": "Yi-Coder-9B__hf-safetensors",
+  "family_id": "01ai--yi",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T02:14:01.181941+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 48,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 4,
+    "intermediate_size": 11008,
+    "vocab_size": 64000,
+    "max_position_embeddings": 131072,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 8.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "1af4f8a0f658a9a09bf60e69f9851ef8d1e90e4b730acc130fa588d1492063fc",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "ce309a0232038ca9ccb952aa67229f62624f8b806670c1321289c45aea681217",
+    "family_hash": "c335f18ddbc11bfa67921e806eb888a3c6bb8d6000c05628533ae075e6fc6967"
+  },
+  "tfv": {
+    "vocab_size": 64000,
+    "tokenizer_class": "LlamaTokenizer",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": 0,
+    "num_added_tokens": 3,
+    "num_special_tokens": 3,
+    "num_merges": 110029,
+    "first_5_merges": [
+      "`` `",
+      "` ``",
+      "-- >",
+      "- ->",
+      "-- -"
+    ],
+    "merge_rule_hash": "cd58e467a8b9df2bb610823be6ab85aefd287ac88c0fa6724f64289610d1d501",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0699,
+    "avg_token_length": 4.81,
+    "max_token_length": 16,
+    "pct_whitespace_prefix": 0.3789,
+    "pct_byte_tokens": 0.004,
+    "script_distribution": {
+      "Latin": 0.8222,
+      "CJK": 0.1643,
+      "Cyrillic": 0.0133,
+      "Other": 0.0001,
+      "Arabic": 0.0001,
+      "Devanagari": 0.0
+    }
+  },
+  "vocab": {
+    "size": 64000
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 48,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 97,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 397312,
+    "lep_profile_length": 48,
+    "wsp_signature_length": 96,
+    "wvc_layer_count": 48,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Yi-Coder-9B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/01ai--yi/Yi-Coder-9B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:4b1c767235e85cb13cfd7864c0773d5c96c7495cdcf024016bb2cac8eefdfa21",
+      "availability": "local"
+    }
+  ]
+}

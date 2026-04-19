@@ -1,0 +1,63 @@
+{
+  "shard_id": "6a2611d7-3b27-4e9f-aceb-9240f80044d7",
+  "updated_at": "2026-04-18T18:55:01.500306+00:00",
+  "family": {
+    "family_id": "tiiuae--falcon",
+    "display_name": "Falcon",
+    "publisher": "tiiuae",
+    "baseline_model_ids": [
+      "Falcon3-10B-Base",
+      "Falcon3-1B-Base",
+      "Falcon3-7B-Base",
+      "falcon-11B",
+      "falcon-7b"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Falcon3-10B-Base__hf-safetensors",
+      "model_id": "Falcon3-10B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tiiuae--falcon/Falcon3-10B-Base__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/tiiuae/Falcon3-10B-Base",
+      "canonical_name": "Falcon3-10B-Base"
+    },
+    {
+      "asset_id": "Falcon3-1B-Base__hf-safetensors",
+      "model_id": "Falcon3-1B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tiiuae--falcon/Falcon3-1B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tiiuae/Falcon3-1B-Base",
+      "canonical_name": "Falcon3-1B-Base"
+    },
+    {
+      "asset_id": "Falcon3-7B-Base__hf-safetensors",
+      "model_id": "Falcon3-7B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tiiuae--falcon/Falcon3-7B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tiiuae/Falcon3-7B-Base",
+      "canonical_name": "Falcon3-7B-Base"
+    },
+    {
+      "asset_id": "falcon-11B__hf-safetensors",
+      "model_id": "falcon-11B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tiiuae--falcon/falcon-11B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/tiiuae/falcon-11B",
+      "canonical_name": "falcon-11B"
+    },
+    {
+      "asset_id": "falcon-7b__hf-safetensors",
+      "model_id": "falcon-7b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tiiuae--falcon/falcon-7b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tiiuae/falcon-7b",
+      "canonical_name": "falcon-7b"
+    }
+  ]
+}

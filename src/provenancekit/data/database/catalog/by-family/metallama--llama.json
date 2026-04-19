@@ -1,0 +1,93 @@
+{
+  "shard_id": "dd32127b-912e-4493-a493-5fcf876f3d1f",
+  "updated_at": "2026-04-18T18:55:01.500236+00:00",
+  "family": {
+    "family_id": "metallama--llama",
+    "display_name": "Llama",
+    "publisher": "meta-llama",
+    "baseline_model_ids": [
+      "Llama-2-13b-chat-hf",
+      "Llama-2-13b-hf",
+      "Llama-2-7b-hf",
+      "Llama-3.1-8B-Instruct",
+      "Llama-3.1-8B",
+      "Llama-3.2-1B",
+      "Llama-3.2-3B",
+      "Meta-Llama-3-8B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Llama-2-13b-chat-hf__hf-safetensors",
+      "model_id": "Llama-2-13b-chat-hf",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-2-13b-chat-hf__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-2-13b-chat-hf",
+      "canonical_name": "Llama-2-13b-chat-hf"
+    },
+    {
+      "asset_id": "Llama-2-13b-hf__hf-safetensors",
+      "model_id": "Llama-2-13b-hf",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-2-13b-hf__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-2-13b-hf",
+      "canonical_name": "Llama-2-13b-hf"
+    },
+    {
+      "asset_id": "Llama-2-7b-hf__hf-safetensors",
+      "model_id": "Llama-2-7b-hf",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-2-7b-hf__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-2-7b-hf",
+      "canonical_name": "Llama-2-7b-hf"
+    },
+    {
+      "asset_id": "Llama-3.1-8B-Instruct__hf-safetensors",
+      "model_id": "Llama-3.1-8B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-3.1-8B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct",
+      "canonical_name": "Llama-3.1-8B-Instruct"
+    },
+    {
+      "asset_id": "Llama-3.1-8B__hf-safetensors",
+      "model_id": "Llama-3.1-8B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-3.1-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-3.1-8B",
+      "canonical_name": "Llama-3.1-8B"
+    },
+    {
+      "asset_id": "Llama-3.2-1B__hf-safetensors",
+      "model_id": "Llama-3.2-1B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-3.2-1B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-3.2-1B",
+      "canonical_name": "Llama-3.2-1B"
+    },
+    {
+      "asset_id": "Llama-3.2-3B__hf-safetensors",
+      "model_id": "Llama-3.2-3B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Llama-3.2-3B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Llama-3.2-3B",
+      "canonical_name": "Llama-3.2-3B"
+    },
+    {
+      "asset_id": "Meta-Llama-3-8B__hf-safetensors",
+      "model_id": "Meta-Llama-3-8B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/metallama--llama/Meta-Llama-3-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
+      "canonical_name": "Meta-Llama-3-8B"
+    }
+  ]
+}

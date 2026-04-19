@@ -1,0 +1,134 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cisco-ai-provenance-kit"
+version = "1.0.0"
+description = "Model provenance detection and family identification toolkit"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [
+    {name = "Cisco"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Typing :: Typed",
+]
+keywords = [
+    "model-provenance",
+    "ai-security",
+    "model-fingerprinting",
+    "model-identification",
+    "llm",
+    "huggingface",
+    "deep-learning",
+    "machine-learning",
+    "model-comparison",
+    "weight-analysis",
+]
+dependencies = [
+    "accelerate",
+    "numpy",
+    "pandas",
+    "protobuf",
+    "pyarrow",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "sentencepiece",
+    "structlog>=25.5.0",
+    "tiktoken",
+    "torch",
+    "transformers",
+    "safetensors",
+    "huggingface-hub",
+    "rich",
+]
+
+[project.scripts]
+provenancekit = "provenancekit.cli:main"
+
+[project.optional-dependencies]
+tokenizer-fallback = [
+    "tiktoken",
+]
+benchmark = [
+    "matplotlib",
+    "seaborn",
+    "ipykernel",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.15.0",
+    "mypy>=1.10.0",
+    "pandas-stubs",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/provenancekit"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/provenancekit/data" = "provenancekit/data"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "PTH",
+    "D",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/*.py" = ["D"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = [
+    "transformers.*",
+    "torch.*",
+    "safetensors.*",
+    "huggingface_hub.*",
+    "rich.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (need HF downloads)",
+]

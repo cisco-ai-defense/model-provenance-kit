@@ -1,0 +1,43 @@
+{
+  "shard_id": "70a4e807-2780-4d67-ae94-b36a81fdc484",
+  "updated_at": "2026-04-18T18:55:01.500302+00:00",
+  "family": {
+    "family_id": "tencent--wedlm",
+    "display_name": "WeDLM",
+    "publisher": "tencent",
+    "baseline_model_ids": [
+      "WeDLM-7B-Base",
+      "WeDLM-7B-Instruct",
+      "WeDLM-8B-Base"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "WeDLM-7B-Base__hf-safetensors",
+      "model_id": "WeDLM-7B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--wedlm/WeDLM-7B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/WeDLM-7B-Base",
+      "canonical_name": "WeDLM-7B-Base"
+    },
+    {
+      "asset_id": "WeDLM-7B-Instruct__hf-safetensors",
+      "model_id": "WeDLM-7B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--wedlm/WeDLM-7B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/WeDLM-7B-Instruct",
+      "canonical_name": "WeDLM-7B-Instruct"
+    },
+    {
+      "asset_id": "WeDLM-8B-Base__hf-safetensors",
+      "model_id": "WeDLM-8B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--wedlm/WeDLM-8B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/WeDLM-8B-Base",
+      "canonical_name": "WeDLM-8B-Base"
+    }
+  ]
+}

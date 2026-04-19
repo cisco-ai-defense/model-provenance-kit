@@ -1,0 +1,43 @@
+{
+  "shard_id": "832b2960-df45-44b3-b5a2-aca05cf2f02b",
+  "updated_at": "2026-04-18T18:55:01.500109+00:00",
+  "family": {
+    "family_id": "bigcode--starcoder",
+    "display_name": "StarCoder",
+    "publisher": "bigcode",
+    "baseline_model_ids": [
+      "starcoder2-15b",
+      "starcoder2-3b",
+      "starcoder2-7b"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "starcoder2-15b__hf-safetensors",
+      "model_id": "starcoder2-15b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/bigcode--starcoder/starcoder2-15b__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/bigcode/starcoder2-15b",
+      "canonical_name": "starcoder2-15b"
+    },
+    {
+      "asset_id": "starcoder2-3b__hf-safetensors",
+      "model_id": "starcoder2-3b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/bigcode--starcoder/starcoder2-3b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/bigcode/starcoder2-3b",
+      "canonical_name": "starcoder2-3b"
+    },
+    {
+      "asset_id": "starcoder2-7b__hf-safetensors",
+      "model_id": "starcoder2-7b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/bigcode--starcoder/starcoder2-7b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/bigcode/starcoder2-7b",
+      "canonical_name": "starcoder2-7b"
+    }
+  ]
+}

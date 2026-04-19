@@ -1,0 +1,23 @@
+{
+  "shard_id": "659c649f-2c5a-4ae1-905e-0746d9b84208",
+  "updated_at": "2026-04-18T18:55:01.500326+00:00",
+  "family": {
+    "family_id": "togethercomputer--redpajama",
+    "display_name": "RedPajama",
+    "publisher": "togethercomputer",
+    "baseline_model_ids": [
+      "RedPajama-INCITE-7B-Base"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "RedPajama-INCITE-7B-Base__hf-safetensors",
+      "model_id": "RedPajama-INCITE-7B-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/togethercomputer--redpajama/RedPajama-INCITE-7B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/togethercomputer/RedPajama-INCITE-7B-Base",
+      "canonical_name": "RedPajama-INCITE-7B-Base"
+    }
+  ]
+}

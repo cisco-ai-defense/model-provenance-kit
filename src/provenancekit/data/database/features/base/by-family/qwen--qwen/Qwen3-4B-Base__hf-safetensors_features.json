@@ -1,0 +1,112 @@
+{
+  "bundle_id": "d1261407-944a-41c3-897f-31c7d71dfc7c",
+  "model_id": "Qwen3-4B-Base",
+  "asset_id": "Qwen3-4B-Base__hf-safetensors",
+  "family_id": "qwen--qwen",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T02:14:07.359272+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "qwen3",
+    "architectures": [
+      "Qwen3ForCausalLM"
+    ],
+    "hidden_size": 2560,
+    "num_hidden_layers": 36,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 9728,
+    "vocab_size": 151936,
+    "max_position_embeddings": 32768,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": null,
+    "eos_token_id": 151643,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "41e00eccf531cffc2e562d38bdd879d41e5044ea279af5b73c6a32aabcc8fe04",
+    "token_id_signature": "bos=None|eos=151643",
+    "arch_hash": "fe9ba6be917723362b2a8c3a4e923bb642799b725b96c27c982ab77d2c030f5e",
+    "family_hash": "3670ca8ac5701d17047632a2cc1308a1ce57db0e5a5c335bfe2855b2412f11fe"
+  },
+  "tfv": {
+    "vocab_size": 151669,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "bos_token_id": null,
+    "eos_token_id": 151643,
+    "pad_token_id": 151643,
+    "num_added_tokens": 26,
+    "num_special_tokens": 14,
+    "num_merges": 151387,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 151643,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 6.44,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.3496,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.987,
+      "Other": 0.013
+    }
+  },
+  "vocab": {
+    "size": 151669
+  },
+  "signals": {
+    "hidden_size": 2560,
+    "num_layers": 36,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 145,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 580,
+    "lep_profile_length": 36,
+    "wsp_signature_length": 72,
+    "wvc_layer_count": 36,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Qwen3-4B-Base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/qwen--qwen/Qwen3-4B-Base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:79b6b7234677d88ac334306e0814d01ad064949663c617e0aa314f6a2d5407c8",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "shard_id": "62ae3a30-2dd4-4594-9e07-9b0ac1e094bd",
+  "updated_at": "2026-04-18T18:55:01.500217+00:00",
+  "family": {
+    "family_id": "huggingfacetb--smollm",
+    "display_name": "SmolLM",
+    "publisher": "huggingfacetb",
+    "baseline_model_ids": [
+      "SmolLM2-1.7B",
+      "SmolLM2-135M"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "SmolLM2-1.7B__hf-safetensors",
+      "model_id": "SmolLM2-1.7B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/huggingfacetb--smollm/SmolLM2-1.7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B",
+      "canonical_name": "SmolLM2-1.7B"
+    },
+    {
+      "asset_id": "SmolLM2-135M__hf-safetensors",
+      "model_id": "SmolLM2-135M",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/huggingfacetb--smollm/SmolLM2-135M__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/HuggingFaceTB/SmolLM2-135M",
+      "canonical_name": "SmolLM2-135M"
+    }
+  ]
+}

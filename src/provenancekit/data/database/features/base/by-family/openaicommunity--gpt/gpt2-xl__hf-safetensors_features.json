@@ -1,0 +1,110 @@
+{
+  "bundle_id": "a2695d86-acdb-4963-be0e-41a06e58ea07",
+  "model_id": "gpt2-xl",
+  "asset_id": "gpt2-xl__hf-safetensors",
+  "family_id": "openaicommunity--gpt",
+  "source_id": "add_models_to_db",
+  "status": "partial",
+  "updated_at": "2026-04-16T02:14:27.186186+00:00",
+  "missing_signals": [
+    "wvc_layer_sigs"
+  ],
+  "mfi": {
+    "model_type": "gpt2",
+    "architectures": [
+      "GPT2LMHeadModel"
+    ],
+    "hidden_size": 1600,
+    "num_hidden_layers": 48,
+    "num_attention_heads": 25,
+    "num_key_value_heads": null,
+    "intermediate_size": 0,
+    "vocab_size": 50257,
+    "max_position_embeddings": 1024,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": true,
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "11e818f948f43497f364722def50c13f419158554961ee4bb095fbd3350895c3",
+    "token_id_signature": "bos=50256|eos=50256",
+    "arch_hash": "796f54de604156bfcc465ef9187e15780d47b24946f65ba3f14980f33f4cb14f",
+    "family_hash": "fe0c324418805ce50ebe000eb517a3d915fa7532c3c836ca89897fdac6b025ce"
+  },
+  "tfv": {
+    "vocab_size": 50257,
+    "tokenizer_class": "GPT2Tokenizer",
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "pad_token_id": null,
+    "num_added_tokens": 1,
+    "num_special_tokens": 1,
+    "num_merges": 50000,
+    "first_5_merges": [
+      "\u0120 t",
+      "\u0120 a",
+      "h e",
+      "i n",
+      "r e"
+    ],
+    "merge_rule_hash": "8ccd0747ca3d0cebbdfa37b743f6f5f2723f9902ed8fb95048782a3df7f26906",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 50256,
+      "mask": null
+    },
+    "pct_single_char": 0.0051,
+    "avg_token_length": 6.38,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.6593,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9999,
+      "Other": 0.0001
+    }
+  },
+  "vocab": {
+    "size": 50257
+  },
+  "signals": {
+    "hidden_size": 1600,
+    "num_layers": 48,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 194,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 310400,
+    "lep_profile_length": 48,
+    "wsp_signature_length": 96,
+    "wvc_layer_count": 0,
+    "wvc_layer_vector_length": 0
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "gpt2-xl-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/openaicommunity--gpt/gpt2-xl__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature"
+      ],
+      "checksum": "sha256:9309d3a6132cf2c7b974192f52a380dedb2ac33d36c23a7120bd6c9e521ab801",
+      "availability": "local"
+    }
+  ]
+}

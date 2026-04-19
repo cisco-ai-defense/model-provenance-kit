@@ -1,0 +1,63 @@
+{
+  "shard_id": "9035be50-c35f-48df-89ef-5181c64a43fd",
+  "updated_at": "2026-04-18T18:55:01.500267+00:00",
+  "family": {
+    "family_id": "nvidia--nemotron",
+    "display_name": "Nemotron",
+    "publisher": "nvidia",
+    "baseline_model_ids": [
+      "AceReason-Nemotron-14B",
+      "AceReason-Nemotron-7B",
+      "NVIDIA-Nemotron-Nano-12B-v2-Base",
+      "Nemotron-Flash-1B",
+      "Nemotron-Flash-3B-Instruct"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "AceReason-Nemotron-14B__hf-safetensors",
+      "model_id": "AceReason-Nemotron-14B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/nvidia/AceReason-Nemotron-14B",
+      "canonical_name": "AceReason-Nemotron-14B"
+    },
+    {
+      "asset_id": "AceReason-Nemotron-7B__hf-safetensors",
+      "model_id": "AceReason-Nemotron-7B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/nvidia/AceReason-Nemotron-7B",
+      "canonical_name": "AceReason-Nemotron-7B"
+    },
+    {
+      "asset_id": "NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors",
+      "model_id": "NVIDIA-Nemotron-Nano-12B-v2-Base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-12B-v2-Base",
+      "canonical_name": "NVIDIA-Nemotron-Nano-12B-v2-Base"
+    },
+    {
+      "asset_id": "Nemotron-Flash-1B__hf-safetensors",
+      "model_id": "Nemotron-Flash-1B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Flash-1B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/nvidia/Nemotron-Flash-1B",
+      "canonical_name": "Nemotron-Flash-1B"
+    },
+    {
+      "asset_id": "Nemotron-Flash-3B-Instruct__hf-safetensors",
+      "model_id": "Nemotron-Flash-3B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Flash-3B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/nvidia/Nemotron-Flash-3B-Instruct",
+      "canonical_name": "Nemotron-Flash-3B-Instruct"
+    }
+  ]
+}

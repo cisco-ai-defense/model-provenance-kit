@@ -1,0 +1,112 @@
+{
+  "bundle_id": "93ec7696-9e55-4884-ac90-a56add5bc15d",
+  "model_id": "Mistral-Nemo-Instruct-2407",
+  "asset_id": "Mistral-Nemo-Instruct-2407__hf-safetensors",
+  "family_id": "mistralai--mistral",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:32:05.309723+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "mistral",
+    "architectures": [
+      "MistralForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 14336,
+    "vocab_size": 131072,
+    "max_position_embeddings": 131072,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "b416887368c51e5dd129e48ee8016c89b538601b778b1e16fcb22567ef302b34",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "b930fa228e69f4acf92fde01c2db47b22f4f0a19104945fcfd56b12cfe8de0d3",
+    "family_hash": "d931fb42976f2b5bf476aa5cbae4781c3b361ea99f8df347c4d4161456d8a298"
+  },
+  "tfv": {
+    "vocab_size": 131072,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 1000,
+    "num_special_tokens": 3,
+    "num_merges": 269443,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "e r",
+      "i n",
+      "Ġ ĠĠĠ"
+    ],
+    "merge_rule_hash": "1be96ec6fd09be7e237edcdfa7c3030b490786476bbc84e391c9efaab27ced1b",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.8,
+    "max_token_length": 76,
+    "pct_whitespace_prefix": 0.5678,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9871,
+      "Other": 0.0129
+    }
+  },
+  "vocab": {
+    "size": 131072
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 81,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 414720,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Mistral-Nemo-Instruct-2407-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/mistralai--mistral/Mistral-Nemo-Instruct-2407__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:5f078d02742d326b89835b676661afe12d2af80347fc10b6fae8829fa9ff5160",
+      "availability": "local"
+    }
+  ]
+}

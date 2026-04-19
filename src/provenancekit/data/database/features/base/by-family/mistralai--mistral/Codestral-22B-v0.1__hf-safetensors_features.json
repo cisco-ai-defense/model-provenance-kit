@@ -1,0 +1,116 @@
+{
+  "bundle_id": "aae2a838-fa50-436e-a818-bc68afb9f96f",
+  "model_id": "Codestral-22B-v0.1",
+  "asset_id": "Codestral-22B-v0.1__hf-safetensors",
+  "family_id": "mistralai--mistral",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T04:35:20.639493+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "mistral",
+    "architectures": [
+      "MistralForCausalLM"
+    ],
+    "hidden_size": 6144,
+    "num_hidden_layers": 56,
+    "num_attention_heads": 48,
+    "num_key_value_heads": 8,
+    "intermediate_size": 16384,
+    "vocab_size": 32768,
+    "max_position_embeddings": 32768,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 6.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "d84b9466af4403b16c1e054b49c8f24ce4e2db94137402fad9c2a3b93dbff67d",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "f18c7fecc9dd1abdcc6370977d0fdeeedd6a20780fd6b244acf7f92cd9141ff4",
+    "family_hash": "1b6c0c6b8834179b0a3ed290fdb2825f96a1a6476987355c988b9d20972887ce"
+  },
+  "tfv": {
+    "vocab_size": 32768,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 771,
+    "num_special_tokens": 3,
+    "num_merges": 58980,
+    "first_5_merges": [
+      "▁ t",
+      "i n",
+      "e r",
+      "▁ a",
+      "h e"
+    ],
+    "merge_rule_hash": "f05fedb9d916344f91109aeefddbb49fb8649694384479ab2f8685b56b54365d",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.1006,
+    "avg_token_length": 5.22,
+    "max_token_length": 18,
+    "pct_whitespace_prefix": 0.481,
+    "pct_byte_tokens": 0.0078,
+    "script_distribution": {
+      "Latin": 0.9467,
+      "Cyrillic": 0.037,
+      "CJK": 0.0133,
+      "Other": 0.0023,
+      "Arabic": 0.0004,
+      "Devanagari": 0.0002
+    }
+  },
+  "vocab": {
+    "size": 32768
+  },
+  "signals": {
+    "hidden_size": 6144,
+    "num_layers": 56,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 113,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 694272,
+    "lep_profile_length": 56,
+    "wsp_signature_length": 112,
+    "wvc_layer_count": 56,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Codestral-22B-v0.1-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/mistralai--mistral/Codestral-22B-v0.1__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:bf08c12c95cf291b56a96cbdd8abb8e6a99aafd49f8d099667f14357928b43f5",
+      "availability": "local"
+    }
+  ]
+}

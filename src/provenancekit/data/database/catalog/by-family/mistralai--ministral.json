@@ -1,0 +1,63 @@
+{
+  "shard_id": "da92e3da-4a08-4c12-a0b0-480fc819d185",
+  "updated_at": "2026-04-18T18:55:01.500251+00:00",
+  "family": {
+    "family_id": "mistralai--ministral",
+    "display_name": "Ministral",
+    "publisher": "mistralai",
+    "baseline_model_ids": [
+      "Devstral-Small-2-24B-Instruct-2512",
+      "Ministral-3-3B-Base-2512",
+      "Ministral-3-3B-Reasoning-2512",
+      "Ministral-3-8B-Base-2512",
+      "Ministral-8B-Instruct-2410"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Devstral-Small-2-24B-Instruct-2512__hf-safetensors",
+      "model_id": "Devstral-Small-2-24B-Instruct-2512",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--ministral/Devstral-Small-2-24B-Instruct-2512__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512",
+      "canonical_name": "Devstral-Small-2-24B-Instruct-2512"
+    },
+    {
+      "asset_id": "Ministral-3-3B-Base-2512__hf-safetensors",
+      "model_id": "Ministral-3-3B-Base-2512",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--ministral/Ministral-3-3B-Base-2512__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Ministral-3-3B-Base-2512",
+      "canonical_name": "Ministral-3-3B-Base-2512"
+    },
+    {
+      "asset_id": "Ministral-3-3B-Reasoning-2512__hf-safetensors",
+      "model_id": "Ministral-3-3B-Reasoning-2512",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--ministral/Ministral-3-3B-Reasoning-2512__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Ministral-3-3B-Reasoning-2512",
+      "canonical_name": "Ministral-3-3B-Reasoning-2512"
+    },
+    {
+      "asset_id": "Ministral-3-8B-Base-2512__hf-safetensors",
+      "model_id": "Ministral-3-8B-Base-2512",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--ministral/Ministral-3-8B-Base-2512__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Ministral-3-8B-Base-2512",
+      "canonical_name": "Ministral-3-8B-Base-2512"
+    },
+    {
+      "asset_id": "Ministral-8B-Instruct-2410__hf-safetensors",
+      "model_id": "Ministral-8B-Instruct-2410",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/mistralai--ministral/Ministral-8B-Instruct-2410__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/mistralai/Ministral-8B-Instruct-2410",
+      "canonical_name": "Ministral-8B-Instruct-2410"
+    }
+  ]
+}

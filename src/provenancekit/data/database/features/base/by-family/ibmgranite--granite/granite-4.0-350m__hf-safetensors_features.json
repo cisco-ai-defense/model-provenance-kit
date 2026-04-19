@@ -1,0 +1,112 @@
+{
+  "bundle_id": "cc00509a-9aab-46cc-a3ec-8712a24ccdfb",
+  "model_id": "granite-4.0-350m",
+  "asset_id": "granite-4.0-350m__hf-safetensors",
+  "family_id": "ibmgranite--granite",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:27:57.852580+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "granitemoehybrid",
+    "architectures": [
+      "GraniteMoeHybridForCausalLM"
+    ],
+    "hidden_size": 1024,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 4,
+    "intermediate_size": 2048,
+    "vocab_size": 100352,
+    "max_position_embeddings": 32768,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 100257,
+    "eos_token_id": 100257,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "rope",
+    "head_dim": null,
+    "tokenizer_hash": "422572c0a77ddff2da78dbdcb70abc20d3ebcfb48d584fb69285132089244fc9",
+    "token_id_signature": "bos=100257|eos=100257",
+    "arch_hash": "2f822ff6ebc3010ecefffd8a25bccbedf5438b48cd42049865ce0e5efbd2bde7",
+    "family_hash": "21077ec7e8b1b59f0455a0384121f0839cf73d8d4800eacfaaf5ea81f12ab20d"
+  },
+  "tfv": {
+    "vocab_size": 100352,
+    "tokenizer_class": "GPT2Tokenizer",
+    "bos_token_id": 100257,
+    "eos_token_id": 100257,
+    "pad_token_id": 100256,
+    "num_added_tokens": 96,
+    "num_special_tokens": 3,
+    "num_merges": 100000,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 100256,
+      "unk": 100269,
+      "mask": null
+    },
+    "pct_single_char": 0.0026,
+    "avg_token_length": 6.43,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4445,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9991,
+      "Other": 0.0009
+    }
+  },
+  "vocab": {
+    "size": 100352
+  },
+  "signals": {
+    "hidden_size": 1024,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 57,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 58368,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "granite-4.0-350m-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/ibmgranite--granite/granite-4.0-350m__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:654ca604846929a2df90c674878ff7246b77a85abc1eb78a62a19b03f1f10217",
+      "availability": "local"
+    }
+  ]
+}

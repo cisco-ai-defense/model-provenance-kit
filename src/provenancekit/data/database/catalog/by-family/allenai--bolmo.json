@@ -1,0 +1,23 @@
+{
+  "shard_id": "65ddfb30-c20e-46a5-b3fc-c93a87fa9151",
+  "updated_at": "2026-04-18T18:55:01.500095+00:00",
+  "family": {
+    "family_id": "allenai--bolmo",
+    "display_name": "Bolmo",
+    "publisher": "allenai",
+    "baseline_model_ids": [
+      "Bolmo-1B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Bolmo-1B__hf-safetensors",
+      "model_id": "Bolmo-1B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/allenai--bolmo/Bolmo-1B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/allenai/Bolmo-1B",
+      "canonical_name": "Bolmo-1B"
+    }
+  ]
+}

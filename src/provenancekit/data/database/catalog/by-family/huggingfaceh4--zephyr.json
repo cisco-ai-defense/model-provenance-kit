@@ -1,0 +1,23 @@
+{
+  "shard_id": "eaba2fd9-facb-4c08-9f8a-dcf0827f2088",
+  "updated_at": "2026-04-18T18:55:01.500212+00:00",
+  "family": {
+    "family_id": "huggingfaceh4--zephyr",
+    "display_name": "Zephyr",
+    "publisher": "huggingfaceh4",
+    "baseline_model_ids": [
+      "zephyr-7b-beta"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "zephyr-7b-beta__hf-safetensors",
+      "model_id": "zephyr-7b-beta",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/huggingfaceh4--zephyr/zephyr-7b-beta__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/HuggingFaceH4/zephyr-7b-beta",
+      "canonical_name": "zephyr-7b-beta"
+    }
+  ]
+}

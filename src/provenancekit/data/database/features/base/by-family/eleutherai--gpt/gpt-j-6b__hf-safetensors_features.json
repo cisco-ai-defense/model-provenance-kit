@@ -1,0 +1,109 @@
+{
+  "bundle_id": "c1f7a79a-2d83-4c94-b336-3ba1ad88e02a",
+  "model_id": "gpt-j-6b",
+  "asset_id": "gpt-j-6b__hf-safetensors",
+  "family_id": "eleutherai--gpt",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:31:01.328933+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "gptj",
+    "architectures": [
+      "GPTJForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 16,
+    "num_key_value_heads": null,
+    "intermediate_size": 0,
+    "vocab_size": 50400,
+    "max_position_embeddings": 2048,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "9e99e98f24ccdac9df0e193f9a6f6768f083dbabc8b541448564e2a725ef226a",
+    "token_id_signature": "bos=50256|eos=50256",
+    "arch_hash": "689a0da7a74cef1aa8242efae3a56776e20bf91a03be4ff563005b1f1a1cdad3",
+    "family_hash": "392a39fea8fa4f9fc17b29d94bc1fb247a9c5aed6d966ecd8833f575bf606982"
+  },
+  "tfv": {
+    "vocab_size": 50400,
+    "tokenizer_class": "GPT2Tokenizer",
+    "bos_token_id": 50256,
+    "eos_token_id": 50256,
+    "pad_token_id": null,
+    "num_added_tokens": 144,
+    "num_special_tokens": 1,
+    "num_merges": 50000,
+    "first_5_merges": [
+      "\u0120 t",
+      "\u0120 a",
+      "h e",
+      "i n",
+      "r e"
+    ],
+    "merge_rule_hash": "8ccd0747ca3d0cebbdfa37b743f6f5f2723f9902ed8fb95048782a3df7f26906",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 50256,
+      "mask": null
+    },
+    "pct_single_char": 0.0051,
+    "avg_token_length": 6.41,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.6574,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9999,
+      "Other": 0.0001
+    }
+  },
+  "vocab": {
+    "size": 50400
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 58,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 237568,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "gpt-j-6b-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/eleutherai--gpt/gpt-j-6b__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:e0affd088b57bd77d8f0c9a5e18c16bcfc31f67a9b211c26777290a802b0ff4f",
+      "availability": "local"
+    }
+  ]
+}

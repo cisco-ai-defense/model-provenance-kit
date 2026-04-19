@@ -1,0 +1,119 @@
+{
+  "bundle_id": "867c4451-aa34-4e6a-9aba-bc1dc25434f5",
+  "model_id": "HY-MT1.5-7B",
+  "asset_id": "HY-MT1.5-7B__hf-safetensors",
+  "family_id": "tencent--hymt",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T06:24:49.688017+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "hunyuan_v1_dense",
+    "architectures": [
+      "HunYuanDenseV1ForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 14336,
+    "vocab_size": 128167,
+    "max_position_embeddings": 262144,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "alpha": 1000.0,
+      "beta_fast": 32,
+      "beta_slow": 1,
+      "factor": 1.0,
+      "mscale": 1.0,
+      "mscale_all_dim": 1.0,
+      "type": "dynamic",
+      "rope_theta": 10000.0,
+      "rope_type": "dynamic"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 127958,
+    "eos_token_id": 127960,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "b09b823641b3f657f1a413c41245c31f51f28dfd3b6eca62ddecaeb6cb4f1c54",
+    "token_id_signature": "bos=127958|eos=127960",
+    "arch_hash": "bf1802f4f324dd5c067a789c52fc848f5b117f082f381585e927ac769dfdb2dd",
+    "family_hash": "6c1b62744147e7f67312caee63fc2a0532d4a660823e200a898b35b1b2135d10"
+  },
+  "tfv": {
+    "vocab_size": 128166,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 127958,
+    "eos_token_id": 127960,
+    "pad_token_id": 127961,
+    "num_added_tokens": 209,
+    "num_special_tokens": 3,
+    "num_merges": 264306,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ ĠĠĠ",
+      "ĠĠ ĠĠ",
+      "ĠĠĠ Ġ",
+      "i n"
+    ],
+    "merge_rule_hash": "252057d84cdb86d246d2018f5ee39e7e27adcc7cdf8ae4ae423a589ed29c61dd",
+    "special_token_ids": {
+      "pad": 127961,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.44,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.3481,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9909,
+      "Other": 0.0091
+    }
+  },
+  "vocab": {
+    "size": 128166
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 129,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 516,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "HY-MT1.5-7B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/tencent--hymt/HY-MT1.5-7B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:f881254652d45d1801fdf5920205ba8e392b9153e960357bf1af8cdb4fd8a12d",
+      "availability": "local"
+    }
+  ]
+}

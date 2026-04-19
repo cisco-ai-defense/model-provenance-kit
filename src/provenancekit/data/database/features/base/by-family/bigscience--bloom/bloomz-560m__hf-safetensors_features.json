@@ -1,0 +1,109 @@
+{
+  "bundle_id": "1b3b3cd8-1c98-41b7-b08a-e855ff9a1881",
+  "model_id": "bloomz-560m",
+  "asset_id": "bloomz-560m__hf-safetensors",
+  "family_id": "bigscience--bloom",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T02:14:13.646334+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "bloom",
+    "architectures": [
+      "BloomForCausalLM"
+    ],
+    "hidden_size": 1024,
+    "num_hidden_layers": 24,
+    "num_attention_heads": 16,
+    "num_key_value_heads": null,
+    "intermediate_size": 0,
+    "vocab_size": 250880,
+    "max_position_embeddings": 0,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": true,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "3dff76ec1ba079b842eef238e9628b195b5db0f012689e9ff7ddc0d0aa4e68d5",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "5b5c29032c8d537dc176b6bd8238c8112858137c3635b042ff0e740579d0be68",
+    "family_hash": "c55cb7ae7c827ade244693aef85fb3a449ef024ee84e4c035dedc153f6ef0f51"
+  },
+  "tfv": {
+    "vocab_size": 250680,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": 3,
+    "num_added_tokens": 4,
+    "num_special_tokens": 4,
+    "num_merges": 250434,
+    "first_5_merges": [
+      "à ¤",
+      "à ¦",
+      "Ġ à",
+      "à ¥",
+      "Ġ Ġ"
+    ],
+    "merge_rule_hash": "a357d701498813c66078be2bb48c99894a13ee9d876e61649f489df9b3d7d397",
+    "special_token_ids": {
+      "pad": 3,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.001,
+    "avg_token_length": 8.72,
+    "max_token_length": 600,
+    "pct_whitespace_prefix": 0.5559,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9647,
+      "Other": 0.0353
+    }
+  },
+  "vocab": {
+    "size": 250680
+  },
+  "signals": {
+    "hidden_size": 1024,
+    "num_layers": 24,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 100,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 102400,
+    "lep_profile_length": 24,
+    "wsp_signature_length": 48,
+    "wvc_layer_count": 24,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "bloomz-560m-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/bigscience--bloom/bloomz-560m__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:ab392156c611d2e7a943b9c973be5864770bd5a9e55fdb985e6a55a202752fd6",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "shard_id": "dca59907-b4d2-4520-8ec6-776714314084",
+  "updated_at": "2026-04-18T18:55:01.500102+00:00",
+  "family": {
+    "family_id": "allenai--olmo",
+    "display_name": "OLMo",
+    "publisher": "allenai",
+    "baseline_model_ids": [
+      "OLMo-2-0425-1B-Instruct",
+      "OLMo-2-1124-13B-Instruct",
+      "OLMo-3-7B-Instruct"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "OLMo-2-0425-1B-Instruct__hf-safetensors",
+      "model_id": "OLMo-2-0425-1B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/allenai--olmo/OLMo-2-0425-1B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/allenai/OLMo-2-0425-1B-Instruct",
+      "canonical_name": "OLMo-2-0425-1B-Instruct"
+    },
+    {
+      "asset_id": "OLMo-2-1124-13B-Instruct__hf-safetensors",
+      "model_id": "OLMo-2-1124-13B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/allenai--olmo/OLMo-2-1124-13B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/allenai/OLMo-2-1124-13B-Instruct",
+      "canonical_name": "OLMo-2-1124-13B-Instruct"
+    },
+    {
+      "asset_id": "OLMo-3-7B-Instruct__hf-safetensors",
+      "model_id": "OLMo-3-7B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/allenai--olmo/OLMo-3-7B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/allenai/OLMo-3-7B-Instruct",
+      "canonical_name": "OLMo-3-7B-Instruct"
+    }
+  ]
+}

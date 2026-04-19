@@ -1,0 +1,107 @@
+{
+  "bundle_id": "7f5ec20a-9b31-4964-9635-311142297a2c",
+  "model_id": "glm-4-9b-chat-1m",
+  "asset_id": "glm-4-9b-chat-1m__hf-safetensors",
+  "family_id": "zaiorg--glm",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:11:12.430526+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "chatglm",
+    "architectures": [
+      "ChatGLMModel"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 32,
+    "num_key_value_heads": null,
+    "intermediate_size": 0,
+    "vocab_size": 151552,
+    "max_position_embeddings": 0,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 151329,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "unknown",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "fb5c5a7d6d74aa92701839934a8cdb616e13ed6e2687b6ae5876cf8ae153826e",
+    "token_id_signature": "bos=None|eos=151329",
+    "arch_hash": "20558ca72b5646036903eb0537d45a687686c23d2e713bd95108ae46b9b8a0ed",
+    "family_hash": "cb51ea36cafedeca688a1f5336463a9c8c01dc05223b72aac3595abb558f1136"
+  },
+  "tfv": {
+    "vocab_size": 151343,
+    "tokenizer_class": "ChatGLM4Tokenizer",
+    "bos_token_id": null,
+    "eos_token_id": 151329,
+    "pad_token_id": 151329,
+    "num_added_tokens": 14,
+    "num_special_tokens": 14,
+    "num_merges": 0,
+    "first_5_merges": [],
+    "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "special_token_ids": {
+      "pad": 151329,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0394,
+    "avg_token_length": 5.43,
+    "max_token_length": 512,
+    "pct_whitespace_prefix": 0.397,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.827,
+      "CJK": 0.0938,
+      "Cyrillic": 0.0677,
+      "Arabic": 0.0082,
+      "Other": 0.0033,
+      "Devanagari": 0.0
+    }
+  },
+  "vocab": {
+    "size": 151343
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 81,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 331776,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "glm-4-9b-chat-1m-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/zaiorg--glm/glm-4-9b-chat-1m__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:8089548e17a3007ed59f88c889ff5e9801af72ff191883355c8596072797b7e4",
+      "availability": "local"
+    }
+  ]
+}

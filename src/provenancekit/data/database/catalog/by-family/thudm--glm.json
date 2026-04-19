@@ -1,0 +1,33 @@
+{
+  "shard_id": "da788c91-45f6-49fb-b4ad-2198fde9476e",
+  "updated_at": "2026-04-18T19:01:24.778703+00:00",
+  "family": {
+    "family_id": "thudm--glm",
+    "display_name": "GLM",
+    "publisher": "thudm",
+    "baseline_model_ids": [
+      "chatglm3-6b",
+      "glm-4-9b-chat"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "chatglm3-6b__hf-safetensors",
+      "model_id": "chatglm3-6b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/thudm--glm/chatglm3-6b__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/THUDM/chatglm3-6b",
+      "canonical_name": "chatglm3-6b"
+    },
+    {
+      "asset_id": "glm-4-9b-chat__hf-safetensors",
+      "model_id": "glm-4-9b-chat",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/thudm--glm/glm-4-9b-chat__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/THUDM/glm-4-9b-chat",
+      "canonical_name": "glm-4-9b-chat"
+    }
+  ]
+}

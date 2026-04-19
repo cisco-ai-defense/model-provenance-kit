@@ -1,0 +1,116 @@
+{
+  "bundle_id": "d8f0c06d-b15f-4cf6-851c-aab6be4d7fd8",
+  "model_id": "Yi-Coder-9B-Chat",
+  "asset_id": "Yi-Coder-9B-Chat__hf-safetensors",
+  "family_id": "01ai--yi",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T21:44:23.560697+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 48,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 4,
+    "intermediate_size": 11008,
+    "vocab_size": 64000,
+    "max_position_embeddings": 131072,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 7,
+    "gqa_ratio": 8.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "4e59c7f29bdcd82dd6c738138276afcdc5d3a8661ad22ea583dee5dede008d27",
+    "token_id_signature": "bos=1|eos=7",
+    "arch_hash": "ce309a0232038ca9ccb952aa67229f62624f8b806670c1321289c45aea681217",
+    "family_hash": "ae8e6c367dca97d8bcca7e47084e508b78ba414301c87a8d2d6c5e8cff70e3be"
+  },
+  "tfv": {
+    "vocab_size": 64000,
+    "tokenizer_class": "LlamaTokenizer",
+    "bos_token_id": 1,
+    "eos_token_id": 7,
+    "pad_token_id": 0,
+    "num_added_tokens": 305,
+    "num_special_tokens": 305,
+    "num_merges": 110029,
+    "first_5_merges": [
+      "` ``",
+      "`` `",
+      "- ->",
+      "-- >",
+      "- --"
+    ],
+    "merge_rule_hash": "0fa00539ae6ac736de96db74316eb1427ead7abc64648ea9e3cf851a94738445",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0699,
+    "avg_token_length": 4.81,
+    "max_token_length": 16,
+    "pct_whitespace_prefix": 0.3789,
+    "pct_byte_tokens": 0.004,
+    "script_distribution": {
+      "Latin": 0.8222,
+      "CJK": 0.1643,
+      "Cyrillic": 0.0133,
+      "Other": 0.0001,
+      "Arabic": 0.0001,
+      "Devanagari": 0.0
+    }
+  },
+  "vocab": {
+    "size": 64000
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 48,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 97,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 397312,
+    "lep_profile_length": 48,
+    "wsp_signature_length": 96,
+    "wvc_layer_count": 48,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Yi-Coder-9B-Chat-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/01ai--yi/Yi-Coder-9B-Chat__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:c5962f9529d0dd0015f34df81a79d01e3b7cac51503ab6f1171b6f70ee3e44fd",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "bundle_id": "4b2bf5f5-9141-4d9a-a29d-2c169d952d5f",
+  "model_id": "deepseek-coder-1.3b-instruct",
+  "asset_id": "deepseek-coder-1.3b-instruct__hf-safetensors",
+  "family_id": "deepseekai--deepseek",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:28:00.770706+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 2048,
+    "num_hidden_layers": 24,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 16,
+    "intermediate_size": 5504,
+    "vocab_size": 32256,
+    "max_position_embeddings": 16384,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "factor": 4.0,
+      "type": "linear",
+      "rope_theta": 100000,
+      "rope_type": "linear"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 32013,
+    "eos_token_id": 32021,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "4abcc09540b178989458f757352848878d6ef55fad86870036521e88114aea6b",
+    "token_id_signature": "bos=32013|eos=32021",
+    "arch_hash": "e32deb8b35ae5c38ad98df52659e49ddad5c86c58d7c62684fd8393588602698",
+    "family_hash": "e0d97ba96506c980bbcfee585479c9278b92e0f2f6aa2cda7f51d5d69b92d962"
+  },
+  "tfv": {
+    "vocab_size": 32022,
+    "tokenizer_class": "LlamaTokenizer",
+    "bos_token_id": 32013,
+    "eos_token_id": 32021,
+    "pad_token_id": 32014,
+    "num_added_tokens": 22,
+    "num_special_tokens": 3,
+    "num_merges": 31757,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "Ġ a",
+      "i n",
+      "h e"
+    ],
+    "merge_rule_hash": "78389f79ee80537c414c777448104beadfa6b11a98c1f444a127a1e8d5a0e962",
+    "special_token_ids": {
+      "pad": 32014,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.008,
+    "avg_token_length": 5.78,
+    "max_token_length": 65,
+    "pct_whitespace_prefix": 0.4729,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9907,
+      "Other": 0.0093
+    }
+  },
+  "vocab": {
+    "size": 32022
+  },
+  "signals": {
+    "hidden_size": 2048,
+    "num_layers": 24,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 49,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 100352,
+    "lep_profile_length": 24,
+    "wsp_signature_length": 48,
+    "wvc_layer_count": 24,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "deepseek-coder-1.3b-instruct-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/deepseekai--deepseek/deepseek-coder-1.3b-instruct__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:c13b159ee1392e28208b92fef5716fd51b79b502c3168c654ca8a0caa91b2f6e",
+      "availability": "local"
+    }
+  ]
+}

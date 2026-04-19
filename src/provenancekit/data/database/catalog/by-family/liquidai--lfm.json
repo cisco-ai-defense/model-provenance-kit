@@ -1,0 +1,43 @@
+{
+  "shard_id": "19d3e7ff-56f1-4bb2-81e5-b1eddb0275d2",
+  "updated_at": "2026-04-18T18:55:01.500232+00:00",
+  "family": {
+    "family_id": "liquidai--lfm",
+    "display_name": "LFM",
+    "publisher": "liquidai",
+    "baseline_model_ids": [
+      "LFM2-2.6B",
+      "LFM2.5-1.2B-Instruct",
+      "LFM2.5-350M"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "LFM2-2.6B__hf-safetensors",
+      "model_id": "LFM2-2.6B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/liquidai--lfm/LFM2-2.6B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/LiquidAI/LFM2-2.6B",
+      "canonical_name": "LFM2-2.6B"
+    },
+    {
+      "asset_id": "LFM2.5-1.2B-Instruct__hf-safetensors",
+      "model_id": "LFM2.5-1.2B-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/liquidai--lfm/LFM2.5-1.2B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct",
+      "canonical_name": "LFM2.5-1.2B-Instruct"
+    },
+    {
+      "asset_id": "LFM2.5-350M__hf-safetensors",
+      "model_id": "LFM2.5-350M",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/liquidai--lfm/LFM2.5-350M__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/LiquidAI/LFM2.5-350M",
+      "canonical_name": "LFM2.5-350M"
+    }
+  ]
+}

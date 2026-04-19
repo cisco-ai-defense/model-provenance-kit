@@ -1,0 +1,23 @@
+{
+  "shard_id": "26a5ca75-06ee-4952-9959-16d924d909a3",
+  "updated_at": "2026-04-18T18:55:01.500114+00:00",
+  "family": {
+    "family_id": "bigscience--bloom",
+    "display_name": "BLOOM",
+    "publisher": "bigscience",
+    "baseline_model_ids": [
+      "bloomz-560m"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "bloomz-560m__hf-safetensors",
+      "model_id": "bloomz-560m",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/bigscience--bloom/bloomz-560m__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/bigscience/bloomz-560m",
+      "canonical_name": "bloomz-560m"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "shard_id": "cb557316-4885-4d45-bc48-20d94f8eb1aa",
+  "updated_at": "2026-04-18T18:55:01.500125+00:00",
+  "family": {
+    "family_id": "facebookai--roberta",
+    "display_name": "RoBERTa",
+    "publisher": "facebookai",
+    "baseline_model_ids": [
+      "roberta-base"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "roberta-base__hf-safetensors",
+      "model_id": "roberta-base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/facebookai--roberta/roberta-base__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/FacebookAI/roberta-base",
+      "canonical_name": "roberta-base"
+    }
+  ]
+}

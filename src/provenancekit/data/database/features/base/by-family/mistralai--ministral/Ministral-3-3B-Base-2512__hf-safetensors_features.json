@@ -1,0 +1,120 @@
+{
+  "bundle_id": "dd1956dc-0d17-4659-bcce-8672fa15e55d",
+  "model_id": "Ministral-3-3B-Base-2512",
+  "asset_id": "Ministral-3-3B-Base-2512__hf-safetensors",
+  "family_id": "mistralai--ministral",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T01:42:14.722056+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "mistral3",
+    "architectures": [
+      "Mistral3ForConditionalGeneration"
+    ],
+    "hidden_size": 3072,
+    "num_hidden_layers": 26,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 9216,
+    "vocab_size": 131072,
+    "max_position_embeddings": 262144,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "beta_fast": 32.0,
+      "beta_slow": 1.0,
+      "factor": 16.0,
+      "llama_4_scaling_beta": 0.1,
+      "mscale": 1.0,
+      "mscale_all_dim": 1.0,
+      "original_max_position_embeddings": 16384,
+      "rope_theta": 1000000.0,
+      "rope_type": "yarn",
+      "type": "yarn"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "2d3a3c01d253cd8029fdb90674c1f3d6b0f0449bb83b9432a0f3294d733a86f2",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "a049909f6f3caea3089a8e6f0aa2298b9ce61e9de2241db83804f984cca4dd0c",
+    "family_hash": "2f753d0932fb816578a9b42e306c650359dcaf1162ae52850263f546c1704720"
+  },
+  "tfv": {
+    "vocab_size": 131072,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": 11,
+    "num_added_tokens": 1000,
+    "num_special_tokens": 4,
+    "num_merges": 269443,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "e r",
+      "i n",
+      "Ġ ĠĠĠ"
+    ],
+    "merge_rule_hash": "1be96ec6fd09be7e237edcdfa7c3030b490786476bbc84e391c9efaab27ced1b",
+    "special_token_ids": {
+      "pad": 11,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.8,
+    "max_token_length": 76,
+    "pct_whitespace_prefix": 0.5678,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9871,
+      "Other": 0.0129
+    }
+  },
+  "vocab": {
+    "size": 131072
+  },
+  "signals": {
+    "hidden_size": 0,
+    "num_layers": 0,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 103,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 412,
+    "lep_profile_length": 26,
+    "wsp_signature_length": 52,
+    "wvc_layer_count": 26,
+    "wvc_layer_vector_length": 57344
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Ministral-3-3B-Base-2512-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/mistralai--ministral/Ministral-3-3B-Base-2512__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:0510f75d9d69427adef0e60fb43ec145cf4b1be3acef3957aeba5495b94682fc",
+      "availability": "local"
+    }
+  ]
+}

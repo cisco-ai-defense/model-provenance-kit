@@ -1,0 +1,109 @@
+{
+  "bundle_id": "1a03c247-a9ea-4487-ae4b-320a04d8c019",
+  "model_id": "NVIDIA-Nemotron-Nano-12B-v2-Base",
+  "asset_id": "NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors",
+  "family_id": "nvidia--nemotron",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T01:51:40.508498+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "nemotron_h",
+    "architectures": [
+      "NemotronHForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 62,
+    "num_attention_heads": 40,
+    "num_key_value_heads": 8,
+    "intermediate_size": 20480,
+    "vocab_size": 131072,
+    "max_position_embeddings": 131072,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 5.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "3bf531b7192a7fad087584f85e8c8605a05d34a3413772d65715134796a4fd30",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "6229bba6022cc20c700ddf56341da5e6ca7fc0997d556670d6227df5eb6b40e7",
+    "family_hash": "fa6bc35585d23d3d91f387a40a802006f75dfd6eadb13250b8b05201813841c6"
+  },
+  "tfv": {
+    "vocab_size": 131072,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 1000,
+    "num_special_tokens": 3,
+    "num_merges": 269443,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "e r",
+      "i n",
+      "Ġ ĠĠĠ"
+    ],
+    "merge_rule_hash": "1be96ec6fd09be7e237edcdfa7c3030b490786476bbc84e391c9efaab27ced1b",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.8,
+    "max_token_length": 76,
+    "pct_whitespace_prefix": 0.5678,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9871,
+      "Other": 0.0129
+    }
+  },
+  "vocab": {
+    "size": 131072
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 62,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 91,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 364,
+    "lep_profile_length": 62,
+    "wsp_signature_length": 124,
+    "wvc_layer_count": 62,
+    "wvc_layer_vector_length": 4096
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "NVIDIA-Nemotron-Nano-12B-v2-Base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:6504eccaf31802832a38ac2eb8d0da54b4f1b4731077457ee68642f0463e94c1",
+      "availability": "local"
+    }
+  ]
+}

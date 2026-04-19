@@ -1,0 +1,112 @@
+{
+  "bundle_id": "b8d007dd-eb23-4108-b338-c04c46c6daec",
+  "model_id": "starcoder2-7b",
+  "asset_id": "starcoder2-7b__hf-safetensors",
+  "family_id": "bigcode--starcoder",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T09:16:10.395130+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "starcoder2",
+    "architectures": [
+      "Starcoder2ForCausalLM"
+    ],
+    "hidden_size": 4608,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 36,
+    "num_key_value_heads": 4,
+    "intermediate_size": 18432,
+    "vocab_size": 49152,
+    "max_position_embeddings": 16384,
+    "hidden_act": "gelu_pytorch_tanh",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "gqa_ratio": 9.0,
+    "attention_style": "GQA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "b1d5cbb8b5370033839036c65985f29201c3c6992a662e1d860f5045c32fe19b",
+    "token_id_signature": "bos=0|eos=0",
+    "arch_hash": "bcbc0a227f97d3a02574b66fdf315c438c98171211822cedb627fb9072eb4e4a",
+    "family_hash": "e87ea5e8d1b04cc63282e61caac218ad3281938b09f2606aeac1892874794d8a"
+  },
+  "tfv": {
+    "vocab_size": 49152,
+    "tokenizer_class": "GPT2Tokenizer",
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "pad_token_id": null,
+    "num_added_tokens": 38,
+    "num_special_tokens": 38,
+    "num_merges": 48872,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120\u0120 \u0120\u0120",
+      "\u0120\u0120\u0120\u0120 \u0120\u0120\u0120\u0120",
+      "\u0120\u0120 \u0120",
+      "e r"
+    ],
+    "merge_rule_hash": "aecc076f315dfee8c936203fc6bcf8367ca2af4a50b3e79a728c4e29180fd34e",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0049,
+    "avg_token_length": 6.03,
+    "max_token_length": 256,
+    "pct_whitespace_prefix": 0.3278,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9978,
+      "Other": 0.0022
+    }
+  },
+  "vocab": {
+    "size": 49152
+  },
+  "signals": {
+    "hidden_size": 4608,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 130,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 599040,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "starcoder2-7b-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/bigcode--starcoder/starcoder2-7b__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:ed8cf56a1a81600e15ce72e5b99822f4fffd66f19601392299303833fe73484e",
+      "availability": "local"
+    }
+  ]
+}

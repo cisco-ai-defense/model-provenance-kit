@@ -1,0 +1,112 @@
+{
+  "bundle_id": "9cc27719-50fa-45d6-8bbd-284386dbf008",
+  "model_id": "LFM2.5-350M",
+  "asset_id": "LFM2.5-350M__hf-safetensors",
+  "family_id": "liquidai--lfm",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T05:33:05.294771+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "lfm2",
+    "architectures": [
+      "Lfm2ForCausalLM"
+    ],
+    "hidden_size": 1024,
+    "num_hidden_layers": 16,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 8,
+    "intermediate_size": 6656,
+    "vocab_size": 65536,
+    "max_position_embeddings": 128000,
+    "hidden_act": null,
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 1,
+    "eos_token_id": 7,
+    "gqa_ratio": 2.0,
+    "attention_style": "GQA",
+    "norm_type": "unknown",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "021b91c71ef95e24c1747943695dc52235af4c3776f83804b245ebc595ad420d",
+    "token_id_signature": "bos=1|eos=7",
+    "arch_hash": "e12d0109cd120e96a9a8cd516a050003efefaf2e36a98a290472e9728140cb8e",
+    "family_hash": "4c02544e8e9a8802f77974429ba28a5687365a074eb83b54a82f06ac7d5b1fcc"
+  },
+  "tfv": {
+    "vocab_size": 64402,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 1,
+    "eos_token_id": 7,
+    "pad_token_id": 0,
+    "num_added_tokens": 509,
+    "num_special_tokens": 3,
+    "num_merges": 63683,
+    "first_5_merges": [
+      "\u010a \u010a",
+      "\u010a \u010a\u010a",
+      "\u010a\u010a \u010a",
+      "\u010a \u010a\u010a\u010a",
+      "\u010a\u010a \u010a\u010a"
+    ],
+    "merge_rule_hash": "1704251bd9498533d73b246ce703b17006f25875ba5e291bda9a32a0ab056ef8",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.004,
+    "avg_token_length": 6.12,
+    "max_token_length": 23,
+    "pct_whitespace_prefix": 0.5302,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9924,
+      "Other": 0.0076
+    }
+  },
+  "vocab": {
+    "size": 64402
+  },
+  "signals": {
+    "hidden_size": 1024,
+    "num_layers": 16,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 45,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 180,
+    "lep_profile_length": 16,
+    "wsp_signature_length": 32,
+    "wvc_layer_count": 16,
+    "wvc_layer_vector_length": 4096
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "LFM2.5-350M-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/liquidai--lfm/LFM2.5-350M__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:dc5fde2183b5164b2676f981504b805aa8895797db5c8b63072460480867d898",
+      "availability": "local"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "shard_id": "f99480fe-5bbb-4138-838e-29c57ec1cff6",
+  "updated_at": "2026-04-18T18:55:01.500133+00:00",
+  "family": {
+    "family_id": "google--gemma",
+    "display_name": "Gemma",
+    "publisher": "google",
+    "baseline_model_ids": [
+      "gemma-1.1-2b-it",
+      "gemma-1.1-7b-it",
+      "gemma-2-27b-it",
+      "gemma-2-2b-it",
+      "gemma-2-9b-it",
+      "gemma-2b",
+      "gemma-3-1b-it",
+      "gemma-3-270m",
+      "gemma-3-27b-it",
+      "gemma-3-4b-it",
+      "gemma-7b"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "gemma-1.1-2b-it__hf-safetensors",
+      "model_id": "gemma-1.1-2b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-1.1-2b-it__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-1.1-2b-it",
+      "canonical_name": "gemma-1.1-2b-it"
+    },
+    {
+      "asset_id": "gemma-1.1-7b-it__hf-safetensors",
+      "model_id": "gemma-1.1-7b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-1.1-7b-it__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-1.1-7b-it",
+      "canonical_name": "gemma-1.1-7b-it"
+    },
+    {
+      "asset_id": "gemma-2-27b-it__hf-safetensors",
+      "model_id": "gemma-2-27b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-2-27b-it__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/google/gemma-2-27b-it",
+      "canonical_name": "gemma-2-27b-it"
+    },
+    {
+      "asset_id": "gemma-2-2b-it__hf-safetensors",
+      "model_id": "gemma-2-2b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-2-2b-it__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-2-2b-it",
+      "canonical_name": "gemma-2-2b-it"
+    },
+    {
+      "asset_id": "gemma-2-9b-it__hf-safetensors",
+      "model_id": "gemma-2-9b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-2-9b-it__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-2-9b-it",
+      "canonical_name": "gemma-2-9b-it"
+    },
+    {
+      "asset_id": "gemma-2b__hf-safetensors",
+      "model_id": "gemma-2b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-2b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-2b",
+      "canonical_name": "gemma-2b"
+    },
+    {
+      "asset_id": "gemma-3-1b-it__hf-safetensors",
+      "model_id": "gemma-3-1b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-3-1b-it__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/google/gemma-3-1b-it",
+      "canonical_name": "gemma-3-1b-it"
+    },
+    {
+      "asset_id": "gemma-3-270m__hf-safetensors",
+      "model_id": "gemma-3-270m",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-3-270m__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/google/gemma-3-270m",
+      "canonical_name": "gemma-3-270m"
+    },
+    {
+      "asset_id": "gemma-3-27b-it__hf-safetensors",
+      "model_id": "gemma-3-27b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-3-27b-it__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/google/gemma-3-27b-it",
+      "canonical_name": "gemma-3-27b-it"
+    },
+    {
+      "asset_id": "gemma-3-4b-it__hf-safetensors",
+      "model_id": "gemma-3-4b-it",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-3-4b-it__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-3-4b-it",
+      "canonical_name": "gemma-3-4b-it"
+    },
+    {
+      "asset_id": "gemma-7b__hf-safetensors",
+      "model_id": "gemma-7b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/google--gemma/gemma-7b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/google/gemma-7b",
+      "canonical_name": "gemma-7b"
+    }
+  ]
+}

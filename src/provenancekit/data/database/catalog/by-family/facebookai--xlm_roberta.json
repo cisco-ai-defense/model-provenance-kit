@@ -1,0 +1,33 @@
+{
+  "shard_id": "11fb2728-ab5f-4afd-98a5-235637da3f02",
+  "updated_at": "2026-04-18T18:55:01.500129+00:00",
+  "family": {
+    "family_id": "facebookai--xlm_roberta",
+    "display_name": "XLM-RoBERTa",
+    "publisher": "facebookai",
+    "baseline_model_ids": [
+      "xlm-roberta-base",
+      "xlm-roberta-large"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "xlm-roberta-base__hf-safetensors",
+      "model_id": "xlm-roberta-base",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/facebookai--xlm_roberta/xlm-roberta-base__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/FacebookAI/xlm-roberta-base",
+      "canonical_name": "xlm-roberta-base"
+    },
+    {
+      "asset_id": "xlm-roberta-large__hf-safetensors",
+      "model_id": "xlm-roberta-large",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/facebookai--xlm_roberta/xlm-roberta-large__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/FacebookAI/xlm-roberta-large",
+      "canonical_name": "xlm-roberta-large"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "bundle_id": "b769f62c-815b-49b7-9713-19ac38fab418",
+  "model_id": "stablelm-3b-4e1t",
+  "asset_id": "stablelm-3b-4e1t__hf-safetensors",
+  "family_id": "stabilityai--stablelm",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T00:49:20.638110+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "stablelm",
+    "architectures": [
+      "StableLmForCausalLM"
+    ],
+    "hidden_size": 2560,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 32,
+    "intermediate_size": 6912,
+    "vocab_size": 50304,
+    "max_position_embeddings": 4096,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 10000,
+      "partial_rotary_factor": 0.25,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "1b0aca3746c0870daeb9137101cd89acbb38710fc433db83331287d5b0e47ee0",
+    "token_id_signature": "bos=0|eos=0",
+    "arch_hash": "4866ee5b0fc976ee2da776fdd8c98e405841e0c76e39df99278b8076761d834c",
+    "family_hash": "7275199a0603c6dd794dc10c5a8213f3a6fd0ed0a1d04f911c873466cebb8bbd"
+  },
+  "tfv": {
+    "vocab_size": 50277,
+    "tokenizer_class": "GPTNeoXTokenizer",
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "pad_token_id": 1,
+    "num_added_tokens": 25,
+    "num_special_tokens": 2,
+    "num_merges": 50009,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ t",
+      "Ġ a",
+      "h e",
+      "i n"
+    ],
+    "merge_rule_hash": "0871080c74d5f017f58f085a0250ba1ddecf34b834b3e9038b6e230388978071",
+    "special_token_ids": {
+      "pad": 1,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0048,
+    "avg_token_length": 6.22,
+    "max_token_length": 512,
+    "pct_whitespace_prefix": 0.5739,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9991,
+      "Other": 0.0009
+    }
+  },
+  "vocab": {
+    "size": 50277
+  },
+  "signals": {
+    "hidden_size": 2560,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 130,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 332800,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "stablelm-3b-4e1t-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/stabilityai--stablelm/stablelm-3b-4e1t__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:e40298e3d9fb71adff7223ea306eca0883ff9bfc16284ca2b60cb9148f29e8d5",
+      "availability": "local"
+    }
+  ]
+}

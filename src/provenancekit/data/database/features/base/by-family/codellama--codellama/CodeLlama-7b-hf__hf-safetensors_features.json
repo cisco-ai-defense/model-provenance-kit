@@ -1,0 +1,116 @@
+{
+  "bundle_id": "1048864c-6aa6-4b17-b612-7b4b8f2023fc",
+  "model_id": "CodeLlama-7b-hf",
+  "asset_id": "CodeLlama-7b-hf__hf-safetensors",
+  "family_id": "codellama--codellama",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T17:09:58.288007+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 32,
+    "intermediate_size": 11008,
+    "vocab_size": 32016,
+    "max_position_embeddings": 16384,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "afc27c5c6084f285d7a36c7b88075bd51bfbddb69e49403d99151222c1dcb019",
+    "token_id_signature": "bos=1|eos=2",
+    "arch_hash": "256121b730850fa4bd975506d80b3146f8d421c3fb61060340b1d04a1def14a1",
+    "family_hash": "be3edc1143d23b501dee11f3b1d66c53ec3c6d499ade2eef27aee61cbd71deb8"
+  },
+  "tfv": {
+    "vocab_size": 32017,
+    "tokenizer_class": "CodeLlamaTokenizer",
+    "bos_token_id": 1,
+    "eos_token_id": 2,
+    "pad_token_id": null,
+    "num_added_tokens": 8,
+    "num_special_tokens": 8,
+    "num_merges": 61260,
+    "first_5_merges": [
+      "\u2581 t",
+      "e r",
+      "i n",
+      "\u2581 a",
+      "e n"
+    ],
+    "merge_rule_hash": "92d6a430b70e5847d2e46d8dea2d121d63b52da0e82e88121c0fa944086fcf1a",
+    "special_token_ids": {
+      "pad": null,
+      "unk": 0,
+      "mask": null
+    },
+    "pct_single_char": 0.0665,
+    "avg_token_length": 5.07,
+    "max_token_length": 31,
+    "pct_whitespace_prefix": 0.513,
+    "pct_byte_tokens": 0.008,
+    "script_distribution": {
+      "Latin": 0.9151,
+      "Cyrillic": 0.0753,
+      "CJK": 0.0067,
+      "Other": 0.0023,
+      "Arabic": 0.0003,
+      "Devanagari": 0.0002
+    }
+  },
+  "vocab": {
+    "size": 32017
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 65,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 266240,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "CodeLlama-7b-hf-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/codellama--codellama/CodeLlama-7b-hf__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:0e6c6aa4528b7045c5500fa0ddfe4f68a7048965ac01712bfabfbfe19f4b1c22",
+      "availability": "local"
+    }
+  ]
+}

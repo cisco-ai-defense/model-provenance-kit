@@ -1,0 +1,109 @@
+{
+  "bundle_id": "83c3cf7e-f988-40de-8c8c-53b11d8e385c",
+  "model_id": "roberta-base",
+  "asset_id": "roberta-base__hf-safetensors",
+  "family_id": "facebookai--roberta",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-15T19:27:57.300000+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "roberta",
+    "architectures": [
+      "RobertaForMaskedLM"
+    ],
+    "hidden_size": 768,
+    "num_hidden_layers": 12,
+    "num_attention_heads": 12,
+    "num_key_value_heads": null,
+    "intermediate_size": 3072,
+    "vocab_size": 50265,
+    "max_position_embeddings": 514,
+    "hidden_act": "gelu",
+    "rope_theta": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": true,
+    "bos_token_id": 0,
+    "eos_token_id": 2,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": null,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "20306cc7e6234a067fed0f6ca8da3c5311a023dd72c34378a500c69ed4a48e2f",
+    "token_id_signature": "bos=0|eos=2",
+    "arch_hash": "7a8bbc49ff436f5f5b49e5a7998071efc168c129c22e370bb10cfe444b560f70",
+    "family_hash": "d5bd685bbb3a30efa6cdea0c6a11d65f8521ee7020b45e18dfe3126fbe8a47b5"
+  },
+  "tfv": {
+    "vocab_size": 50265,
+    "tokenizer_class": "RobertaTokenizer",
+    "bos_token_id": 0,
+    "eos_token_id": 2,
+    "pad_token_id": 1,
+    "num_added_tokens": 5,
+    "num_special_tokens": 5,
+    "num_merges": 50000,
+    "first_5_merges": [
+      "Ġ t",
+      "Ġ a",
+      "h e",
+      "i n",
+      "r e"
+    ],
+    "merge_rule_hash": "8ccd0747ca3d0cebbdfa37b743f6f5f2723f9902ed8fb95048782a3df7f26906",
+    "special_token_ids": {
+      "pad": 1,
+      "unk": 3,
+      "mask": 50264
+    },
+    "pct_single_char": 0.0051,
+    "avg_token_length": 6.38,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.6592,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9999,
+      "Other": 0.0001
+    }
+  },
+  "vocab": {
+    "size": 50265
+  },
+  "signals": {
+    "hidden_size": 768,
+    "num_layers": 12,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 52,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 39936,
+    "lep_profile_length": 12,
+    "wsp_signature_length": 24,
+    "wvc_layer_count": 12,
+    "wvc_layer_vector_length": 24576
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "roberta-base-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/facebookai--roberta/roberta-base__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:46e3ab1270342395bf269799a1907dc5e33aecd5023c2035b038df0ea41211e4",
+      "availability": "local"
+    }
+  ]
+}

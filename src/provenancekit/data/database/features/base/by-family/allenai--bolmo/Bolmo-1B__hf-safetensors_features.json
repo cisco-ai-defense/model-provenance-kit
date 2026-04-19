@@ -1,0 +1,103 @@
+{
+  "bundle_id": "401a4854-5d5a-48cb-8c9f-5218f19cc254",
+  "model_id": "Bolmo-1B",
+  "asset_id": "Bolmo-1B__hf-safetensors",
+  "family_id": "allenai--bolmo",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-16T19:10:31.479642+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "bolmo",
+    "architectures": [
+      "BolmoForCausalLM"
+    ],
+    "hidden_size": 2048,
+    "num_hidden_layers": 16,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 16,
+    "intermediate_size": 8192,
+    "vocab_size": 520,
+    "max_position_embeddings": 65536,
+    "hidden_act": "silu",
+    "rope_theta": 500000.0,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "bos_token_id": 1,
+    "eos_token_id": 1,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "RoPE",
+    "head_dim": null,
+    "tokenizer_hash": "a5bfdceef8937ffa979649f4165799ed567d03a19e48de02be794ac1c42cdef7",
+    "token_id_signature": "bos=1|eos=1",
+    "arch_hash": "310676ad76e901929846b5a072faff82720dad773fbfd265d905a5271b06f838",
+    "family_hash": "ac941f4ae296e2d69247ad5825ad684a901ef5d76dd134ad60a9f19079ba2772"
+  },
+  "tfv": {
+    "vocab_size": 520,
+    "tokenizer_class": "BolmoTokenizer",
+    "bos_token_id": 1,
+    "eos_token_id": 1,
+    "pad_token_id": 0,
+    "num_added_tokens": 2,
+    "num_special_tokens": 2,
+    "num_merges": 0,
+    "first_5_merges": [],
+    "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.4923,
+    "avg_token_length": 1.6,
+    "max_token_length": 16,
+    "pct_whitespace_prefix": 0.0038,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.991,
+      "Other": 0.009
+    }
+  },
+  "vocab": {
+    "size": 520
+  },
+  "signals": {
+    "hidden_size": 2048,
+    "num_layers": 16,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 82,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 167936,
+    "lep_profile_length": 16,
+    "wsp_signature_length": 32,
+    "wvc_layer_count": 16,
+    "wvc_layer_vector_length": 86016
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Bolmo-1B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/allenai--bolmo/Bolmo-1B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:52619df7787337eb90446e6b09555b06c4d9eb1e628baadf593f2c87f5261a9b",
+      "availability": "local"
+    }
+  ]
+}

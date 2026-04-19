@@ -1,0 +1,114 @@
+{
+  "bundle_id": "00cab527-b304-4ebc-a440-18b29f82964a",
+  "model_id": "NousCoder-14B",
+  "asset_id": "NousCoder-14B__hf-safetensors",
+  "family_id": "nousresearch--nouscoder",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-18T02:20:25.052952+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "qwen3",
+    "architectures": [
+      "Qwen3ForCausalLM"
+    ],
+    "hidden_size": 5120,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 40,
+    "num_key_value_heads": 8,
+    "intermediate_size": 17408,
+    "vocab_size": 151936,
+    "max_position_embeddings": 81920,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_type": "yarn",
+      "factor": 2.0,
+      "original_max_position_embeddings": 40960,
+      "rope_theta": 1000000
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "gqa_ratio": 5.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "41e00eccf531cffc2e562d38bdd879d41e5044ea279af5b73c6a32aabcc8fe04",
+    "token_id_signature": "bos=None|eos=151645",
+    "arch_hash": "ef99a155d688e53f6cd8e9c1493ed77dfe8f85936be4e3f19b9a53d3bc6e88d5",
+    "family_hash": "3670ca8ac5701d17047632a2cc1308a1ce57db0e5a5c335bfe2855b2412f11fe"
+  },
+  "tfv": {
+    "vocab_size": 151669,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "pad_token_id": 151643,
+    "num_added_tokens": 26,
+    "num_special_tokens": 14,
+    "num_merges": 151387,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120\u0120 \u0120\u0120",
+      "i n",
+      "\u0120 t",
+      "\u0120\u0120\u0120\u0120 \u0120\u0120\u0120\u0120"
+    ],
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "special_token_ids": {
+      "pad": 151643,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 6.44,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.3496,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.987,
+      "Other": 0.013
+    }
+  },
+  "vocab": {
+    "size": 151669
+  },
+  "signals": {
+    "hidden_size": 5120,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 161,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 644,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "NousCoder-14B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/nousresearch--nouscoder/NousCoder-14B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:93a9735697f6cf6c996f9a57696cb3dc79f6903aa35de57b4a1db4f9a82a8ec2",
+      "availability": "local"
+    }
+  ]
+}

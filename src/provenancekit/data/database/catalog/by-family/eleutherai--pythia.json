@@ -1,0 +1,33 @@
+{
+  "shard_id": "8c94a526-61ac-4d1b-8680-de6ad4987d98",
+  "updated_at": "2026-04-18T18:55:01.500329+00:00",
+  "family": {
+    "family_id": "eleutherai--pythia",
+    "display_name": "Pythia",
+    "publisher": "eleutherai",
+    "baseline_model_ids": [
+      "pythia-1.4b",
+      "pythia-6.9b"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "pythia-1.4b__hf-safetensors",
+      "model_id": "pythia-1.4b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/eleutherai--pythia/pythia-1.4b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/EleutherAI/pythia-1.4b",
+      "canonical_name": "pythia-1.4b"
+    },
+    {
+      "asset_id": "pythia-6.9b__hf-safetensors",
+      "model_id": "pythia-6.9b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/eleutherai--pythia/pythia-6.9b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/EleutherAI/pythia-6.9b",
+      "canonical_name": "pythia-6.9b"
+    }
+  ]
+}

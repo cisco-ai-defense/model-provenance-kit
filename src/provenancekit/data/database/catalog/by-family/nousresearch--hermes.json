@@ -1,0 +1,43 @@
+{
+  "shard_id": "5f19c720-ac8d-4ecc-a196-94ec61136e9d",
+  "updated_at": "2026-04-18T18:55:01.500262+00:00",
+  "family": {
+    "family_id": "nousresearch--hermes",
+    "display_name": "Hermes",
+    "publisher": "nousresearch",
+    "baseline_model_ids": [
+      "Hermes-2-Pro-Llama-3-8B",
+      "Hermes-3-Llama-3.1-8B",
+      "Hermes-4-14B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "Hermes-2-Pro-Llama-3-8B__hf-safetensors",
+      "model_id": "Hermes-2-Pro-Llama-3-8B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nousresearch--hermes/Hermes-2-Pro-Llama-3-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B",
+      "canonical_name": "Hermes-2-Pro-Llama-3-8B"
+    },
+    {
+      "asset_id": "Hermes-3-Llama-3.1-8B__hf-safetensors",
+      "model_id": "Hermes-3-Llama-3.1-8B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nousresearch--hermes/Hermes-3-Llama-3.1-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/NousResearch/Hermes-3-Llama-3.1-8B",
+      "canonical_name": "Hermes-3-Llama-3.1-8B"
+    },
+    {
+      "asset_id": "Hermes-4-14B__hf-safetensors",
+      "model_id": "Hermes-4-14B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nousresearch--hermes/Hermes-4-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/NousResearch/Hermes-4-14B",
+      "canonical_name": "Hermes-4-14B"
+    }
+  ]
+}

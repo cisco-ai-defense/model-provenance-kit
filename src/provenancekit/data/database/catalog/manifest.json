@@ -1,0 +1,186 @@
+{
+  "updated_at": "2026-04-18T19:01:24.781183+00:00",
+  "shard_strategy": "by_family",
+  "shards": [
+    {
+      "family_id": "01ai--yi",
+      "shard_path": "catalog/by-family/01ai--yi.json",
+      "asset_count": 5
+    },
+    {
+      "family_id": "allenai--bolmo",
+      "shard_path": "catalog/by-family/allenai--bolmo.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "allenai--olmo",
+      "shard_path": "catalog/by-family/allenai--olmo.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "bigcode--starcoder",
+      "shard_path": "catalog/by-family/bigcode--starcoder.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "bigscience--bloom",
+      "shard_path": "catalog/by-family/bigscience--bloom.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "codellama--codellama",
+      "shard_path": "catalog/by-family/codellama--codellama.json",
+      "asset_count": 2
+    },
+    {
+      "family_id": "coherelabs--aya",
+      "shard_path": "catalog/by-family/coherelabs--aya.json",
+      "asset_count": 6
+    },
+    {
+      "family_id": "deepseekai--deepseek",
+      "shard_path": "catalog/by-family/deepseekai--deepseek.json",
+      "asset_count": 6
+    },
+    {
+      "family_id": "eleutherai--gpt",
+      "shard_path": "catalog/by-family/eleutherai--gpt.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "eleutherai--pythia",
+      "shard_path": "catalog/by-family/eleutherai--pythia.json",
+      "asset_count": 2
+    },
+    {
+      "family_id": "facebookai--roberta",
+      "shard_path": "catalog/by-family/facebookai--roberta.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "facebookai--xlm_roberta",
+      "shard_path": "catalog/by-family/facebookai--xlm_roberta.json",
+      "asset_count": 2
+    },
+    {
+      "family_id": "google--gemma",
+      "shard_path": "catalog/by-family/google--gemma.json",
+      "asset_count": 11
+    },
+    {
+      "family_id": "googlebert--bert",
+      "shard_path": "catalog/by-family/googlebert--bert.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "huggingfaceh4--zephyr",
+      "shard_path": "catalog/by-family/huggingfaceh4--zephyr.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "huggingfacetb--smollm",
+      "shard_path": "catalog/by-family/huggingfacetb--smollm.json",
+      "asset_count": 2
+    },
+    {
+      "family_id": "ibmgranite--granite",
+      "shard_path": "catalog/by-family/ibmgranite--granite.json",
+      "asset_count": 5
+    },
+    {
+      "family_id": "internlm--internlm",
+      "shard_path": "catalog/by-family/internlm--internlm.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "liquidai--lfm",
+      "shard_path": "catalog/by-family/liquidai--lfm.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "metallama--llama",
+      "shard_path": "catalog/by-family/metallama--llama.json",
+      "asset_count": 8
+    },
+    {
+      "family_id": "microsoft--phi",
+      "shard_path": "catalog/by-family/microsoft--phi.json",
+      "asset_count": 7
+    },
+    {
+      "family_id": "mistralai--ministral",
+      "shard_path": "catalog/by-family/mistralai--ministral.json",
+      "asset_count": 5
+    },
+    {
+      "family_id": "mistralai--mistral",
+      "shard_path": "catalog/by-family/mistralai--mistral.json",
+      "asset_count": 6
+    },
+    {
+      "family_id": "nousresearch--hermes",
+      "shard_path": "catalog/by-family/nousresearch--hermes.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "nousresearch--nouscoder",
+      "shard_path": "catalog/by-family/nousresearch--nouscoder.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "nvidia--nemotron",
+      "shard_path": "catalog/by-family/nvidia--nemotron.json",
+      "asset_count": 5
+    },
+    {
+      "family_id": "openaicommunity--gpt",
+      "shard_path": "catalog/by-family/openaicommunity--gpt.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "openbmb--minicpm",
+      "shard_path": "catalog/by-family/openbmb--minicpm.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "qwen--qwen",
+      "shard_path": "catalog/by-family/qwen--qwen.json",
+      "asset_count": 20
+    },
+    {
+      "family_id": "stabilityai--stablelm",
+      "shard_path": "catalog/by-family/stabilityai--stablelm.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "tencent--hymt",
+      "shard_path": "catalog/by-family/tencent--hymt.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "tencent--wedlm",
+      "shard_path": "catalog/by-family/tencent--wedlm.json",
+      "asset_count": 3
+    },
+    {
+      "family_id": "thudm--glm",
+      "shard_path": "catalog/by-family/thudm--glm.json",
+      "asset_count": 2
+    },
+    {
+      "family_id": "tiiuae--falcon",
+      "shard_path": "catalog/by-family/tiiuae--falcon.json",
+      "asset_count": 5
+    },
+    {
+      "family_id": "togethercomputer--redpajama",
+      "shard_path": "catalog/by-family/togethercomputer--redpajama.json",
+      "asset_count": 1
+    },
+    {
+      "family_id": "zaiorg--glm",
+      "shard_path": "catalog/by-family/zaiorg--glm.json",
+      "asset_count": 2
+    }
+  ]
+}

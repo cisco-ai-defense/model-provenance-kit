@@ -1,0 +1,896 @@
+{
+  "similar": [
+    {
+      "pair": ["NousResearch/Llama-2-7b-hf", "meta-llama/Llama-2-7b-hf"],
+      "type": ["decoder", "decoder"],
+      "provenance": "identity",
+      "difficulty": "easy",
+      "challenge": "Byte-identical weights re-uploaded under different organization; tests identity detection across repository boundaries",
+      "source": ["NousResearch/Llama-2-7b-hf", "meta-llama/Llama-2-7b-hf"]
+    },
+    {
+      "pair": ["meta-llama/Llama-2-7b-hf", "meta-llama/Llama-2-7b-chat-hf"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (RLHF)",
+      "difficulty": "easy",
+      "challenge": "Standard RLHF alignment training from base checkpoint; identical architecture and tokenizer with minimal weight drift",
+      "source": ["meta-llama/Llama-2-7b-hf", "meta-llama/Llama-2-7b-chat-hf"]
+    },
+    {
+      "pair": ["bigscience/bloom-560m", "bigscience/bloomz-560m"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruction-tuning)",
+      "difficulty": "easy",
+      "challenge": "Crosslingual multitask instruction-tuning of BLOOM; tests non-Llama multilingual decoder family",
+      "source": ["bigscience/bloom-560m", "bigscience/bloomz-560m"]
+    },
+    {
+      "pair": ["mistralai/Mistral-7B-v0.1", "mistralai/Mistral-7B-Instruct-v0.1"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Same-organization instruction fine-tune with identical architecture and tokenizer",
+      "source": ["mistralai/Mistral-7B-v0.1", "mistralai/Mistral-7B-Instruct-v0.1"]
+    },
+    {
+      "pair": ["facebook/bart-large", "facebook/bart-large-cnn"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "fine-tuning (task-specific)",
+      "difficulty": "easy",
+      "challenge": "Task-specific summarization fine-tune of encoder-decoder model; identical architecture",
+      "source": ["facebook/bart-large", "facebook/bart-large-cnn"]
+    },
+    {
+      "pair": ["facebook/mbart-large-50", "facebook/mbart-large-50-many-to-many-mmt"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "fine-tuning (multilingual MT)",
+      "difficulty": "easy",
+      "challenge": "Multilingual translation fine-tune from mBART base; same architecture and vocabulary",
+      "source": ["facebook/mbart-large-50", "facebook/mbart-large-50-many-to-many-mmt"]
+    },
+    {
+      "pair": ["Qwen/Qwen2.5-7B", "Qwen/Qwen2.5-7B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + alignment)",
+      "difficulty": "easy",
+      "challenge": "SFT and alignment fine-tune of modern GQA decoder; baseline test for 2024+ model families",
+      "source": ["Qwen/Qwen2.5-7B", "Qwen/Qwen2.5-7B-Instruct"]
+    },
+    {
+      "pair": ["tiiuae/falcon-7b", "tiiuae/falcon-7b-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Instruction fine-tune of multi-query attention (MQA) decoder model",
+      "source": ["tiiuae/falcon-7b", "tiiuae/falcon-7b-instruct"]
+    },
+    {
+      "pair": ["google/gemma-2b", "google/gemma-2b-it"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + RLHF)",
+      "difficulty": "easy",
+      "challenge": "SFT and RLHF instruction-tuning from Gemma base; Google's decoder family with distinct tokenizer conventions",
+      "source": ["google/gemma-2b", "google/gemma-2b-it"]
+    },
+    {
+      "pair": ["facebook/opt-1.3b", "facebook/opt-iml-1.3b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruction-tuning)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning of older decoder architecture (no RoPE, no GQA); tests legacy model family detection",
+      "source": ["facebook/opt-1.3b", "facebook/opt-iml-1.3b"]
+    },
+    {
+      "pair": ["bigscience/bloom-1b7", "bigscience/bloomz-1b7"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruction-tuning)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning at a different scale point within the BLOOM family; complements the 560m pair",
+      "source": ["bigscience/bloom-1b7", "bigscience/bloomz-1b7"]
+    },
+    {
+      "pair": ["01-ai/Yi-Coder-1.5B-Chat", "01-ai/Yi-Coder-1.5B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Chat fine-tune of code-specialized small decoder; same architecture and tokenizer",
+      "source": ["01-ai/Yi-Coder-1.5B-Chat", "01-ai/Yi-Coder-1.5B"]
+    },
+    {
+      "pair": ["tencent/WeDLM-7B-Instruct", "tencent/WeDLM-7B-Base"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning of diffusion language model; same architecture as base",
+      "source": ["tencent/WeDLM-7B-Instruct", "tencent/WeDLM-7B-Base"]
+    },
+    {
+      "pair": ["tiiuae/falcon-mamba-7b-instruct", "tiiuae/falcon-mamba-7b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Instruction fine-tune of Mamba-architecture model; tests non-transformer state-space model provenance",
+      "source": ["tiiuae/falcon-mamba-7b-instruct", "tiiuae/falcon-mamba-7b"]
+    },
+    {
+      "pair": ["Qwen/Qwen3-4B-SafeRL", "Qwen/Qwen3-4B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (RLHF)",
+      "difficulty": "easy",
+      "challenge": "Safety-focused RLHF fine-tune from base; identical architecture with alignment-driven weight updates",
+      "source": ["Qwen/Qwen3-4B-SafeRL", "Qwen/Qwen3-4B"]
+    },
+    {
+      "pair": ["rasyosef/Phi-1_5-Instruct-v0.1", "microsoft/phi-1_5"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Third-party instruction fine-tune of small decoder model; cross-org with identical architecture",
+      "source": ["rasyosef/Phi-1_5-Instruct-v0.1", "microsoft/phi-1_5"]
+    },
+    {
+      "pair": ["LenguajeNaturalAI/leniachat-qwen2-1.5B-v0", "Qwen/Qwen2-1.5B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Third-party chat fine-tune of small Qwen model; cross-org with identical architecture",
+      "source": ["LenguajeNaturalAI/leniachat-qwen2-1.5B-v0", "Qwen/Qwen2-1.5B"]
+    },
+    {
+      "pair": ["katanemo/Arch-Guard", "meta-llama/Prompt-Guard-86M"],
+      "type": ["encoder", "encoder"],
+      "provenance": "fine-tuning (task-specific)",
+      "difficulty": "easy",
+      "challenge": "Task-specific fine-tune of small encoder safety model; cross-org derivation",
+      "source": ["katanemo/Arch-Guard", "meta-llama/Prompt-Guard-86M"]
+    },
+    {
+      "pair": ["meta-llama/Llama-3.1-8B-Instruct", "meta-llama/Meta-Llama-3.1-8B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + RLHF)",
+      "difficulty": "easy",
+      "challenge": "SFT and RLHF alignment from Llama 3.1 base; modern decoder with grouped-query attention",
+      "source": ["meta-llama/Llama-3.1-8B-Instruct", "meta-llama/Meta-Llama-3.1-8B"]
+    },
+    {
+      "pair": ["Qwen/Qwen3-0.6B", "Qwen/Qwen3-0.6B-Base"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning of very small (0.6B) decoder from its base checkpoint",
+      "source": ["Qwen/Qwen3-0.6B", "Qwen/Qwen3-0.6B-Base"]
+    },
+    {
+      "pair": ["google/gemma-3-12b-it", "google/gemma-3-12b-pt"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + RLHF)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning of Gemma 3 12B from pre-trained base; same architecture",
+      "source": ["google/gemma-3-12b-it", "google/gemma-3-12b-pt"]
+    },
+    {
+      "pair": ["google/gemma-3-4b-it", "google/gemma-3-4b-pt"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + RLHF)",
+      "difficulty": "easy",
+      "challenge": "Instruction-tuning of Gemma 3 4B from pre-trained base; same architecture",
+      "source": ["google/gemma-3-4b-it", "google/gemma-3-4b-pt"]
+    },
+    {
+      "pair": ["longvideoagent/longvideoagent-qwen2.5-7b", "Qwen/Qwen2.5-7B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "easy",
+      "challenge": "Domain-specific fine-tune of Qwen2.5 for video understanding; cross-org derivation",
+      "source": ["longvideoagent/longvideoagent-qwen2.5-7b", "Qwen/Qwen2.5-7B-Instruct"]
+    },
+    {
+      "pair": ["mistralai/Mistral-7B-v0.1", "HuggingFaceH4/zephyr-7b-beta"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + DPO)",
+      "difficulty": "medium",
+      "challenge": "Cross-organization SFT + DPO fine-tune; config metadata may diverge from parent due to different release pipelines",
+      "source": ["mistralai/Mistral-7B-v0.1", "HuggingFaceH4/zephyr-7b-beta"]
+    },
+    {
+      "pair": ["google-t5/t5-base", "google/flan-t5-base"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "fine-tuning (instruction-tuning)",
+      "difficulty": "medium",
+      "challenge": "Large-scale instruction-tuning on 1000+ tasks; encoder-decoder architecture with potential config drift from extensive fine-tuning",
+      "source": ["google-t5/t5-base", "google/flan-t5-base"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "distilbert/distilbert-base-uncased"],
+      "type": ["encoder", "encoder"],
+      "provenance": "distillation",
+      "difficulty": "medium",
+      "challenge": "Knowledge distillation reducing 12 layers to 6 while preserving hidden dimension; architecture partially changes",
+      "source": ["google-bert/bert-base-uncased", "distilbert/distilbert-base-uncased"]
+    },
+    {
+      "pair": ["TheBloke/deepseek-coder-6.7B-instruct-AWQ", "deepseek-ai/deepseek-coder-6.7b-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "quantization",
+      "difficulty": "medium",
+      "challenge": "AWQ 4-bit quantization transforming weight precision; weight values change significantly while provenance persists",
+      "source": ["TheBloke/deepseek-coder-6.7B-instruct-AWQ", "deepseek-ai/deepseek-coder-6.7b-instruct"]
+    },
+    {
+      "pair": ["huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated", "tencent/HY-MT1.5-1.8B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (abliteration)",
+      "difficulty": "medium",
+      "challenge": "Abliteration (refusal removal) modifies specific weight directions; targeted intervention rather than full fine-tuning",
+      "source": ["huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated", "tencent/HY-MT1.5-1.8B"]
+    },
+    {
+      "pair": ["ethicalabs/Kurtis-E1.1-Qwen3-4B", "Qwen/Qwen3-4B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (task-specific)",
+      "difficulty": "medium",
+      "challenge": "Cross-organization task-specific fine-tune of Qwen3; third-party derivative with different metadata",
+      "source": ["ethicalabs/Kurtis-E1.1-Qwen3-4B", "Qwen/Qwen3-4B"]
+    },
+    {
+      "pair": ["microsoft/NextCoder-14B", "Qwen/Qwen2.5-Coder-14B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + alignment)",
+      "difficulty": "medium",
+      "challenge": "Cross-organization SFT + alignment of large code model; Microsoft derivative of Qwen architecture",
+      "source": ["microsoft/NextCoder-14B", "Qwen/Qwen2.5-Coder-14B-Instruct"]
+    },
+    {
+      "pair": ["microsoft/NextCoder-7B", "Qwen/Qwen2.5-Coder-7B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + alignment)",
+      "difficulty": "medium",
+      "challenge": "Cross-organization SFT + alignment of code model; Microsoft derivative of Qwen architecture",
+      "source": ["microsoft/NextCoder-7B", "Qwen/Qwen2.5-Coder-7B-Instruct"]
+    },
+    {
+      "pair": ["t-tech/T-pro-it-2.0", "Qwen/Qwen3-32B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "medium",
+      "challenge": "Third-party instruction fine-tune of large 32B model; cross-org derivative",
+      "source": ["t-tech/T-pro-it-2.0", "Qwen/Qwen3-32B"]
+    },
+    {
+      "pair": ["t-tech/T-pro-it-2.1", "Qwen/Qwen3-32B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "medium",
+      "challenge": "Iterative third-party instruction fine-tune (v2.1) of large 32B model; cross-org derivative",
+      "source": ["t-tech/T-pro-it-2.1", "Qwen/Qwen3-32B"]
+    },
+    {
+      "pair": ["mfirth/agi-ds", "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruct)",
+      "difficulty": "medium",
+      "challenge": "Third-party fine-tune of DeepSeek mixture-of-experts code model; MoE architecture adds complexity",
+      "source": ["mfirth/agi-ds", "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct"]
+    },
+    {
+      "pair": ["wassemgtk/chuck-norris-llm", "Qwen/Qwen3-32B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (task-specific)",
+      "difficulty": "medium",
+      "challenge": "Novelty task-specific fine-tune of large 32B model; cross-org with potential metadata differences",
+      "source": ["wassemgtk/chuck-norris-llm", "Qwen/Qwen3-32B"]
+    },
+    {
+      "pair": ["CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it", "google/gemma-3-4b-pt"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (instruction-tuning)",
+      "difficulty": "medium",
+      "challenge": "Portuguese-language instruction fine-tune of Gemma; cross-language adaptation from pre-trained base",
+      "source": ["CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it", "google/gemma-3-4b-pt"]
+    },
+    {
+      "pair": ["sartifyllc/Pawa-Gemma-Swahili-2B", "google/gemma-2-2b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + DPO)",
+      "difficulty": "medium",
+      "challenge": "Swahili-language SFT + DPO fine-tune; cross-language adaptation may shift weight distributions more than English fine-tuning",
+      "source": ["sartifyllc/Pawa-Gemma-Swahili-2B", "google/gemma-2-2b"]
+    },
+    {
+      "pair": ["teknium/OpenHermes-2.5-Mistral-7B", "mistralai/Mistral-7B-v0.1"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (SFT + alignment)",
+      "difficulty": "medium",
+      "challenge": "Cross-organization SFT + alignment fine-tune on large synthetic dataset; significant training may shift weights further from parent",
+      "source": ["teknium/OpenHermes-2.5-Mistral-7B", "mistralai/Mistral-7B-v0.1"]
+    },
+    {
+      "pair": ["ChenShawn/DeepEyes-7B", "Qwen/Qwen2.5-VL-7B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (RLHF)",
+      "difficulty": "medium",
+      "challenge": "RLHF fine-tune of vision-language model; multimodal architecture adds complexity to provenance detection",
+      "source": ["ChenShawn/DeepEyes-7B", "Qwen/Qwen2.5-VL-7B-Instruct"]
+    },
+    {
+      "pair": ["zeroentropy/zembed-1", "Qwen/Qwen3-4B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "fine-tuning (task-specific)",
+      "difficulty": "medium",
+      "challenge": "Embedding model fine-tuned via distillation from reranker; task-specific adaptation that fundamentally changes model usage pattern",
+      "source": ["zeroentropy/zembed-1", "Qwen/Qwen3-4B"]
+    },
+    {
+      "pair": ["unsloth/mistral-7b-instruct-v0.3-bnb-4bit", "mistralai/Mistral-7B-Instruct-v0.3"],
+      "type": ["decoder", "decoder"],
+      "provenance": "quantization",
+      "difficulty": "medium",
+      "challenge": "bitsandbytes 4-bit quantization producing INT8 tensor representations; aggressive precision reduction changes weight statistics",
+      "source": ["unsloth/mistral-7b-instruct-v0.3-bnb-4bit", "mistralai/Mistral-7B-Instruct-v0.3"]
+    },
+    {
+      "pair": ["meta-llama/Llama-2-7b-hf", "codellama/CodeLlama-7b-hf"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining + vocabulary extension",
+      "difficulty": "hard",
+      "challenge": "500B tokens of continued code pretraining with ~3K new vocabulary tokens; tokenizer diverges while non-embedding weights retain parent fingerprint",
+      "source": ["meta-llama/Llama-2-7b-hf", "codellama/CodeLlama-7b-hf"]
+    },
+    {
+      "pair": ["openai-community/gpt2", "distilbert/distilgpt2"],
+      "type": ["decoder", "decoder"],
+      "provenance": "distillation",
+      "difficulty": "hard",
+      "challenge": "Decoder-side knowledge distillation halving layer count (12 to 6); architecture change makes direct weight comparison difficult",
+      "source": ["openai-community/gpt2", "distilbert/distilgpt2"]
+    },
+    {
+      "pair": ["microsoft/MiniLM-L12-H384-uncased", "sentence-transformers/all-MiniLM-L6-v2"],
+      "type": ["encoder", "encoder"],
+      "provenance": "layer pruning + contrastive fine-tuning",
+      "difficulty": "hard",
+      "challenge": "Multi-step derivation: layer pruning (every 2nd layer removed) followed by contrastive fine-tuning on 1B sentence pairs; transitive provenance chain",
+      "source": ["microsoft/MiniLM-L12-H384-uncased", "sentence-transformers/all-MiniLM-L6-v2"]
+    },
+    {
+      "pair": ["microsoft/phi-1_5", "microsoft/phi-2"],
+      "type": ["decoder", "decoder"],
+      "provenance": "scaled knowledge transfer",
+      "difficulty": "hard",
+      "challenge": "Child model (2.7B) is LARGER than parent (1.3B) via scaled knowledge transfer; hidden dimensions change (2048 to 2560)",
+      "source": ["microsoft/phi-1_5", "microsoft/phi-2"]
+    },
+    {
+      "pair": ["microsoft/MediPhi", "microsoft/Phi-3.5-mini-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining + vocabulary extension",
+      "difficulty": "hard",
+      "challenge": "Medical domain continued pretraining with vocabulary extension; tokenizer-level evidence diverges while weight-level provenance persists",
+      "source": ["microsoft/MediPhi", "microsoft/Phi-3.5-mini-instruct"]
+    },
+    {
+      "pair": ["microsoft/MediPhi-Clinical", "microsoft/Phi-3.5-mini-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining + vocabulary extension",
+      "difficulty": "hard",
+      "challenge": "Clinical domain continued pretraining with vocabulary extension and SLERP merge; multi-step derivation with tokenizer changes",
+      "source": ["microsoft/MediPhi-Clinical", "microsoft/Phi-3.5-mini-instruct"]
+    },
+    {
+      "pair": ["microsoft/MediPhi-MedCode", "microsoft/Phi-3.5-mini-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining + vocabulary extension",
+      "difficulty": "hard",
+      "challenge": "Medical coding domain continued pretraining with vocabulary extension and SLERP merge; multi-step derivation with tokenizer changes",
+      "source": ["microsoft/MediPhi-MedCode", "microsoft/Phi-3.5-mini-instruct"]
+    },
+    {
+      "pair": ["tencent/WeDLM-7B-Base", "Qwen/Qwen2.5-7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining",
+      "difficulty": "hard",
+      "challenge": "Continued pretraining to implement diffusion-based decoding mechanism; fundamental generation paradigm shift while retaining weight initialization",
+      "source": ["tencent/WeDLM-7B-Base", "Qwen/Qwen2.5-7B"]
+    },
+    {
+      "pair": ["tencent/WeDLM-8B-Base", "Qwen/Qwen3-8B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "continued pretraining + vocabulary extension",
+      "difficulty": "hard",
+      "challenge": "Diffusion language model with vocabulary extension from Qwen3; tokenizer changes combined with paradigm shift in generation",
+      "source": ["tencent/WeDLM-8B-Base", "Qwen/Qwen3-8B"]
+    },
+    {
+      "pair": ["FacebookAI/roberta-base", "ehsanaghaei/SecureBERT"],
+      "type": ["encoder", "encoder"],
+      "provenance": "continued pretraining + vocabulary rebuild",
+      "difficulty": "extreme",
+      "challenge": "Vocabulary completely rebuilt for cybersecurity domain; tokenizer-level evidence actively misleads while only non-embedding weight layers confirm lineage",
+      "source": ["FacebookAI/roberta-base", "ehsanaghaei/SecureBERT"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "huawei-noah/TinyBERT_General_4L_312D"],
+      "type": ["encoder", "encoder"],
+      "provenance": "distillation",
+      "difficulty": "extreme",
+      "challenge": "Most aggressive distillation: 4 layers and 312 hidden dimensions vs teacher's 12 layers and 768; architecture differs so drastically that no direct weight correspondence exists",
+      "source": ["google-bert/bert-base-uncased", "huawei-noah/TinyBERT_General_4L_312D"]
+    },
+    {
+      "pair": ["google/gemma-3-4b-it", "CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Sibling derivatives: both derived from gemma-3-4b-pt via different paths (instruction tuning vs Portuguese continued pretraining);  no direct weight lineage between siblings (only to shared parent)",
+      "source": ["google/gemma-3-4b-it", "CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it"]
+    },
+    {
+      "pair": ["microsoft/MediPhi-Clinical", "microsoft/MediPhi-MedCode"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Sibling derivatives: both SLERP-merged from Phi-3.5-mini-instruct with different domain experts; no direct weight lineage between siblings (only to shared parent)",
+      "source": ["microsoft/MediPhi-Clinical", "microsoft/MediPhi-MedCode"]
+    },
+    {
+      "pair": ["EleutherAI/pythia-1.4b", "EleutherAI/pythia-1.4b-deduped"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Identical architecture, hyperparameters, and random initialization seed; independently trained on nearly identical data (The Pile vs deduplicated Pile). Surface-level signals are indistinguishable.",
+      "source": ["EleutherAI/pythia-1.4b", "EleutherAI/pythia-1.4b-deduped"]
+    }
+  ],
+  "dissimilar": [
+    {
+      "pair": ["THUDM/chatglm3-6b", "google/flan-t5-base"],
+      "type": ["decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (decoder vs encoder-decoder) from different families and organizations",
+      "source": ["THUDM/chatglm3-6b", "google/flan-t5-base"]
+    },
+    {
+      "pair": ["stabilityai/stablelm-2-1_6b", "tencent/HY-MT1.5-1.8B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at similar small scale; no shared lineage or architecture",
+      "source": ["stabilityai/stablelm-2-1_6b", "tencent/HY-MT1.5-1.8B"]
+    },
+    {
+      "pair": ["wassemgtk/chuck-norris-llm", "FacebookAI/roberta-base"],
+      "type": ["decoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (decoder vs encoder) from completely unrelated families",
+      "source": ["wassemgtk/chuck-norris-llm", "FacebookAI/roberta-base"]
+    },
+    {
+      "pair": ["zai-org/GLM-Z1-9B-0414", "google/gemma-1.1-2b-it"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales (9B vs 2B); no plausible lineage",
+      "source": ["zai-org/GLM-Z1-9B-0414", "google/gemma-1.1-2b-it"]
+    },
+    {
+      "pair": ["Qwen/Qwen2.5-7B-Instruct-1M", "deepseek-ai/DeepSeek-V2-Lite"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (Qwen vs DeepSeek); different architectures despite both being decoders",
+      "source": ["Qwen/Qwen2.5-7B-Instruct-1M", "deepseek-ai/DeepSeek-V2-Lite"]
+    },
+    {
+      "pair": ["huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated", "stelterlab/phi-4-AWQ"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales; no shared lineage",
+      "source": ["huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated", "stelterlab/phi-4-AWQ"]
+    },
+    {
+      "pair": ["microsoft/phi-2", "Gensyn/Qwen2.5-0.5B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different families (Phi vs Qwen) at small scale; independently developed",
+      "source": ["microsoft/phi-2", "Gensyn/Qwen2.5-0.5B-Instruct"]
+    },
+    {
+      "pair": ["Qwen/Qwen3-Coder-30B-A3B-Instruct", "huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Vastly different scales (30B MoE vs 1.8B dense) from different families",
+      "source": ["Qwen/Qwen3-Coder-30B-A3B-Instruct", "huihui-ai/Huihui-HY-MT1.5-1.8B-abliterated"]
+    },
+    {
+      "pair": ["meta-llama/Llama-3.1-8B-Instruct", "microsoft/phi-4"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (Llama vs Phi) at similar scale; independently trained",
+      "source": ["meta-llama/Llama-3.1-8B-Instruct", "microsoft/phi-4"]
+    },
+    {
+      "pair": ["zai-org/GLM-Z1-9B-0414", "katanemo/Arch-Guard"],
+      "type": ["decoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (decoder vs encoder) at very different scales",
+      "source": ["zai-org/GLM-Z1-9B-0414", "katanemo/Arch-Guard"]
+    },
+    {
+      "pair": ["microsoft/MediPhi-Clinical", "Qwen/Qwen3-0.6B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different families (Phi vs Qwen) at different scales; no shared lineage",
+      "source": ["microsoft/MediPhi-Clinical", "Qwen/Qwen3-0.6B"]
+    },
+    {
+      "pair": ["bigscience/bloom-560m", "FacebookAI/roberta-base"],
+      "type": ["decoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (decoder vs encoder) from different families and training paradigms",
+      "source": ["bigscience/bloom-560m", "FacebookAI/roberta-base"]
+    },
+    {
+      "pair": ["zai-org/GLM-Z1-9B-0414", "EleutherAI/pythia-1.4b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales (9B vs 1.4B); no plausible lineage",
+      "source": ["zai-org/GLM-Z1-9B-0414", "EleutherAI/pythia-1.4b"]
+    },
+    {
+      "pair": ["FacebookAI/roberta-base", "THUDM/chatglm3-6b"],
+      "type": ["encoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (encoder vs decoder) from different families",
+      "source": ["FacebookAI/roberta-base", "THUDM/chatglm3-6b"]
+    },
+    {
+      "pair": ["stabilityai/stablelm-2-1_6b", "Qwen/Qwen3-0.6B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different small decoder families; no shared lineage or architecture",
+      "source": ["stabilityai/stablelm-2-1_6b", "Qwen/Qwen3-0.6B"]
+    },
+    {
+      "pair": ["zai-org/GLM-4.5-Air", "EleutherAI/pythia-2.8b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales; no shared lineage",
+      "source": ["zai-org/GLM-4.5-Air", "EleutherAI/pythia-2.8b"]
+    },
+    {
+      "pair": ["microsoft/NextCoder-14B", "01-ai/Yi-1.5-34B-32K"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different families (Qwen-based NextCoder vs Yi) at different scales",
+      "source": ["microsoft/NextCoder-14B", "01-ai/Yi-1.5-34B-32K"]
+    },
+    {
+      "pair": ["microsoft/phi-2", "microsoft/NextCoder-7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Same organization but different base families (Phi vs Qwen-based); no weight lineage between them",
+      "source": ["microsoft/phi-2", "microsoft/NextCoder-7B"]
+    },
+    {
+      "pair": ["EleutherAI/pythia-2.8b", "ChenShawn/DeepEyes-7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales; no shared lineage",
+      "source": ["EleutherAI/pythia-2.8b", "ChenShawn/DeepEyes-7B"]
+    },
+    {
+      "pair": ["microsoft/Phi-4-reasoning", "ethicalabs/Kurtis-E1.1-Qwen3-4B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different families (Phi vs Qwen) at similar scale; independently developed",
+      "source": ["microsoft/Phi-4-reasoning", "ethicalabs/Kurtis-E1.1-Qwen3-4B"]
+    },
+    {
+      "pair": ["FacebookAI/roberta-base", "EleutherAI/pythia-1.4b"],
+      "type": ["encoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (encoder vs decoder) from different families",
+      "source": ["FacebookAI/roberta-base", "EleutherAI/pythia-1.4b"]
+    },
+    {
+      "pair": ["deepseek-ai/deepseek-coder-7b-instruct-v1.5", "huihui-ai/Huihui-Qwen3-4B-abliterated-v2"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (DeepSeek vs Qwen) at different scales",
+      "source": ["deepseek-ai/deepseek-coder-7b-instruct-v1.5", "huihui-ai/Huihui-Qwen3-4B-abliterated-v2"]
+    },
+    {
+      "pair": ["meta-llama/Llama-3.1-8B-Instruct", "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (Llama vs Mistral) at similar scale; independently trained",
+      "source": ["meta-llama/Llama-3.1-8B-Instruct", "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"]
+    },
+    {
+      "pair": ["Gensyn/Qwen2.5-0.5B-Instruct", "katanemo/Arch-Guard"],
+      "type": ["decoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different architecture types (decoder vs encoder) at very different scales",
+      "source": ["Gensyn/Qwen2.5-0.5B-Instruct", "katanemo/Arch-Guard"]
+    },
+    {
+      "pair": ["zai-org/GLM-Z1-9B-0414", "Qwen/Qwen2.5-7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (GLM vs Qwen) at similar scale; independently developed",
+      "source": ["zai-org/GLM-Z1-9B-0414", "Qwen/Qwen2.5-7B"]
+    },
+    {
+      "pair": ["bigscience/bloom-560m", "EleutherAI/pythia-410m"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at similar small scale; baseline negative pair",
+      "source": ["bigscience/bloom-560m", "EleutherAI/pythia-410m"]
+    },
+    {
+      "pair": ["facebook/nllb-200-distilled-600M", "Helsinki-NLP/opus-mt-en-de"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different translation model families (NLLB vs MarianMT) at similar scale; shared task domain but independent development",
+      "source": ["facebook/nllb-200-distilled-600M", "Helsinki-NLP/opus-mt-en-de"]
+    },
+    {
+      "pair": ["bigscience/bloomz-560m", "Qwen/Qwen2-Math-1.5B-Instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families at different scales; no shared lineage",
+      "source": ["bigscience/bloomz-560m", "Qwen/Qwen2-Math-1.5B-Instruct"]
+    },
+    {
+      "pair": ["01-ai/Yi-Coder-1.5B", "microsoft/Phi-3-mini-4k-instruct"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "easy",
+      "challenge": "Different decoder families (Yi vs Phi) at different scales; no shared lineage",
+      "source": ["01-ai/Yi-Coder-1.5B", "microsoft/Phi-3-mini-4k-instruct"]
+    },
+    {
+      "pair": ["meta-llama/Llama-2-7b-hf", "meta-llama/Llama-2-13b-hf"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same model family, release, and tokenizer but independently trained at different parameter scales (7B vs 13B); family-level similarity without weight lineage",
+      "source": ["meta-llama/Llama-2-7b-hf", "meta-llama/Llama-2-13b-hf"]
+    },
+    {
+      "pair": ["Qwen/Qwen2.5-0.5B", "Qwen/Qwen2.5-7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same family with 14x parameter difference; each size independently pretrained on 18T tokens; shared tokenizer and naming",
+      "source": ["Qwen/Qwen2.5-0.5B", "Qwen/Qwen2.5-7B"]
+    },
+    {
+      "pair": ["FacebookAI/xlm-roberta-base", "FacebookAI/xlm-roberta-large"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same XLM-R family, base vs large independently trained; identical tokenizer and training data with different dimensions",
+      "source": ["FacebookAI/xlm-roberta-base", "FacebookAI/xlm-roberta-large"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "google-bert/bert-large-uncased"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Canonical same-family-different-size pair; same tokenizer and training data, independently trained at different scales",
+      "source": ["google-bert/bert-base-uncased", "google-bert/bert-large-uncased"]
+    },
+    {
+      "pair": ["microsoft/NextCoder-7B", "microsoft/NextCoder-14B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same product family at different scales; both derived from different-sized Qwen bases, no direct lineage between them",
+      "source": ["microsoft/NextCoder-7B", "microsoft/NextCoder-14B"]
+    },
+    {
+      "pair": ["01-ai/Yi-1.5-9B-Chat", "01-ai/Yi-1.5-34B-Chat"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same family and naming pattern but different scale (9B vs 34B); independently trained at each size",
+      "source": ["01-ai/Yi-1.5-9B-Chat", "01-ai/Yi-1.5-34B-Chat"]
+    },
+    {
+      "pair": ["google-t5/t5-small", "google/mt5-small"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same family name (T5/mT5) but mT5 trained from scratch on multilingual corpus with incompatible vocabulary (250K vs 32K)",
+      "source": ["google-t5/t5-small", "google/mt5-small"]
+    },
+    {
+      "pair": ["facebook/bart-base", "facebook/mbart-large-50"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same family name (BART/mBART) but mBART trained from scratch on multilingual corpus; family naming suggests lineage that does not exist",
+      "source": ["facebook/bart-base", "facebook/mbart-large-50"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "albert/albert-base-v2"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Similar reported dimensions but fundamentally different mechanism (ALBERT uses cross-layer parameter sharing and factorized embeddings); trained from scratch",
+      "source": ["google-bert/bert-base-uncased", "albert/albert-base-v2"]
+    },
+    {
+      "pair": ["FacebookAI/roberta-base", "microsoft/deberta-v3-base"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same dimensions (768 hidden, 12 layers) but DeBERTa uses disentangled attention and ELECTRA-style training; different mechanism despite matching metadata",
+      "source": ["FacebookAI/roberta-base", "microsoft/deberta-v3-base"]
+    },
+    {
+      "pair": ["google-t5/t5-base", "facebook/bart-base"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Both encoder-decoder transformers of similar scale from different families; structural metadata may overlap",
+      "source": ["google-t5/t5-base", "facebook/bart-base"]
+    },
+    {
+      "pair": ["Helsinki-NLP/opus-mt-en-de", "Helsinki-NLP/opus-mt-en-fr"],
+      "type": ["encoder-decoder", "encoder-decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same organization and architecture but independently trained per language pair on different parallel corpora",
+      "source": ["Helsinki-NLP/opus-mt-en-de", "Helsinki-NLP/opus-mt-en-fr"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "allenai/scibert_scivocab_uncased"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Identical architecture trained from scratch with completely different scientific vocabulary; no weight lineage despite same architecture",
+      "source": ["google-bert/bert-base-uncased", "allenai/scibert_scivocab_uncased"]
+    },
+    {
+      "pair": ["microsoft/phi-2", "google/gemma-2b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Similar-sized decoders (~2-3B) from different families; comparable dimensions from architectural convergence at small scale",
+      "source": ["microsoft/phi-2", "google/gemma-2b"]
+    },
+    {
+      "pair": ["EleutherAI/gpt-j-6b", "EleutherAI/gpt-neo-2.7B"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same organization, same training data (The Pile), but independently trained with different architectures (rotary vs alternating attention)",
+      "source": ["EleutherAI/gpt-j-6b", "EleutherAI/gpt-neo-2.7B"]
+    },
+    {
+      "pair": ["Salesforce/codegen-350M-mono", "bigcode/starcoderbase-1b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Both code-generation models; tokenizers share significant code-token overlap (programming keywords, operators) despite independent development",
+      "source": ["Salesforce/codegen-350M-mono", "bigcode/starcoderbase-1b"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "google-bert/bert-base-cased"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "medium",
+      "challenge": "Same BERT family but independently trained; uncased has lowercase-only vocabulary while cased preserves case — different tokenizers despite same architecture",
+      "source": ["google-bert/bert-base-uncased", "google-bert/bert-base-cased"]
+    },
+
+
+    {
+      "pair": ["mistralai/Mistral-7B-v0.1", "meta-llama/Llama-2-7b-hf"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Both 7B decoders with GQA, RoPE, SiLU, and RMSNorm — the standard decoder recipe of 2023+; high architectural overlap from convergent design without weight relationship",
+      "source": ["mistralai/Mistral-7B-v0.1", "meta-llama/Llama-2-7b-hf"]
+    },
+    {
+      "pair": ["tiiuae/falcon-7b", "mistralai/Mistral-7B-v0.1"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Both ~7B decoders with similar dimensions but different attention mechanisms (MQA vs GQA); architectural convergence at the same parameter scale",
+      "source": ["tiiuae/falcon-7b", "mistralai/Mistral-7B-v0.1"]
+    },
+    {
+      "pair": ["google-bert/bert-base-uncased", "FacebookAI/roberta-base"],
+      "type": ["encoder", "encoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Identical dimensions (12 layers, 768 hidden, 12 heads) but RoBERTa trained from scratch with different tokenizer and training procedure; maximum metadata overlap without weight lineage",
+      "source": ["google-bert/bert-base-uncased", "FacebookAI/roberta-base"]
+    },
+    {
+      "pair": ["meta-llama/Llama-2-7b-hf", "01-ai/Yi-6B-200K"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Yi independently trained but originally shared model_type metadata with Llama; similar GQA + RoPE architecture creates high surface similarity",
+      "source": ["meta-llama/Llama-2-7b-hf", "01-ai/Yi-6B-200K"]
+    },
+    {
+      "pair": ["stabilityai/stablelm-base-alpha-3b", "EleutherAI/pythia-2.8b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Both use GPT-NeoX architecture and share the same tokenizer; similar scale (~3B) with high vocabulary and metadata overlap despite independent training",
+      "source": ["stabilityai/stablelm-base-alpha-3b", "EleutherAI/pythia-2.8b"]
+    },
+    {
+      "pair": ["EleutherAI/pythia-1.4b", "togethercomputer/RedPajama-INCITE-Base-3B-v1"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Shared tokenizer and architecture framework with high vocabulary overlap; independently trained but surface signals suggest relationship",
+      "source": ["EleutherAI/pythia-1.4b", "togethercomputer/RedPajama-INCITE-Base-3B-v1"]
+    },
+    {
+      "pair": ["mistralai/Mistral-7B-v0.3", "microsoft/MediPhi-Clinical"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Different families but both decoders at similar scale with potential tokenizer token overlap from shared English subwords",
+      "source": ["mistralai/Mistral-7B-v0.3", "microsoft/MediPhi-Clinical"]
+    },
+    {
+      "pair": ["EleutherAI/pythia-1.4b", "01-ai/Yi-1.5-9B-32K"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Both decoders with some architectural similarity; potential for false positive from shared design patterns despite independent development",
+      "source": ["EleutherAI/pythia-1.4b", "01-ai/Yi-1.5-9B-32K"]
+    },
+    {
+      "pair": ["mistralai/Mistral-7B-v0.1", "huihui-ai/Huihui-Qwen3-4B-abliterated-v2"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "hard",
+      "challenge": "Both modern decoders with similar architectural patterns (GQA, RoPE); surface-level design convergence without weight relationship",
+      "source": ["mistralai/Mistral-7B-v0.1", "huihui-ai/Huihui-Qwen3-4B-abliterated-v2"]
+    },
+    {
+      "pair": ["meta-llama/Llama-2-7b-hf", "openlm-research/open_llama_7b"],
+      "type": ["decoder", "decoder"],
+      "provenance": "none",
+      "difficulty": "extreme",
+      "challenge": "Independent reproduction using identical architecture, tokenizer, and vocabulary; only weight-level analysis can distinguish — all surface signals match. The hardest dissimilar case.",
+      "source": ["meta-llama/Llama-2-7b-hf", "openlm-research/open_llama_7b"]
+    }
+  ]
+}

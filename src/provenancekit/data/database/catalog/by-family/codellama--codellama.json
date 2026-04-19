@@ -1,0 +1,33 @@
+{
+  "shard_id": "1581e250-8937-4c8e-8e33-e0a7f053fcd7",
+  "updated_at": "2026-04-18T18:55:01.500336+00:00",
+  "family": {
+    "family_id": "codellama--codellama",
+    "display_name": "CodeLlama",
+    "publisher": "codellama",
+    "baseline_model_ids": [
+      "CodeLlama-13b-Instruct-hf",
+      "CodeLlama-7b-hf"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "CodeLlama-13b-Instruct-hf__hf-safetensors",
+      "model_id": "CodeLlama-13b-Instruct-hf",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/codellama--codellama/CodeLlama-13b-Instruct-hf__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/codellama/CodeLlama-13b-Instruct-hf",
+      "canonical_name": "CodeLlama-13b-Instruct-hf"
+    },
+    {
+      "asset_id": "CodeLlama-7b-hf__hf-safetensors",
+      "model_id": "CodeLlama-7b-hf",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/codellama--codellama/CodeLlama-7b-hf__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/codellama/CodeLlama-7b-hf",
+      "canonical_name": "CodeLlama-7b-hf"
+    }
+  ]
+}

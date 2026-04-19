@@ -1,0 +1,23 @@
+{
+  "shard_id": "a57a89f4-a5e6-433a-bad6-122fd7bc8acb",
+  "updated_at": "2026-04-18T18:55:01.500333+00:00",
+  "family": {
+    "family_id": "nousresearch--nouscoder",
+    "display_name": "NousCoder",
+    "publisher": "nousresearch",
+    "baseline_model_ids": [
+      "NousCoder-14B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "NousCoder-14B__hf-safetensors",
+      "model_id": "NousCoder-14B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/nousresearch--nouscoder/NousCoder-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/NousResearch/NousCoder-14B",
+      "canonical_name": "NousCoder-14B"
+    }
+  ]
+}

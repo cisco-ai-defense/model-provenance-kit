@@ -1,0 +1,43 @@
+{
+  "shard_id": "bb63e803-21d7-4045-9bc8-cebaabe85b2e",
+  "updated_at": "2026-04-18T18:55:01.500298+00:00",
+  "family": {
+    "family_id": "tencent--hymt",
+    "display_name": "HY-MT",
+    "publisher": "tencent",
+    "baseline_model_ids": [
+      "HY-MT1.5-7B",
+      "Hunyuan-1.8B-Pretrain",
+      "Hunyuan-4B-Pretrain"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "HY-MT1.5-7B__hf-safetensors",
+      "model_id": "HY-MT1.5-7B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--hymt/HY-MT1.5-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/HY-MT1.5-7B",
+      "canonical_name": "HY-MT1.5-7B"
+    },
+    {
+      "asset_id": "Hunyuan-1.8B-Pretrain__hf-safetensors",
+      "model_id": "Hunyuan-1.8B-Pretrain",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--hymt/Hunyuan-1.8B-Pretrain__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/Hunyuan-1.8B-Pretrain",
+      "canonical_name": "Hunyuan-1.8B-Pretrain"
+    },
+    {
+      "asset_id": "Hunyuan-4B-Pretrain__hf-safetensors",
+      "model_id": "Hunyuan-4B-Pretrain",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tencent--hymt/Hunyuan-4B-Pretrain__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/tencent/Hunyuan-4B-Pretrain",
+      "canonical_name": "Hunyuan-4B-Pretrain"
+    }
+  ]
+}

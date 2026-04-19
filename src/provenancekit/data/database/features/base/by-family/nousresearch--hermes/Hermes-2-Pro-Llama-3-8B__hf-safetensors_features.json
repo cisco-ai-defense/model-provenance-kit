@@ -1,0 +1,112 @@
+{
+  "bundle_id": "7a3fb576-c091-414b-99bb-11d955d78b3a",
+  "model_id": "Hermes-2-Pro-Llama-3-8B",
+  "asset_id": "Hermes-2-Pro-Llama-3-8B__hf-safetensors",
+  "family_id": "nousresearch--hermes",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-17T04:24:01.347409+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 14336,
+    "vocab_size": 128288,
+    "max_position_embeddings": 8192,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 500000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 128000,
+    "eos_token_id": 128003,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "209ca13fd4111e704389664174eca76c08b3892655584d01aa9dbd1cd0bbd6d1",
+    "token_id_signature": "bos=128000|eos=128003",
+    "arch_hash": "ce628439025c4448c7a5c7b6d0f85aba2c650c81888dce79fc962074b425cb37",
+    "family_hash": "4038611f1b4a118ed848134e912edaebd54556686b49bac11d41483d928cd217"
+  },
+  "tfv": {
+    "vocab_size": 128257,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": 128000,
+    "eos_token_id": 128003,
+    "pad_token_id": 128001,
+    "num_added_tokens": 257,
+    "num_special_tokens": 3,
+    "num_merges": 280147,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120 \u0120\u0120\u0120",
+      "\u0120\u0120 \u0120\u0120",
+      "\u0120\u0120\u0120 \u0120",
+      "i n"
+    ],
+    "merge_rule_hash": "252057d84cdb86d246d2018f5ee39e7e27adcc7cdf8ae4ae423a589ed29c61dd",
+    "special_token_ids": {
+      "pad": 128001,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.54,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4512,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9922,
+      "Other": 0.0078
+    }
+  },
+  "vocab": {
+    "size": 128257
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 65,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 266240,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Hermes-2-Pro-Llama-3-8B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/nousresearch--hermes/Hermes-2-Pro-Llama-3-8B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:a8c823f719686d943f0c388fd3bfff1af51b7c297130ba3050749a1ae7543233",
+      "availability": "local"
+    }
+  ]
+}

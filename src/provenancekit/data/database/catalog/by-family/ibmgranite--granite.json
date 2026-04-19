@@ -1,0 +1,63 @@
+{
+  "shard_id": "9fe5b291-b68a-40af-8cf9-c44cd202108c",
+  "updated_at": "2026-04-18T18:55:01.500222+00:00",
+  "family": {
+    "family_id": "ibmgranite--granite",
+    "display_name": "Granite",
+    "publisher": "ibm-granite",
+    "baseline_model_ids": [
+      "granite-3.1-8b-instruct",
+      "granite-3.2-8b-instruct",
+      "granite-3.3-8b-instruct",
+      "granite-4.0-1b",
+      "granite-4.0-350m"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "granite-3.1-8b-instruct__hf-safetensors",
+      "model_id": "granite-3.1-8b-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ibmgranite--granite/granite-3.1-8b-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/ibm-granite/granite-3.1-8b-instruct",
+      "canonical_name": "granite-3.1-8b-instruct"
+    },
+    {
+      "asset_id": "granite-3.2-8b-instruct__hf-safetensors",
+      "model_id": "granite-3.2-8b-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ibmgranite--granite/granite-3.2-8b-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/ibm-granite/granite-3.2-8b-instruct",
+      "canonical_name": "granite-3.2-8b-instruct"
+    },
+    {
+      "asset_id": "granite-3.3-8b-instruct__hf-safetensors",
+      "model_id": "granite-3.3-8b-instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ibmgranite--granite/granite-3.3-8b-instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/ibm-granite/granite-3.3-8b-instruct",
+      "canonical_name": "granite-3.3-8b-instruct"
+    },
+    {
+      "asset_id": "granite-4.0-1b__hf-safetensors",
+      "model_id": "granite-4.0-1b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ibmgranite--granite/granite-4.0-1b__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/ibm-granite/granite-4.0-1b",
+      "canonical_name": "granite-4.0-1b"
+    },
+    {
+      "asset_id": "granite-4.0-350m__hf-safetensors",
+      "model_id": "granite-4.0-350m",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ibmgranite--granite/granite-4.0-350m__hf-safetensors_features.json",
+      "param_bucket": "<=1B",
+      "source_uri": "https://huggingface.co/ibm-granite/granite-4.0-350m",
+      "canonical_name": "granite-4.0-350m"
+    }
+  ]
+}
