@@ -71,4 +71,4 @@ TOKENIZER_WEIGHTS: dict[str, float] = {"tfv": 0.25, "voa": 0.75}
 # ── Decision threshold ────────────────────────────────────────────
 # Calibrated on 111-pair benchmark (best F1 via threshold sweep).
 
-SIMILARITY_THRESHOLD: float = 0.70
+SIMILARITY_THRESHOLD: float = 0.75

@@ -94,31 +94,32 @@ class TestInterpretScore:
         assert result.label == "Insufficient data"
         assert result.colour == "#999999"
 
-    def test_band_high(self) -> None:
-        assert interpret_score(0.85).label == "Same family / direct derivative"
-        assert interpret_score(0.95).label == "Same family / direct derivative"
-        assert interpret_score(1.00).label == "Same family / direct derivative"
+    def test_band_high_confidence(self) -> None:
+        assert interpret_score(0.76).label == "High-Confidence Match"
+        assert interpret_score(0.85).label == "High-Confidence Match"
+        assert interpret_score(0.95).label == "High-Confidence Match"
+        assert interpret_score(1.00).label == "High-Confidence Match"
 
-    def test_band_likely(self) -> None:
-        result = interpret_score(0.75)
-        assert result.label == "Likely same family or closely related"
-        assert interpret_score(0.72).label == "Likely same family or closely related"
+    def test_band_weak_match(self) -> None:
+        assert interpret_score(0.66).label == "Weak Match"
+        assert interpret_score(0.70).label == "Weak Match"
+        assert interpret_score(0.75).label == "Weak Match"
 
-    def test_band_possibly(self) -> None:
-        assert interpret_score(0.60).label == "Possibly related"
-        assert interpret_score(0.65).label == "Possibly related"
+    def test_band_not_matched(self) -> None:
+        assert interpret_score(0.00).label == "Not Matched"
+        assert interpret_score(0.10).label == "Not Matched"
+        assert interpret_score(0.30).label == "Not Matched"
+        assert interpret_score(0.50).label == "Not Matched"
+        assert interpret_score(0.65).label == "Not Matched"
 
-    def test_band_weakly(self) -> None:
-        assert interpret_score(0.50).label == "Weakly related"
-        assert interpret_score(0.55).label == "Weakly related"
+    def test_boundary_075_is_weak(self) -> None:
+        assert interpret_score(0.75).label == "Weak Match"
 
-    def test_band_different(self) -> None:
-        assert interpret_score(0.10).label == "Different families"
-        assert interpret_score(0.00).label == "Different families"
-        assert interpret_score(0.30).label == "Different families"
+    def test_boundary_065_is_not_matched(self) -> None:
+        assert interpret_score(0.65).label == "Not Matched"
 
     def test_each_band_has_colour(self) -> None:
-        for s in [NAN, 0.90, 0.70, 0.50, 0.30, 0.10]:
+        for s in [NAN, 0.90, 0.70, 0.50, 0.10]:
             result = interpret_score(s)
             assert result.colour.startswith("#")
             assert len(result.colour) == 7

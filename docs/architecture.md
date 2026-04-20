@@ -132,11 +132,10 @@ Similarity scores are combined into composite scores and a final verdict:
 
    | Pipeline Score | Verdict |
    |----------------|---------|
-   | >= 0.85 | Same family / direct derivative |
-   | >= 0.65 | Likely same family or closely related |
-   | >= 0.45 | Possibly related |
-   | >= 0.25 | Weakly related |
-   | < 0.25 | Different families |
+   | S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
+   | S > 0.75 | High-Confidence Match |
+   | 0.65 < S ≤ 0.75 | Weak Match |
+   | S ≤ 0.65 | Not Matched |
 
 See [Scoring and Model Loading](scoring-and-model-loading.md) for detailed
 formulas, worked examples, and large model support.

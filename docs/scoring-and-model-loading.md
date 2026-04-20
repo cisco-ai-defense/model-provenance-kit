@@ -82,26 +82,25 @@ score.
 
 | Pipeline Score | Verdict |
 |----------------|---------|
-| >= 0.85 | Same family / direct derivative |
-| >= 0.65 | Likely same family or closely related |
-| >= 0.45 | Possibly related |
-| >= 0.25 | Weakly related |
-| < 0.25 | Different families |
+| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
+| S > 0.75 | High-Confidence Match |
+| 0.65 < S ≤ 0.75 | Weak Match |
+| S ≤ 0.65 | Not Matched |
 
 ### Worked Examples
 
 **Fine-tune** (Llama-2-7B → Llama-2-7B-Chat):
 
 All weight signals score in the high 0.90s. The identity score is ~0.97.
-Tokenizer score is ~1.00 (same tokenizer). Pipeline verdict: "Same family /
-direct derivative."
+Tokenizer score is ~1.00 (same tokenizer). Pipeline verdict: "High-Confidence
+Match."
 
 **Shared tokenizer, independent training** (StableLM-3B vs Pythia-2.8B):
 
 Weight signals are low (EAS ~0.36, WVC ~0.02) — weights are uncorrelated
 because the models were trained from scratch independently. Identity score is
 ~0.35. Tokenizer score is ~1.00 (identical GPT-NeoX tokenizer). The pipeline
-correctly returns "Weakly related" based on weights alone, despite the
+correctly returns "Not Matched" based on weights alone, despite the
 tokenizer being identical.
 
 **Vocabulary-modified derivation** (tokenizer rebuilt during continued
@@ -109,12 +108,12 @@ pretraining):
 
 Some weight signals remain high (NLF ~0.80, WVC ~0.65) because core weights
 still carry the parent's values. EAS is partially preserved (~0.75). Identity
-score is ~0.63. Pipeline verdict: "Possibly related."
+score is ~0.63. Pipeline verdict: "Not Matched."
 
 **Completely unrelated** (Falcon-7B vs Mistral-7B):
 
 All weight signals are near baseline. Identity score ~0.20. Pipeline verdict:
-"Different families."
+"Not Matched."
 
 ---
 

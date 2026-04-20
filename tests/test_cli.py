@@ -59,10 +59,10 @@ def _fake_result() -> CompareResult:
             identity_score=0.96,
             tokenizer_score=0.90,
             pipeline_score=1.0,
-            provenance_decision="same_family",
+            provenance_decision="Confirmed Match",
         ),
         interpretation=ScoreInterpretation(
-            label="Same family / direct derivative",
+            label="High-Confidence Match",
             colour="#2ecc71",
         ),
         time_seconds=2.5,
@@ -131,7 +131,7 @@ class TestCompareCommand:
 
         assert code == 0
         assert "Pipeline Score" in stdout
-        assert "Same family / direct derivative" in stdout
+        assert "High-Confidence Match" in stdout
 
     def test_plain_flag(self) -> None:
         mock_scanner = MagicMock()
@@ -223,7 +223,7 @@ def _fake_scan_result() -> ScanResult:
                     wvc=0.92,
                     tfv=0.91,
                 ),
-                provenance_decision="same_family",
+                provenance_decision="Confirmed Match",
                 elapsed_ms=50.0,
             ),
         ],
@@ -267,7 +267,7 @@ class TestScanCommand:
         assert "Parameters" in stdout
         assert "Layers" in stdout
         assert "gpt2" in stdout
-        assert "same_family" in stdout
+        assert "Confirmed Match" in stdout
         assert "Pipeline Score" in stdout
         assert "MFI Score" in stdout
         assert "Weight Score" in stdout
@@ -287,7 +287,7 @@ class TestScanCommand:
         assert code == 0
         assert "model:" in stdout and "gpt2" in stdout
         assert "match_1_pipeline_score:" in stdout
-        assert "match_1_provenance_decision:" in stdout and "same_family" in stdout
+        assert "match_1_provenance_decision:" in stdout and "Confirmed Match" in stdout
 
     def test_scanner_error(self) -> None:
         mock_scanner = MagicMock()

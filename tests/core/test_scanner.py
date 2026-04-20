@@ -216,7 +216,7 @@ class TestCompareUnit:
     def test_mfi_tier1_uses_mfi_score(self) -> None:
         result = self._scanner.compare("gpt2", "gpt2")
         assert result.scores.pipeline_score == 1.0
-        assert result.scores.provenance_decision == "same_family"
+        assert result.scores.provenance_decision == "Confirmed Match"
         assert result.scores.mfi_tier == 1
 
     def test_mfi_tier3_uses_identity_score(self) -> None:
@@ -573,7 +573,7 @@ class TestScannerOnline:
         assert isinstance(result, CompareResult)
         assert result.scores.mfi_tier == 1
         assert result.scores.pipeline_score == 1.0
-        assert result.scores.provenance_decision == "same_family"
+        assert result.scores.provenance_decision == "Confirmed Match"
         assert result.family_a == "gpt2"
         assert result.family_b == "gpt2"
         assert result.time_seconds > 0

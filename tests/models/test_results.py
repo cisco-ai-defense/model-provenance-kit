@@ -115,7 +115,7 @@ class TestPipelineScore:
             identity_score=0.78,
             tokenizer_score=1.0,
             pipeline_score=1.0,
-            provenance_decision="Same family / direct derivative",
+            provenance_decision="Confirmed Match",
         )
         assert ps.pipeline_score == ps.mfi_score
         assert ps.mfi_tier == 1
@@ -128,7 +128,7 @@ class TestPipelineScore:
             identity_score=0.85,
             tokenizer_score=0.95,
             pipeline_score=0.9,
-            provenance_decision="Same family / direct derivative",
+            provenance_decision="Confirmed Match",
         )
         assert ps.pipeline_score == ps.mfi_score
 
@@ -140,7 +140,7 @@ class TestPipelineScore:
             identity_score=0.71,
             tokenizer_score=0.88,
             pipeline_score=0.71,
-            provenance_decision="Likely same family or closely related",
+            provenance_decision="Weak Match",
         )
         assert ps.pipeline_score == ps.identity_score
 
@@ -164,7 +164,7 @@ class TestPipelineScore:
             identity_score=0.9,
             tokenizer_score=None,
             pipeline_score=1.0,
-            provenance_decision="Same family / direct derivative",
+            provenance_decision="Confirmed Match",
         )
         assert ps.tokenizer_score is None
 
@@ -175,10 +175,10 @@ class TestPipelineScore:
 class TestScoreInterpretation:
     def test_valid(self):
         si = ScoreInterpretation(
-            label="Same family / direct derivative",
+            label="High-Confidence Match",
             colour="#2ecc71",
         )
-        assert si.label == "Same family / direct derivative"
+        assert si.label == "High-Confidence Match"
         assert si.colour == "#2ecc71"
 
     def test_insufficient_data(self):
@@ -214,10 +214,10 @@ def _make_compare_result() -> CompareResult:
             identity_score=0.78,
             tokenizer_score=1.0,
             pipeline_score=1.0,
-            provenance_decision="Same family / direct derivative",
+            provenance_decision="Confirmed Match",
         ),
         interpretation=ScoreInterpretation(
-            label="Same family / direct derivative",
+            label="High-Confidence Match",
             colour="#2ecc71",
         ),
         time_seconds=9.5,
@@ -297,7 +297,7 @@ class TestScanResult:
                 wvc=0.94,
                 tfv=0.85,
             ),
-            provenance_decision="same_family",
+            provenance_decision="Confirmed Match",
             elapsed_ms=12.5,
         )
 
