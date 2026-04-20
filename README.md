@@ -296,11 +296,10 @@ Model ProvenanceKit combines three categories of evidence into a single pipeline
 
 | Pipeline Score | Verdict |
 |----------------|---------|
-| ≥ 0.85 | Same family / direct derivative |
-| ≥ 0.72 | Likely related |
-| ≥ 0.60 | Possibly related |
-| ≥ 0.50 | Weakly related |
-| < 0.50 | Different families |
+| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
+| S > 0.75 | High-Confidence Match |
+| 0.65 < S ≤ 0.75 | Weak Match |
+| S ≤ 0.65 | Not Matched |
 
 ## Caching
 

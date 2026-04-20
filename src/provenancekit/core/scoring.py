@@ -81,26 +81,18 @@ def compute_tokenizer_score(tfv_sim: float, voa_sim: float) -> float:
 # ── Interpretation ────────────────────────────────────────────────
 # Verdict thresholds calibrated on the 111-pair benchmark.
 
-_SCORE_SAME_FAMILY = 0.85
-_SCORE_LIKELY_RELATED = 0.72
-_SCORE_POSSIBLY_RELATED = 0.60
-_SCORE_WEAKLY_RELATED = 0.50
+_SCORE_HIGH_CONFIDENCE = 0.75
+_SCORE_WEAK_MATCH = 0.65
 
 
 def interpret_score(score: float) -> ScoreInterpretation:
     """Return a human-readable verdict and colour for a pipeline score."""
     if math.isnan(score):
         return ScoreInterpretation(label="Insufficient data", colour="#999999")
-    if score >= _SCORE_SAME_FAMILY:
+    if score > _SCORE_HIGH_CONFIDENCE:
         return ScoreInterpretation(
-            label="Same family / direct derivative", colour="#2ecc71"
+            label="High-Confidence Match", colour="#2ecc71"
         )
-    if score >= _SCORE_LIKELY_RELATED:
-        return ScoreInterpretation(
-            label="Likely same family or closely related", colour="#27ae60"
-        )
-    if score >= _SCORE_POSSIBLY_RELATED:
-        return ScoreInterpretation(label="Possibly related", colour="#f39c12")
-    if score >= _SCORE_WEAKLY_RELATED:
-        return ScoreInterpretation(label="Weakly related", colour="#e67e22")
-    return ScoreInterpretation(label="Different families", colour="#e74c3c")
+    if score > _SCORE_WEAK_MATCH:
+        return ScoreInterpretation(label="Weak Match", colour="#f39c12")
+    return ScoreInterpretation(label="Not Matched", colour="#e74c3c")

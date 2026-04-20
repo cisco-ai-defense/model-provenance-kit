@@ -297,7 +297,7 @@ def stage3_similarity(
         # -- MFI gate: decide pipeline_score and decision label --
         if mfi_sim.tier <= 2:
             pipeline_score = mfi_sim.score
-            decision = "same_family"
+            decision = "Confirmed Match"
         elif not math.isnan(identity):
             pipeline_score = identity
             decision = interpret_score(pipeline_score).label

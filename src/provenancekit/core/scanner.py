@@ -209,7 +209,7 @@ class ModelProvenanceScanner:
 
         if mfi.tier <= 2:
             pipeline_score = mfi.score
-            decision = "same_family"
+            decision = "Confirmed Match"
         elif not math.isnan(identity):
             pipeline_score = identity
             decision = ""

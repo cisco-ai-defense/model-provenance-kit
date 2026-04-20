@@ -58,10 +58,10 @@ def full_result() -> CompareResult:
             identity_score=0.9607,
             tokenizer_score=0.8975,
             pipeline_score=1.0,
-            provenance_decision="same_family",
+            provenance_decision="Confirmed Match",
         ),
         interpretation=ScoreInterpretation(
-            label="Same family / direct derivative",
+            label="High-Confidence Match",
             colour="#2ecc71",
         ),
         time_seconds=4.2,
@@ -91,10 +91,10 @@ def none_signals_result() -> CompareResult:
             identity_score=None,
             tokenizer_score=0.35,
             pipeline_score=0.2,
-            provenance_decision="Different families",
+            provenance_decision="Not Matched",
         ),
         interpretation=ScoreInterpretation(
-            label="Different families",
+            label="Not Matched",
             colour="#e74c3c",
         ),
         time_seconds=1.0,
@@ -120,7 +120,7 @@ class TestFormatJson:
 class TestFormatTable:
     def test_contains_verdict(self, full_result: CompareResult) -> None:
         output = format_table(full_result)
-        assert "Same family / direct derivative" in output
+        assert "High-Confidence Match" in output
 
     def test_contains_models(self, full_result: CompareResult) -> None:
         output = format_table(full_result)
