@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     hf_dataset_repo: str = "cisco-ai/model-provenance-kit"
     hf_deep_signals_url: str = ""
     hf_deep_signals_sha256: str = (
-        "497e4e881c63564765fb1237b0764ac4df1e3e80d475dc8e84cad2d3ee936d11"
+        "edf0aefd7d207f4d4cc1d6d54a9b68ca19265360d0c36d50b616f88b7a5cc9ff"
     )
 
     def model_post_init(self, __context: object) -> None:

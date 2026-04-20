@@ -50,10 +50,10 @@
     "num_special_tokens": 38,
     "num_merges": 48872,
     "first_5_merges": [
-      "\u0120 \u0120",
-      "\u0120\u0120 \u0120\u0120",
-      "\u0120\u0120\u0120\u0120 \u0120\u0120\u0120\u0120",
-      "\u0120\u0120 \u0120",
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "ĠĠĠĠ ĠĠĠĠ",
+      "ĠĠ Ġ",
       "e r"
     ],
     "merge_rule_hash": "aecc076f315dfee8c936203fc6bcf8367ca2af4a50b3e79a728c4e29180fd34e",
@@ -105,7 +105,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:3de2dd0eee9a15c981dc90fbc33acdf5fb0ed6d48ef5587a25eccf6e7af866a7",
+      "checksum": "sha256:48ddad1c66079a7fc6370f81cf0752657a8cd4d037c95ec070cc84de6ac11a70",
       "availability": "local"
     }
   ]

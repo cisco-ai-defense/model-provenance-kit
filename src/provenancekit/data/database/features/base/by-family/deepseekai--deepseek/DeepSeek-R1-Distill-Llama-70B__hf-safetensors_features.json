@@ -1,0 +1,116 @@
+{
+  "bundle_id": "68704157-0b80-4e7c-a241-cab288640611",
+  "model_id": "DeepSeek-R1-Distill-Llama-70B",
+  "asset_id": "DeepSeek-R1-Distill-Llama-70B__hf-safetensors",
+  "family_id": "deepseekai--deepseek",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-19T08:49:12.128445+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "llama",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "hidden_size": 8192,
+    "num_hidden_layers": 80,
+    "num_attention_heads": 64,
+    "num_key_value_heads": 8,
+    "intermediate_size": 28672,
+    "vocab_size": 128256,
+    "max_position_embeddings": 131072,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "factor": 8.0,
+      "high_freq_factor": 4.0,
+      "low_freq_factor": 1.0,
+      "original_max_position_embeddings": 8192,
+      "rope_type": "llama3",
+      "rope_theta": 500000.0
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": 128000,
+    "eos_token_id": 128001,
+    "gqa_ratio": 8.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "ae2abe189e8b2bfc057acfcf5cb7b42d5f766472e1fe0d508fc796037225d4c9",
+    "token_id_signature": "bos=128000|eos=128001",
+    "arch_hash": "70b87e7b381083a1ec125e1db2613aa3978e175392f92af54ddb0163b6a6197d",
+    "family_hash": "01b8ef9594cda5fdfcfa3b7607a2f9412bcb43abd74ef413d19e03a1c987c1d2"
+  },
+  "tfv": {
+    "vocab_size": 128256,
+    "tokenizer_class": "LlamaTokenizer",
+    "bos_token_id": 128000,
+    "eos_token_id": 128001,
+    "pad_token_id": 128001,
+    "num_added_tokens": 256,
+    "num_special_tokens": 2,
+    "num_merges": 280147,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "Ġ ĠĠĠ",
+      "ĠĠ ĠĠ",
+      "ĠĠĠ Ġ",
+      "i n"
+    ],
+    "merge_rule_hash": "252057d84cdb86d246d2018f5ee39e7e27adcc7cdf8ae4ae423a589ed29c61dd",
+    "special_token_ids": {
+      "pad": 128001,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.002,
+    "avg_token_length": 6.54,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4512,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9922,
+      "Other": 0.0078
+    }
+  },
+  "vocab": {
+    "size": 128256
+  },
+  "signals": {
+    "hidden_size": 8192,
+    "num_layers": 80,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 161,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 1318912,
+    "lep_profile_length": 80,
+    "wsp_signature_length": 160,
+    "wvc_layer_count": 80,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "DeepSeek-R1-Distill-Llama-70B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/deepseekai--deepseek/DeepSeek-R1-Distill-Llama-70B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:05bf0403396d0f98d771b756b4779774ede9c19ce008195f219f25cc977e0e8e",
+      "availability": "local"
+    }
+  ]
+}

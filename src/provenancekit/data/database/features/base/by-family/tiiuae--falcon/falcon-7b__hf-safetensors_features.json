@@ -50,8 +50,8 @@
     "num_special_tokens": 12,
     "num_merges": 64784,
     "first_5_merges": [
-      "\u0120 t",
-      "\u0120 a",
+      "Ġ t",
+      "Ġ a",
       "i n",
       "h e",
       "r e"

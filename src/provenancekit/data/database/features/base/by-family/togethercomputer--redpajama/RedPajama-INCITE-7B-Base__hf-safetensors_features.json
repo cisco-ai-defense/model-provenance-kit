@@ -51,9 +51,9 @@
     "num_special_tokens": 2,
     "num_merges": 50009,
     "first_5_merges": [
-      "\u0120 \u0120",
-      "\u0120 t",
-      "\u0120 a",
+      "Ġ Ġ",
+      "Ġ t",
+      "Ġ a",
       "h e",
       "i n"
     ],
@@ -106,7 +106,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:48374a8b31167766c9200a11ecbf73685781b74cfdcb570e9bffb4ec29cb7590",
+      "checksum": "sha256:60001d3f4b66d2fff449c0426e98542b33a0c5e58c6c40c7ab29b775f48d1c36",
       "availability": "local"
     }
   ]

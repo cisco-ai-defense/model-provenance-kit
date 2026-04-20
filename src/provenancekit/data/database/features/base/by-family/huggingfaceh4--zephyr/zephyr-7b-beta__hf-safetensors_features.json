@@ -50,10 +50,10 @@
     "num_special_tokens": 3,
     "num_merges": 58980,
     "first_5_merges": [
-      "\u2581 t",
+      "▁ t",
       "i n",
       "e r",
-      "\u2581 a",
+      "▁ a",
       "h e"
     ],
     "merge_rule_hash": "f05fedb9d916344f91109aeefddbb49fb8649694384479ab2f8685b56b54365d",

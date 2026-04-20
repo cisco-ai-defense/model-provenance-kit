@@ -1,0 +1,33 @@
+{
+  "shard_id": "a95130a2-2af4-44bc-b4d6-a0d0fe8e8297",
+  "updated_at": "2026-04-19T03:47:58.062456+00:00",
+  "family": {
+    "family_id": "microsoft--nextcoder",
+    "display_name": "microsoft--nextcoder",
+    "publisher": "microsoft",
+    "baseline_model_ids": [
+      "NextCoder-14B",
+      "NextCoder-7B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "NextCoder-14B__hf-safetensors",
+      "model_id": "NextCoder-14B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--nextcoder/NextCoder-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/microsoft/NextCoder-14B",
+      "canonical_name": "NextCoder-14B"
+    },
+    {
+      "asset_id": "NextCoder-7B__hf-safetensors",
+      "model_id": "NextCoder-7B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--nextcoder/NextCoder-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/microsoft/NextCoder-7B",
+      "canonical_name": "NextCoder-7B"
+    }
+  ]
+}

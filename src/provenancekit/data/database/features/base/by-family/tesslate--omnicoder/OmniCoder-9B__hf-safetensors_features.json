@@ -1,0 +1,119 @@
+{
+  "bundle_id": "711a5e17-4241-4798-b95e-c9956f4ec099",
+  "model_id": "OmniCoder-9B",
+  "asset_id": "OmniCoder-9B__hf-safetensors",
+  "family_id": "tesslate--omnicoder",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-19T03:43:47.070154+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "qwen3_5",
+    "architectures": [
+      "Qwen3_5ForConditionalGeneration"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 4,
+    "intermediate_size": 12288,
+    "vocab_size": 248320,
+    "max_position_embeddings": 262144,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "mrope_interleaved": true,
+      "mrope_section": [
+        11,
+        11,
+        10
+      ],
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 248046,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 256,
+    "tokenizer_hash": "a57b5c62cd5f242a06c632b82cc0b4f8239d08cc80fd9347fc1f629be977c6ca",
+    "token_id_signature": "bos=None|eos=248046",
+    "arch_hash": "dae595f9364cd03c7cd226b65013ed2c17c93d658856e5a5f3d30d67c1e26eb1",
+    "family_hash": "9fee243b680ee2bb5b8e7fb22c21cb37c1e20ffa555a41864063e6469d214102"
+  },
+  "tfv": {
+    "vocab_size": 248077,
+    "tokenizer_class": "TokenizersBackend",
+    "bos_token_id": null,
+    "eos_token_id": 248046,
+    "pad_token_id": 248044,
+    "num_added_tokens": 33,
+    "num_special_tokens": 9,
+    "num_merges": 247587,
+    "first_5_merges": [
+      "Ġ Ġ",
+      "ĠĠ ĠĠ",
+      "i n",
+      "Ġ t",
+      "ĠĠĠĠ ĠĠĠĠ"
+    ],
+    "merge_rule_hash": "a29b699d4a17919a05a913d349bc69fc4e9c00257f00f1f108a741a2764277da",
+    "special_token_ids": {
+      "pad": 248044,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.001,
+    "avg_token_length": 7.43,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4248,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9788,
+      "Other": 0.0212
+    }
+  },
+  "vocab": {
+    "size": 248077
+  },
+  "signals": {
+    "hidden_size": 0,
+    "num_layers": 0,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 215,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 860,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 16384
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "OmniCoder-9B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/tesslate--omnicoder/OmniCoder-9B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:78ebe56a4af334f62ec2b21e1d1ac670435ae2d3d2df8ad84536244c4ba0a55c",
+      "availability": "local"
+    }
+  ]
+}

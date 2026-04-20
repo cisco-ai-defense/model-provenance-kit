@@ -1,12 +1,13 @@
 {
   "shard_id": "02aa8cd6-cb04-4111-ac20-a7859a2ec9c5",
-  "updated_at": "2026-04-18T18:55:01.500323+00:00",
+  "updated_at": "2026-04-20T19:23:48.532273+00:00",
   "family": {
     "family_id": "eleutherai--gpt",
     "display_name": "GPT",
     "publisher": "eleutherai",
     "baseline_model_ids": [
-      "gpt-j-6b"
+      "gpt-j-6b",
+      "gpt-neox-20b"
     ]
   },
   "assets": [
@@ -18,6 +19,15 @@
       "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/EleutherAI/gpt-j-6b",
       "canonical_name": "gpt-j-6b"
+    },
+    {
+      "asset_id": "gpt-neox-20b__hf-safetensors",
+      "model_id": "gpt-neox-20b",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/eleutherai--gpt/gpt-neox-20b__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/EleutherAI/gpt-neox-20b",
+      "canonical_name": "gpt-neox-20b"
     }
   ]
 }
