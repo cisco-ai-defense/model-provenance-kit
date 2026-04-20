@@ -90,9 +90,7 @@ def interpret_score(score: float) -> ScoreInterpretation:
     if math.isnan(score):
         return ScoreInterpretation(label="Insufficient data", colour="#999999")
     if score > _SCORE_HIGH_CONFIDENCE:
-        return ScoreInterpretation(
-            label="High-Confidence Match", colour="#2ecc71"
-        )
+        return ScoreInterpretation(label="High-Confidence Match", colour="#2ecc71")
     if score > _SCORE_WEAK_MATCH:
         return ScoreInterpretation(label="Weak Match", colour="#f39c12")
     return ScoreInterpretation(label="Not Matched", colour="#e74c3c")

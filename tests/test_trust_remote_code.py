@@ -202,7 +202,9 @@ class TestCliTrustRemoteCode:
                 pipeline_score=1.0,
                 provenance_decision="Confirmed Match",
             ),
-            interpretation=ScoreInterpretation(label="High-Confidence Match", colour="#2ecc71"),
+            interpretation=ScoreInterpretation(
+                label="High-Confidence Match", colour="#2ecc71"
+            ),
             time_seconds=0.1,
             timing=TimingBreakdown(
                 total_seconds=0.1,
@@ -253,7 +255,9 @@ class TestCliTrustRemoteCode:
                 pipeline_score=1.0,
                 provenance_decision="Confirmed Match",
             ),
-            interpretation=ScoreInterpretation(label="High-Confidence Match", colour="#2ecc71"),
+            interpretation=ScoreInterpretation(
+                label="High-Confidence Match", colour="#2ecc71"
+            ),
             time_seconds=0.1,
             timing=TimingBreakdown(
                 total_seconds=0.1,
