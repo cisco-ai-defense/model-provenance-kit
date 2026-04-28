@@ -150,7 +150,7 @@
     {
       "family_id": "qwen--qwen",
       "shard_path": "catalog/by-family/qwen--qwen.json",
-      "asset_count": 24
+      "asset_count": 22
     },
     {
       "family_id": "stabilityai--stablelm",

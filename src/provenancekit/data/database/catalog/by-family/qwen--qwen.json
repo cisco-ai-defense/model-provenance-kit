@@ -21,14 +21,12 @@
       "Qwen2.5-Coder-7B-Instruct",
       "Qwen3-0.6B",
       "Qwen3-14B",
-      "Qwen3-30B-A3B",
       "Qwen3-4B-Base",
       "Qwen3-8B",
       "Qwen3-Embedding-4B",
       "Qwen3.5-0.8B",
       "Qwen3.5-4B",
       "Qwen3.5-9B",
-      "zembed-1",
       "Qwen3.5-27B"
     ]
   },
@@ -169,15 +167,6 @@
       "canonical_name": "Qwen3-14B"
     },
     {
-      "asset_id": "Qwen3-30B-A3B__hf-safetensors",
-      "model_id": "Qwen3-30B-A3B",
-      "format": "safetensors",
-      "feature_path": "features/base/by-family/qwen--qwen/Qwen3-30B-A3B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
-      "source_uri": "https://huggingface.co/Qwen/Qwen3-30B-A3B",
-      "canonical_name": "Qwen3-30B-A3B"
-    },
-    {
       "asset_id": "Qwen3-4B-Base__hf-safetensors",
       "model_id": "Qwen3-4B-Base",
       "format": "safetensors",
@@ -230,15 +219,6 @@
       "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/Qwen/Qwen3.5-9B",
       "canonical_name": "Qwen3.5-9B"
-    },
-    {
-      "asset_id": "zembed-1__hf-safetensors",
-      "model_id": "zembed-1",
-      "format": "safetensors",
-      "feature_path": "features/base/by-family/qwen--qwen/zembed-1__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
-      "source_uri": "https://huggingface.co/Qwen/zembed-1",
-      "canonical_name": "zembed-1"
     },
     {
       "asset_id": "Qwen3.5-27B__hf-safetensors",
