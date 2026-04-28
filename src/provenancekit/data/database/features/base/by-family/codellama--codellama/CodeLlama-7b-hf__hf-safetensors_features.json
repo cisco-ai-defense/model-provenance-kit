@@ -50,10 +50,10 @@
     "num_special_tokens": 8,
     "num_merges": 61260,
     "first_5_merges": [
-      "\u2581 t",
+      "▁ t",
       "e r",
       "i n",
-      "\u2581 a",
+      "▁ a",
       "e n"
     ],
     "merge_rule_hash": "92d6a430b70e5847d2e46d8dea2d121d63b52da0e82e88121c0fa944086fcf1a",
@@ -109,7 +109,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:0e6c6aa4528b7045c5500fa0ddfe4f68a7048965ac01712bfabfbfe19f4b1c22",
+      "checksum": "sha256:40af2cf413f6a27e7f42e09e9b5c04bd1f77b969fcff9e5bfc9d4fbf7abf4bfc",
       "availability": "local"
     }
   ]

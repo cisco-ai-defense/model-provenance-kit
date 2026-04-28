@@ -1,0 +1,33 @@
+{
+  "shard_id": "41abc6cc-4d8d-4323-a510-d002203c4fae",
+  "updated_at": "2026-04-20T19:42:57.105651+00:00",
+  "family": {
+    "family_id": "ttech--t-models",
+    "display_name": "ttech--t-models",
+    "publisher": "t-tech",
+    "baseline_model_ids": [
+      "T-lite-it-2.1",
+      "T-pro-it-2.0-AWQ"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "T-lite-it-2.1__hf-safetensors",
+      "model_id": "T-lite-it-2.1",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ttech--t-models/T-lite-it-2.1__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/t-tech/T-lite-it-2.1",
+      "canonical_name": "T-lite-it-2.1"
+    },
+    {
+      "asset_id": "T-pro-it-2.0-AWQ__hf-safetensors",
+      "model_id": "T-pro-it-2.0-AWQ",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/ttech--t-models/T-pro-it-2.0-AWQ__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/t-tech/T-pro-it-2.0-AWQ",
+      "canonical_name": "T-pro-it-2.0-AWQ"
+    }
+  ]
+}

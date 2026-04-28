@@ -1,0 +1,23 @@
+{
+  "shard_id": "412dfc44-72ca-4c46-9e9e-ef61e1e77981",
+  "updated_at": "2026-04-19T03:43:47.076351+00:00",
+  "family": {
+    "family_id": "tesslate--omnicoder",
+    "display_name": "tesslate--omnicoder",
+    "publisher": "Tesslate",
+    "baseline_model_ids": [
+      "OmniCoder-9B"
+    ]
+  },
+  "assets": [
+    {
+      "asset_id": "OmniCoder-9B__hf-safetensors",
+      "model_id": "OmniCoder-9B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/tesslate--omnicoder/OmniCoder-9B__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/Tesslate/OmniCoder-9B",
+      "canonical_name": "OmniCoder-9B"
+    }
+  ]
+}

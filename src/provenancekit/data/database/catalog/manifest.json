@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-18T19:01:24.781183+00:00",
+  "updated_at": "2026-04-20T19:42:57.105651+00:00",
   "shard_strategy": "by_family",
   "shards": [
     {
@@ -35,17 +35,17 @@
     {
       "family_id": "coherelabs--aya",
       "shard_path": "catalog/by-family/coherelabs--aya.json",
-      "asset_count": 6
+      "asset_count": 8
     },
     {
       "family_id": "deepseekai--deepseek",
       "shard_path": "catalog/by-family/deepseekai--deepseek.json",
-      "asset_count": 6
+      "asset_count": 9
     },
     {
       "family_id": "eleutherai--gpt",
       "shard_path": "catalog/by-family/eleutherai--gpt.json",
-      "asset_count": 1
+      "asset_count": 2
     },
     {
       "family_id": "eleutherai--pythia",
@@ -100,12 +100,17 @@
     {
       "family_id": "metallama--llama",
       "shard_path": "catalog/by-family/metallama--llama.json",
-      "asset_count": 8
+      "asset_count": 9
+    },
+    {
+      "family_id": "microsoft--nextcoder",
+      "shard_path": "catalog/by-family/microsoft--nextcoder.json",
+      "asset_count": 2
     },
     {
       "family_id": "microsoft--phi",
       "shard_path": "catalog/by-family/microsoft--phi.json",
-      "asset_count": 7
+      "asset_count": 8
     },
     {
       "family_id": "mistralai--ministral",
@@ -145,7 +150,7 @@
     {
       "family_id": "qwen--qwen",
       "shard_path": "catalog/by-family/qwen--qwen.json",
-      "asset_count": 20
+      "asset_count": 22
     },
     {
       "family_id": "stabilityai--stablelm",
@@ -163,6 +168,11 @@
       "asset_count": 3
     },
     {
+      "family_id": "tesslate--omnicoder",
+      "shard_path": "catalog/by-family/tesslate--omnicoder.json",
+      "asset_count": 1
+    },
+    {
       "family_id": "thudm--glm",
       "shard_path": "catalog/by-family/thudm--glm.json",
       "asset_count": 2
@@ -176,6 +186,11 @@
       "family_id": "togethercomputer--redpajama",
       "shard_path": "catalog/by-family/togethercomputer--redpajama.json",
       "asset_count": 1
+    },
+    {
+      "family_id": "ttech--t-models",
+      "shard_path": "catalog/by-family/ttech--t-models.json",
+      "asset_count": 2
     },
     {
       "family_id": "zaiorg--glm",

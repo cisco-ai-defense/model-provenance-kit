@@ -49,8 +49,8 @@
     "num_special_tokens": 1,
     "num_merges": 50000,
     "first_5_merges": [
-      "\u0120 t",
-      "\u0120 a",
+      "Ġ t",
+      "Ġ a",
       "h e",
       "i n",
       "r e"

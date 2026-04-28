@@ -1,0 +1,112 @@
+{
+  "bundle_id": "4c3907d6-773c-4697-ae6b-06c445fd2a23",
+  "model_id": "T-lite-it-2.1",
+  "asset_id": "T-lite-it-2.1__hf-safetensors",
+  "family_id": "ttech--t-models",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-19T03:45:18.863279+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "qwen3",
+    "architectures": [
+      "Qwen3ForCausalLM"
+    ],
+    "hidden_size": 4096,
+    "num_hidden_layers": 36,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "intermediate_size": 12288,
+    "vocab_size": 151689,
+    "max_position_embeddings": 40960,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "bos_token_id": null,
+    "eos_token_id": 151644,
+    "gqa_ratio": 4.0,
+    "attention_style": "GQA",
+    "norm_type": "RMSNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": 128,
+    "tokenizer_hash": "306974354a7df7f9096b94e07ae4eacc9e87fb6309e10f9b0c8472f6f43f3bf3",
+    "token_id_signature": "bos=None|eos=151644",
+    "arch_hash": "98f936d814f42fb10b0017757997e22671bd80020159e41353a572fdc8de9f43",
+    "family_hash": "1c9fb06d6a420f6726015f1b80e10f677dd126b2049cd06c4327f4be4e40aecd"
+  },
+  "tfv": {
+    "vocab_size": 151668,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "bos_token_id": null,
+    "eos_token_id": 151644,
+    "pad_token_id": 8956,
+    "num_added_tokens": 26,
+    "num_special_tokens": 2,
+    "num_merges": 159421,
+    "first_5_merges": [
+      "\u00d0 \u00b0",
+      "\u00d0 \u00be",
+      "\u00d0 \u00b5",
+      "\u00d0 \u00b8",
+      "\u00d1 \u0124"
+    ],
+    "merge_rule_hash": "6e59bab76f88723317281bc64900d757aca3354d21d08f8f544fe1969c01e2cb",
+    "special_token_ids": {
+      "pad": 8956,
+      "unk": null,
+      "mask": null
+    },
+    "pct_single_char": 0.0017,
+    "avg_token_length": 7.75,
+    "max_token_length": 128,
+    "pct_whitespace_prefix": 0.4863,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9666,
+      "Other": 0.0334
+    }
+  },
+  "vocab": {
+    "size": 151668
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 36,
+    "eas_anchor_count": 64,
+    "nlf_mode": "stats",
+    "nlf_num_layers": 145,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 580,
+    "lep_profile_length": 36,
+    "wsp_signature_length": 72,
+    "wvc_layer_count": 36,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "T-lite-it-2.1-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/ttech--t-models/T-lite-it-2.1__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:292cbbac4f310ecbb1313e5c2301aa2886a54bc107b35987ff56f20976f1b87f",
+      "availability": "local"
+    }
+  ]
+}

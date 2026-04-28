@@ -1,20 +1,32 @@
 {
   "shard_id": "00cd5b78-22ac-4008-a50b-9d598dd4c0c0",
-  "updated_at": "2026-04-18T18:55:01.500118+00:00",
+  "updated_at": "2026-04-20T19:23:48.532273+00:00",
   "family": {
     "family_id": "deepseekai--deepseek",
     "display_name": "DeepSeek",
     "publisher": "deepseek-ai",
     "baseline_model_ids": [
+      "DeepSeek-R1-Distill-Llama-70B",
       "DeepSeek-R1-Distill-Llama-8B",
       "DeepSeek-R1-Distill-Qwen-1.5B",
       "DeepSeek-R1-Distill-Qwen-14B",
+      "DeepSeek-R1-Distill-Qwen-32B",
       "DeepSeek-R1-Distill-Qwen-7B",
       "deepseek-coder-1.3b-instruct",
-      "deepseek-coder-7b-instruct-v1.5"
+      "deepseek-coder-7b-instruct-v1.5",
+      "DeepSeek-Coder-V2-Lite-Instruct"
     ]
   },
   "assets": [
+    {
+      "asset_id": "DeepSeek-R1-Distill-Llama-70B__hf-safetensors",
+      "model_id": "DeepSeek-R1-Distill-Llama-70B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/deepseekai--deepseek/DeepSeek-R1-Distill-Llama-70B__hf-safetensors_features.json",
+      "param_bucket": "40B+",
+      "source_uri": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+      "canonical_name": "DeepSeek-R1-Distill-Llama-70B"
+    },
     {
       "asset_id": "DeepSeek-R1-Distill-Llama-8B__hf-safetensors",
       "model_id": "DeepSeek-R1-Distill-Llama-8B",
@@ -43,6 +55,15 @@
       "canonical_name": "DeepSeek-R1-Distill-Qwen-14B"
     },
     {
+      "asset_id": "DeepSeek-R1-Distill-Qwen-32B__hf-safetensors",
+      "model_id": "DeepSeek-R1-Distill-Qwen-32B",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/deepseekai--deepseek/DeepSeek-R1-Distill-Qwen-32B__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+      "canonical_name": "DeepSeek-R1-Distill-Qwen-32B"
+    },
+    {
       "asset_id": "DeepSeek-R1-Distill-Qwen-7B__hf-safetensors",
       "model_id": "DeepSeek-R1-Distill-Qwen-7B",
       "format": "safetensors",
@@ -68,6 +89,15 @@
       "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5",
       "canonical_name": "deepseek-coder-7b-instruct-v1.5"
+    },
+    {
+      "asset_id": "DeepSeek-Coder-V2-Lite-Instruct__hf-safetensors",
+      "model_id": "DeepSeek-Coder-V2-Lite-Instruct",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/deepseekai--deepseek/DeepSeek-Coder-V2-Lite-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B",
+      "source_uri": "https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct",
+      "canonical_name": "DeepSeek-Coder-V2-Lite-Instruct"
     }
   ]
 }

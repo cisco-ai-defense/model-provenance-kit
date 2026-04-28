@@ -1,6 +1,6 @@
 {
   "shard_id": "b48a0508-2e56-4b0c-9740-4e8d47af18f5",
-  "updated_at": "2026-04-18T18:55:01.500244+00:00",
+  "updated_at": "2026-04-19T03:48:31.260900+00:00",
   "family": {
     "family_id": "microsoft--phi",
     "display_name": "Phi",
@@ -12,7 +12,8 @@
       "Phi-4-mini-instruct",
       "Phi-4-mini-reasoning",
       "phi-1_5",
-      "phi-2"
+      "phi-2",
+      "phi-4"
     ]
   },
   "assets": [
@@ -78,6 +79,15 @@
       "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/microsoft/phi-2",
       "canonical_name": "phi-2"
+    },
+    {
+      "asset_id": "phi-4__hf-safetensors",
+      "model_id": "phi-4",
+      "format": "safetensors",
+      "feature_path": "features/base/by-family/microsoft--phi/phi-4__hf-safetensors_features.json",
+      "param_bucket": "10-40B",
+      "source_uri": "https://huggingface.co/microsoft/phi-4",
+      "canonical_name": "phi-4"
     }
   ]
 }

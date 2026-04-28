@@ -53,10 +53,10 @@
     "num_merges": 165112,
     "first_5_merges": [
       "<s >",
-      "\u2581 \u2581",
-      "\u2581 \u2581\u2581\u2581",
-      "\u2581\u2581 \u2581\u2581",
-      "\u2581\u2581\u2581 \u2581"
+      "▁ ▁",
+      "▁ ▁▁▁",
+      "▁▁ ▁▁",
+      "▁▁▁ ▁"
     ],
     "merge_rule_hash": "1bcdf25d9ad28084e2907e4663af63d8289f97abdf322fa06fc78223dcd78eba",
     "special_token_ids": {
@@ -111,7 +111,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:6e50caa8ce207fcdc66f2571c621946c6cf05c744e1739b1b35caa84e6e36030",
+      "checksum": "sha256:7556f89428d9360f9744f970afd4c1d25d501c1767e66c4683618867973d899a",
       "availability": "local"
     }
   ]

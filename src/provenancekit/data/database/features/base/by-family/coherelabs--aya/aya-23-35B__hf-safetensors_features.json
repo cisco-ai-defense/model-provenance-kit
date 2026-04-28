@@ -1,0 +1,112 @@
+{
+  "bundle_id": "dfc7c704-6581-4ef2-ae9f-5728599b9ce6",
+  "model_id": "aya-23-35B",
+  "asset_id": "aya-23-35B__hf-safetensors",
+  "family_id": "coherelabs--aya",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-04-19T04:02:29.301576+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "model_type": "cohere",
+    "architectures": [
+      "CohereForCausalLM"
+    ],
+    "hidden_size": 8192,
+    "num_hidden_layers": 40,
+    "num_attention_heads": 64,
+    "num_key_value_heads": 64,
+    "intermediate_size": 22528,
+    "vocab_size": 256000,
+    "max_position_embeddings": 8192,
+    "hidden_act": "silu",
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 8000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": true,
+    "bos_token_id": 5,
+    "eos_token_id": 255001,
+    "gqa_ratio": 1.0,
+    "attention_style": "MHA",
+    "norm_type": "LayerNorm",
+    "attention_bias": false,
+    "qk_norm": false,
+    "pos_encoding": "absolute",
+    "head_dim": null,
+    "tokenizer_hash": "89f738d4f290b88ce88d06c96461a5357079fa3d88c780a78b12f0faf18f4eb0",
+    "token_id_signature": "bos=5|eos=255001",
+    "arch_hash": "956b86560b5f2003f5d5e5c386f472d4f869b5bb4b717cd61b0ab8a8fb93f305",
+    "family_hash": "d0f52177c56b92ea77b33c1feb4f4be31e3ce1ef87120e3b3ebe0d0c095255ef"
+  },
+  "tfv": {
+    "vocab_size": 255029,
+    "tokenizer_class": "CohereTokenizer",
+    "bos_token_id": 5,
+    "eos_token_id": 255001,
+    "pad_token_id": 0,
+    "num_added_tokens": 37,
+    "num_special_tokens": 6,
+    "num_merges": 253333,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120 t",
+      "e r",
+      "i n",
+      "\u0120 a"
+    ],
+    "merge_rule_hash": "64af237b57c61df9751d5ed00b0e7295d9e17ef390c7a0b2cad673d2a94b21dc",
+    "special_token_ids": {
+      "pad": 0,
+      "unk": null,
+      "mask": 4
+    },
+    "pct_single_char": 0.0065,
+    "avg_token_length": 7.45,
+    "max_token_length": 512,
+    "pct_whitespace_prefix": 0.5805,
+    "pct_byte_tokens": 0.0,
+    "script_distribution": {
+      "Latin": 0.9835,
+      "Other": 0.0165
+    }
+  },
+  "vocab": {
+    "size": 255029
+  },
+  "signals": {
+    "hidden_size": 8192,
+    "num_layers": 40,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 41,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 335872,
+    "lep_profile_length": 40,
+    "wsp_signature_length": 80,
+    "wvc_layer_count": 40,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "aya-23-35B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/coherelabs--aya/aya-23-35B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:a2de1a5b5fbf0a4c0b18340c8167a8de42c2858c6c337e66a46e6525a3dd4e27",
+      "availability": "local"
+    }
+  ]
+}
