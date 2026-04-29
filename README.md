@@ -42,6 +42,8 @@ For deeper technical details, see the guides in [`docs/`](docs/):
 | [Scoring and Model Loading](docs/scoring-and-model-loading.md) | Identity/tokenizer scores, MFI gate, NaN handling, large-model streaming |
 | [Database and Caching](docs/database-and-caching.md) | Seed database layout, deep-signal download, two-layer cache, HMAC integrity |
 
+For the formal definition of model provenance — what counts as a provenance relationship and what does not — see the [Model Provenance Constitution](docs/constitution/model_provenance_constitution.md).
+
 ## Installation
 
 ### Requirements
