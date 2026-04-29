@@ -9,7 +9,7 @@
 | **Version** | 1.0.0 |
 | **Domain** | AI Security / ML Supply Chain / Model Governance |
 | **Conservatism** | High — under ambiguity, a pair is considered provenance-independent. |
-| **Authority** | This is a condensed public reference. The internal specification (Model Provenance Constitution) governs where the two differ. |
+| **Authority** | This is a condensed public reference. The internal specification of Model Provenance Constitution governs where the two differ. |
 
 ### Standards Mappings
 
@@ -62,17 +62,17 @@ The following, taken alone, do **not** establish weight lineage: shared architec
 
 ## 3. Provenance-Linked Relationships
 
-| # | Category | Canonical example |
-|---|----------|-------------------|
-| 3.1 | Identity and reformatting | Re-upload; SafeTensors ↔ GGUF conversion |
-| 3.2 | Fine-tuning (SFT, RLHF, DPO) | Llama-2-7B → Llama-2-7B-chat |
-| 3.3 | Continued pretraining | Llama-2-7B → CodeLlama-7B |
-| 3.4 | Vocabulary-modified derivation | RoBERTa → SecureBERT |
-| 3.5 | Knowledge distillation | BERT → DistilBERT; BERT → TinyBERT |
-| 3.6 | Structural modification / pruning / scaled transfer | Phi-1.5 → Phi-2 |
-| 3.7 | Quantization and compression | FP16 → INT4 (GPTQ, AWQ) |
-| 3.8 | Adapter-based derivation (LoRA, QLoRA) | Any LoRA merge of a base model |
-| 3.9 | Model merging and interpolation | SLERP / TIES / DARE / Frankenmerges |
+| # | Category | Definition | Canonical example |
+|---|----------|------------|-------------------|
+| 3.1 | Identity and reformatting | The model is a byte-identical copy or a lossless format conversion of the original weights. | Re-upload; SafeTensors ↔ GGUF conversion |
+| 3.2 | Fine-tuning (SFT, RLHF, DPO) | Training resumed from the parent's checkpoint on new data or objectives to specialize behavior. | Llama-2-7B → Llama-2-7B-chat |
+| 3.3 | Continued pretraining | Extended pretraining of the parent's checkpoint on additional or domain-specific corpora. | Llama-2-7B → CodeLlama-7B |
+| 3.4 | Vocabulary-modified derivation | The parent's weights are adapted to a new or expanded tokenizer vocabulary, with weight inheritance for shared tokens. | RoBERTa → SecureBERT |
+| 3.5 | Knowledge distillation | A smaller student model is trained to reproduce the parent's output distributions, transferring learned behavior through a distillation loss. | BERT → DistilBERT; BERT → TinyBERT |
+| 3.6 | Structural modification / pruning / scaled transfer | Layers or parameters are removed, rearranged, or selectively transferred from the parent to produce a structurally different model. | Phi-1.5 → Phi-2 |
+| 3.7 | Quantization and compression | The parent's weights are converted to a lower-precision numerical format to reduce model size or inference cost. | FP16 → INT4 (GPTQ, AWQ) |
+| 3.8 | Adapter-based derivation (LoRA, QLoRA) | Lightweight adapter parameters trained on top of the parent are merged back into the base weights. | Any LoRA merge of a base model |
+| 3.9 | Model merging and interpolation | Weights from two or more models (at least one being the parent) are mathematically combined into a single set of parameters. | SLERP / TIES / DARE / Frankenmerges |
 
 ---
 
@@ -212,4 +212,4 @@ This constitution aims for comprehensive coverage but acknowledges areas where t
 
 ## 11. Maintenance
 
-This is a living document. Updates are expected when new derivation mechanisms emerge, when regulatory frameworks issue formal definitions, or when operational experience requires recalibration of the conservatism stance. The internal specification (Model Provenance Constitution) provides the full treatment; this public summary is the external reference.
+This is a living document. Updates are expected when new derivation mechanisms emerge, when regulatory frameworks issue formal definitions, or when operational experience requires recalibration of the conservatism stance. The internal specification of Model Provenance Constitution provides the full treatment; this public summary is the external reference.
