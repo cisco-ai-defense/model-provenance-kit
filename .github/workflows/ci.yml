@@ -14,11 +14,9 @@ jobs:
     name: Lint & Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
+      - uses: astral-sh/setup-uv@v8.1.0
 
       - name: Set up Python
         run: uv python install 3.13
@@ -36,11 +34,9 @@ jobs:
     name: Type Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
+      - uses: astral-sh/setup-uv@v8.1.0
 
       - name: Set up Python
         run: uv python install 3.13
@@ -59,11 +55,9 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
+      - uses: astral-sh/setup-uv@v8.1.0
 
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
