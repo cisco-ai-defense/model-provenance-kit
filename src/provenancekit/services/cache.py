@@ -239,7 +239,11 @@ class CacheService:
             mem_entry = self._mem.get(model_id)
         if mem_entry is not None and mem_entry.vocab is not None:
             return entry.model_copy(update={"vocab": mem_entry.vocab})
-        existing = self._load_disk(model_id)
+        try:
+            existing = self._load_disk(model_id)
+        except CacheError as exc:
+            log.warning("cache_vocab_merge_skipped", model_id=model_id, error=str(exc))
+            return entry
         if existing is not None and existing.vocab is not None:
             return entry.model_copy(update={"vocab": existing.vocab})
         return entry

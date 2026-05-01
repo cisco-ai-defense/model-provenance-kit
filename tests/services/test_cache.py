@@ -112,6 +112,23 @@ class TestCacheDisk:
         path.write_text("NOT VALID JSON {{{", encoding="utf-8")
         assert svc.get("bad-model") is None
 
+    def test_put_replaces_corrupt_disk_cache(self, tmp_path: Path) -> None:
+        svc = CacheService(cache_dir=tmp_path)
+        path = svc._cache_path("org/test-model")
+        path.write_text("NOT VALID JSON {{{", encoding="utf-8")
+
+        entry = CachedEntry(
+            model_id="org/test-model",
+            mfi={"model_type": "llama", "arch_hash": "def456"},
+        )
+        svc.put("org/test-model", entry)
+        svc.clear("org/test-model")
+
+        loaded = svc.get("org/test-model")
+        assert loaded is not None
+        assert loaded.mfi == {"model_type": "llama", "arch_hash": "def456"}
+        assert loaded.vocab is None
+
     def test_creates_cache_dir(self, tmp_path: Path) -> None:
         nested = tmp_path / "deep" / "nested" / "cache"
         svc = CacheService(cache_dir=nested)
