@@ -83,9 +83,6 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/provenancekit"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/provenancekit/data" = "provenancekit/data"
-
 [tool.ruff]
 line-length = 88
 target-version = "py312"
