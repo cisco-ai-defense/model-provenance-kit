@@ -34,6 +34,11 @@ from huggingface_hub import model_info
 from transformers import AutoTokenizer
 
 from provenancekit.config.settings import Settings
+from provenancekit.core.canonicalization import (
+    CanonicalizationConfig,
+    CanonicalizationReport,
+    WeightCanonicalizer,
+)
 from provenancekit.core.lookup import run_lookup
 from provenancekit.core.scoring import (
     compute_identity_score,
@@ -64,6 +69,7 @@ from provenancekit.core.signals.weight_signals import (
 from provenancekit.exceptions import ExtractionError, ModelLoadError
 from provenancekit.models.results import (
     CachedEntry,
+    CanonicalizationReportOutput,
     CompareResult,
     LoadStrategy,
     PipelineScore,
@@ -99,6 +105,12 @@ class _ModelData:
     mfi_cache_hit: bool
     tfv_cache_hit: bool
     ws_cache_hit: bool
+    # Populated only when canonicalization is requested. Holds the raw
+    # state-dict and the originating ``AutoConfig`` so the comparison-time
+    # canonicalizer can permute heads / channels and renormalize before
+    # weight signals are recomputed. Discarded after canonicalization.
+    state_dict: dict[str, Any] | None = None
+    config: Any | None = None
 
 
 class ModelProvenanceScanner:
@@ -152,17 +164,28 @@ class ModelProvenanceScanner:
         model_b: str,
         *,
         on_phase: Callable[[str], None] | None = None,
+        canonicalization: CanonicalizationConfig | None = None,
     ) -> CompareResult:
-        """Compare two models and return a detailed provenance result."""
+        """Compare two models and return a detailed provenance result.
+
+        When *canonicalization* is provided and ``enabled``, weight-level
+        signals (EAS, NLF, LEP, END, WVC) are recomputed from a
+        comparison-space view that aligns attention heads / MLP channels
+        and normalizes per-channel scales. The canonicalized
+        representation is non-invertible (with the default
+        ``scale_mode="comparison"``) and is not used for caching.
+        """
         _phase = on_phase or (lambda _msg: None)
 
         t0 = time.monotonic()
         log.info("compare_start", model_a=model_a, model_b=model_b)
 
+        canon_cfg = canonicalization or CanonicalizationConfig()
+
         _phase("extracting features from model A")
         t_extract_a = time.monotonic()
         log.info("extract_start", model_id=model_a)
-        data_a = self._extract_model(model_a)
+        data_a = self._extract_model(model_a, canonicalize=canon_cfg.enabled)
         extract_a_elapsed = time.monotonic() - t_extract_a
         log.info(
             "extract_done",
@@ -173,13 +196,20 @@ class ModelProvenanceScanner:
         _phase("extracting features from model B")
         t_extract_b = time.monotonic()
         log.info("extract_start", model_id=model_b)
-        data_b = self._extract_model(model_b)
+        data_b = self._extract_model(model_b, canonicalize=canon_cfg.enabled)
         extract_b_elapsed = time.monotonic() - t_extract_b
         log.info(
             "extract_done",
             model_id=model_b,
             elapsed=f"{extract_b_elapsed:.1f}s",
         )
+
+        canon_report: CanonicalizationReport | None = None
+        if canon_cfg.enabled:
+            _phase("canonicalizing comparison views")
+            data_a, data_b, canon_report = self._canonicalize_pair(
+                data_a, data_b, canon_cfg
+            )
 
         _phase("computing similarity scores")
         t_score = time.monotonic()
@@ -246,6 +276,19 @@ class ModelProvenanceScanner:
             scoring_elapsed=f"{scoring_elapsed:.1f}s",
         )
 
+        canon_output: CanonicalizationReportOutput | None = None
+        if canon_cfg.enabled:
+            source_report = canon_report or CanonicalizationReport(
+                enabled=True,
+                method=canon_cfg.method,
+                scale_mode=canon_cfg.scale_mode,
+                non_invertible=canon_cfg.scale_mode == "comparison",
+                skipped_reason="no_tensors_available",
+            )
+            canon_output = CanonicalizationReportOutput(
+                **source_report.to_dict()
+            )
+
         return CompareResult(
             model_a=model_a,
             model_b=model_b,
@@ -277,6 +320,7 @@ class ModelProvenanceScanner:
                 weight_feature_extract_seconds=round(weight_feature_extract_elapsed, 3),
                 cache_hit=cache_hit,
             ),
+            canonicalization=canon_output,
         )
 
     def scan(
@@ -398,8 +442,17 @@ class ModelProvenanceScanner:
             self._db_service = DatabaseService(self._settings.db_root)
         return self._db_service
 
-    def _extract_model(self, model_id: str) -> _ModelData:
-        """Extract all features for a single model, with caching."""
+    def _extract_model(
+        self, model_id: str, *, canonicalize: bool = False
+    ) -> _ModelData:
+        """Extract all features for a single model, with caching.
+
+        When *canonicalize* is true, the raw ``state_dict`` and
+        ``AutoConfig`` are retained on the returned bundle so that the
+        comparison-time canonicalizer can recompute weight signals from
+        a comparison-space view. Cached weight signals are bypassed in
+        that path because canonicalization mutates per-channel scales.
+        """
         model_id = model_id.strip()
         cached = self._cache.get(model_id)
 
@@ -413,7 +466,17 @@ class ModelProvenanceScanner:
 
         t_ws = time.monotonic()
         ws: WeightSignalFeatures | None
-        if ws_cache_hit and cached is not None and cached.ws is not None:
+        state_dict: dict[str, Any] | None = None
+        cfg_obj: Any | None = None
+
+        if canonicalize:
+            # Bypass the cached weight signals: canonicalization needs raw
+            # tensors, and cached features are summaries.
+            ws_cache_hit = False
+            ws, state_dict, cfg_obj = self._extract_weight_signals_with_state(
+                model_id, tokenizer
+            )
+        elif ws_cache_hit and cached is not None and cached.ws is not None:
             log.info("cache_hit_ws", model_id=model_id)
             ws = WeightSignalFeatures.from_cache_dict(cached.ws)
         else:
@@ -443,7 +506,138 @@ class ModelProvenanceScanner:
             mfi_cache_hit=mfi_cache_hit,
             tfv_cache_hit=tfv_cache_hit,
             ws_cache_hit=ws_cache_hit,
+            state_dict=state_dict,
+            config=cfg_obj,
         )
+
+    def _extract_weight_signals_with_state(
+        self, model_id: str, tokenizer: Any
+    ) -> tuple[WeightSignalFeatures | None, dict[str, Any] | None, Any | None]:
+        """Variant of :meth:`_extract_weight_signals` that retains the state dict.
+
+        Used by the canonicalization path. When the loader returns a
+        ``streaming`` strategy, the state dict is unavailable and the
+        method falls back to a normal streaming extraction with no
+        retained tensors.
+        """
+        log.info("weight_load_start", model_id=model_id)
+        try:
+            result = load_state_dict(model_id, settings=self._settings)
+        except ModelLoadError as exc:
+            log.warning("model_load_failed", model_id=model_id, error=str(exc))
+            return None, None, None
+
+        vocab = self._get_vocab(tokenizer)
+        try:
+            if result.strategy == LoadStrategy.full and result.state_dict is not None:
+                ws = extract_signals(
+                    result.state_dict,
+                    result.config,
+                    tokenizer=tokenizer,
+                    vocab=vocab,
+                    settings=self._settings,
+                )
+                return ws, result.state_dict, result.config
+            if result.strategy == LoadStrategy.streaming:
+                ws = extract_signals_streaming(
+                    model_id,
+                    tokenizer=tokenizer,
+                    vocab=vocab,
+                    settings=self._settings,
+                )
+                log.warning(
+                    "canonicalize_streaming_skipped",
+                    model_id=model_id,
+                    reason="state_dict_unavailable",
+                )
+                return ws, None, result.config
+        except ExtractionError as exc:
+            log.warning("signal_extraction_failed", model_id=model_id, error=str(exc))
+            return None, None, None
+        return None, None, None
+
+    def _canonicalize_pair(
+        self,
+        data_a: _ModelData,
+        data_b: _ModelData,
+        canon_cfg: CanonicalizationConfig,
+    ) -> tuple[_ModelData, _ModelData, CanonicalizationReport | None]:
+        """Apply canonicalization to a paired ``_ModelData`` bundle.
+
+        Returns updated copies of the two bundles whose ``ws`` field has
+        been recomputed from the comparison-space views, plus the
+        canonicalization report. When state dicts are unavailable for
+        either model (e.g. streaming-only loads), canonicalization is
+        skipped and the original ``ws`` values are preserved.
+        """
+        if data_a.state_dict is None or data_b.state_dict is None:
+            log.warning(
+                "canonicalization_skipped",
+                reason="state_dict_unavailable",
+                model_a_has=data_a.state_dict is not None,
+                model_b_has=data_b.state_dict is not None,
+            )
+            report = CanonicalizationReport(
+                enabled=True,
+                method=canon_cfg.method,
+                scale_mode=canon_cfg.scale_mode,
+                non_invertible=canon_cfg.scale_mode == "comparison",
+                skipped_reason="state_dict_unavailable",
+            )
+            return data_a, data_b, report
+
+        canonicalizer = WeightCanonicalizer(canon_cfg)
+        view_a, view_b, report = canonicalizer.canonicalize_pair(
+            data_a.state_dict,
+            data_b.state_dict,
+            config_a=data_a.config,
+            config_b=data_b.config,
+        )
+
+        vocab_a = self._get_vocab(data_a.tokenizer)
+        vocab_b = self._get_vocab(data_b.tokenizer)
+        ws_a = extract_signals(
+            dict(view_a),
+            data_a.config,
+            tokenizer=data_a.tokenizer,
+            vocab=vocab_a,
+            settings=self._settings,
+        )
+        ws_b = extract_signals(
+            dict(view_b),
+            data_b.config,
+            tokenizer=data_b.tokenizer,
+            vocab=vocab_b,
+            settings=self._settings,
+        )
+
+        new_a = _ModelData(
+            fp=data_a.fp,
+            tfv=data_a.tfv,
+            ws=ws_a,
+            tokenizer=data_a.tokenizer,
+            base_elapsed=data_a.base_elapsed,
+            weight_elapsed=data_a.weight_elapsed,
+            mfi_cache_hit=data_a.mfi_cache_hit,
+            tfv_cache_hit=data_a.tfv_cache_hit,
+            ws_cache_hit=data_a.ws_cache_hit,
+            state_dict=None,
+            config=data_a.config,
+        )
+        new_b = _ModelData(
+            fp=data_b.fp,
+            tfv=data_b.tfv,
+            ws=ws_b,
+            tokenizer=data_b.tokenizer,
+            base_elapsed=data_b.base_elapsed,
+            weight_elapsed=data_b.weight_elapsed,
+            mfi_cache_hit=data_b.mfi_cache_hit,
+            tfv_cache_hit=data_b.tfv_cache_hit,
+            ws_cache_hit=data_b.ws_cache_hit,
+            state_dict=None,
+            config=data_b.config,
+        )
+        return new_a, new_b, report
 
     def _extract_base(
         self,
