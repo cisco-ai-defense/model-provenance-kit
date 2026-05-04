@@ -109,6 +109,27 @@ class TimingBreakdown(BaseModel):
     cache_hit: str
 
 
+class CanonicalizationReportOutput(BaseModel):
+    """JSON-friendly canonicalization metadata attached to ``CompareResult``.
+
+    ``non_invertible`` is intentionally exposed: when ``scale_mode`` is
+    ``"comparison"`` (default) the canonicalized representation cannot be
+    used for inference or model reconstruction.
+    """
+
+    enabled: bool
+    method: str
+    scale_mode: str
+    non_invertible: bool
+    layers_aligned: int = 0
+    attention_heads_aligned: int = 0
+    mlp_channels_aligned: int = 0
+    scale_normalized: bool = False
+    unsupported_layers: list[str] = []
+    stability_warnings: list[str] = []
+    skipped_reason: str | None = None
+
+
 class CompareResult(BaseModel):
     """Full top-level comparison output for a model pair.
 
@@ -125,6 +146,7 @@ class CompareResult(BaseModel):
     interpretation: ScoreInterpretation
     time_seconds: float
     timing: TimingBreakdown | None = None
+    canonicalization: CanonicalizationReportOutput | None = None
 
 
 class CachedEntry(BaseModel):
