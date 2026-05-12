@@ -39,11 +39,14 @@ import torch
 
 from provenancekit.cli import main as cli_main
 from provenancekit.core.canonicalization import (
+    _HAS_SCIPY,
     CanonicalizationConfig,
     ComparisonView,
     WeightCanonicalizer,
+    _solve_assignment,
     assert_not_comparison_view,
 )
+from provenancekit.models.results import CanonicalizationReportOutput
 
 # ── Synthetic helpers ─────────────────────────────────────────────
 
@@ -329,7 +332,8 @@ class TestNoOpSafety:
     def test_runtime_guard_rejects_comparison_view(self) -> None:
         state = {"x.weight": torch.randn(4, 4)}
         view = ComparisonView(
-            state, report=WeightCanonicalizer(CanonicalizationConfig()).config  # noqa: SLF001
+            state,
+            report=WeightCanonicalizer(CanonicalizationConfig()).config,  # noqa: SLF001
         )
         # Replace the report with a real one; the guard only checks the marker.
         from provenancekit.core.canonicalization import CanonicalizationReport
@@ -462,3 +466,243 @@ class TestCLIIntegration:
         # And confirm the CLI passed through the canonicalization config.
         call = mock_scanner.return_value.compare.call_args
         assert call.kwargs["canonicalization"].enabled is True
+
+
+def _assert_complete_perm(perm: np.ndarray, n: int) -> None:
+    """Assert ``perm`` is a complete, valid permutation of ``range(n)``."""
+    assert perm.shape == (n,), f"unexpected shape {perm.shape}"
+    assert np.all(perm >= 0), f"perm contains -1 entries: {perm.tolist()}"
+    assert set(perm.tolist()) == set(range(n)), (
+        f"perm is not a valid permutation of 0..{n - 1}: {perm.tolist()}"
+    )
+
+
+class TestGreedyAssignment:
+    """Edge-case coverage for the greedy fallback in ``_solve_assignment``.
+
+    The greedy path used to use ``for _ in range(n)`` and could ``continue``
+    past collisions without making an assignment, leaving ``-1`` entries in
+    the returned permutation. Downstream callers
+    (``_permute_attention_out``, MLP ``index_select``) do not filter ``-1``
+    and would error or produce wrong results. The sorted-pair scan
+    guarantees completeness; these tests lock that contract.
+    """
+
+    @pytest.mark.parametrize(
+        "case_name,cost",
+        [
+            (
+                "all_identical",
+                np.full((6, 6), 0.5, dtype=np.float64),
+            ),
+            (
+                "top1_collision",
+                # Every row's argmin is column 0 — the original collision bug.
+                (lambda n=6: np.full((n, n), 0.5, dtype=np.float64) * 0 + 0.5)(),
+            ),
+            (
+                "all_zero",
+                np.zeros((5, 5), dtype=np.float64),
+            ),
+            (
+                "single_cell",
+                np.array([[0.0]], dtype=np.float64),
+            ),
+            (
+                "negative_costs",
+                # Cost = 1 - cosine: with negative cosines the cost can exceed
+                # 1.0; the algorithm minimises, so very-negative cells aren't
+                # special, but the code must still complete with negatives.
+                np.array(
+                    [
+                        [-0.5, 0.2, 1.5],
+                        [1.2, -0.9, 0.0],
+                        [0.4, 1.8, -0.1],
+                    ],
+                    dtype=np.float64,
+                ),
+            ),
+            (
+                "with_inf",
+                # Inf must sort to the back and be picked last (only when
+                # forced). Completeness must still hold.
+                np.array(
+                    [
+                        [0.1, np.inf, 0.5],
+                        [np.inf, 0.2, 0.3],
+                        [0.4, 0.6, np.inf],
+                    ],
+                    dtype=np.float64,
+                ),
+            ),
+        ],
+    )
+    def test_greedy_assignment_complete(self, case_name: str, cost: np.ndarray) -> None:
+        # Force the top-1 collision by overriding column 0 of all rows.
+        if case_name == "top1_collision":
+            cost = cost.copy()
+            cost[:, 0] = 0.0  # everyone wants column 0 first
+            # Add small differentiation so non-zero columns remain pickable
+            # but with a tie among rows for column 0.
+            rng = np.random.default_rng(0)
+            cost[:, 1:] = rng.uniform(0.4, 0.6, size=(cost.shape[0], cost.shape[1] - 1))
+
+        # ``with_inf`` would be rejected by the new isfinite() guard;
+        # exercise it explicitly to lock that contract and then run the
+        # finite version of the case.
+        if case_name == "with_inf":
+            with pytest.raises(ValueError, match="finite"):
+                _solve_assignment(cost, method="greedy")
+            return
+
+        n = cost.shape[0]
+        perm = _solve_assignment(cost, method="greedy")
+        _assert_complete_perm(perm, n)
+
+        if case_name == "single_cell":
+            assert perm.tolist() == [0]
+
+        if case_name == "top1_collision":
+            # Exactly one row claims column 0 (the universally cheapest).
+            assert int((perm == 0).sum()) == 1
+
+    def test_rectangular_cost_is_rejected(self) -> None:
+        """The function requires a square cost matrix and must raise."""
+        cost = np.zeros((3, 5), dtype=np.float64)
+        with pytest.raises(ValueError, match="square"):
+            _solve_assignment(cost, method="greedy")
+
+    def test_nan_cost_is_rejected(self) -> None:
+        """NaN in cost is rejected with a clear error (locks contract)."""
+        cost = np.array(
+            [[0.1, 0.2], [np.nan, 0.3]],
+            dtype=np.float64,
+        )
+        with pytest.raises(ValueError, match="finite"):
+            _solve_assignment(cost, method="greedy")
+
+    @pytest.mark.skipif(not _HAS_SCIPY, reason="scipy not installed")
+    def test_greedy_matches_hungarian_on_well_separated(self) -> None:
+        """When the optimum is unique by a wide margin, greedy and Hungarian
+        must agree. Catches regressions where greedy goes pathologically
+        wrong on easy inputs."""
+        # Construct a strongly diagonal cost: identity is the unique optimum.
+        n = 8
+        cost = np.full((n, n), 5.0, dtype=np.float64)
+        np.fill_diagonal(cost, 0.0)
+        # Add slight off-diagonal noise so the optimum stays unique.
+        rng = np.random.default_rng(123)
+        cost = cost + rng.uniform(0.0, 0.1, size=(n, n))
+        np.fill_diagonal(cost, 0.0)
+
+        greedy = _solve_assignment(cost, method="greedy")
+        hungarian = _solve_assignment(cost, method="hungarian")
+
+        _assert_complete_perm(greedy, n)
+        _assert_complete_perm(hungarian, n)
+        assert greedy.tolist() == hungarian.tolist()
+        assert greedy.tolist() == list(range(n))
+
+    def test_greedy_random_property_check(self) -> None:
+        """Fuzz the greedy path with random square cost matrices and
+        confirm every returned permutation is valid and complete."""
+        rng = np.random.default_rng(20260511)
+        for _ in range(50):
+            n = int(rng.integers(low=1, high=17))  # n in [1, 16]
+            cost = rng.standard_normal(size=(n, n)).astype(np.float64)
+            perm = _solve_assignment(cost, method="greedy")
+            assert perm.dtype == np.int64
+            _assert_complete_perm(perm, n)
+            # Each column used exactly once.
+            assert len(set(perm.tolist())) == n
+            assert all(0 <= int(p) < n for p in perm)
+
+
+class TestCanonicalizationReportMutableDefaults:
+    """Lock the Field(default_factory=list) fix.
+
+    A previous version used ``list[str] = []`` which is a class-level
+    mutable default — *Pydantic v2 actually copies the default* and is
+    safe in practice, but the class-attribute form is fragile and easy to
+    regress to a shared list under refactors. The Field(default_factory)
+    form makes the intent explicit and gives belt-and-braces independence.
+    """
+
+    def test_default_lists_are_independent(self) -> None:
+        r1 = CanonicalizationReportOutput(
+            enabled=True,
+            method="hungarian",
+            scale_mode="comparison",
+            non_invertible=True,
+        )
+        r2 = CanonicalizationReportOutput(
+            enabled=True,
+            method="hungarian",
+            scale_mode="comparison",
+            non_invertible=True,
+        )
+        # Distinct objects per instance.
+        assert r1.unsupported_layers is not r2.unsupported_layers
+        assert r1.stability_warnings is not r2.stability_warnings
+
+        # Mutating one must not affect the other.
+        r1.unsupported_layers.append("layer.0")
+        r1.stability_warnings.append("warn")
+        assert r2.unsupported_layers == []
+        assert r2.stability_warnings == []
+
+        # And a freshly built third instance must also be empty —
+        # catches a regression where mutation leaks into the class default.
+        r3 = CanonicalizationReportOutput(
+            enabled=True,
+            method="hungarian",
+            scale_mode="comparison",
+            non_invertible=True,
+        )
+        assert r3.unsupported_layers == []
+        assert r3.stability_warnings == []
+
+    def test_model_dump_default_and_populated(self) -> None:
+        r = CanonicalizationReportOutput(
+            enabled=False,
+            method="hungarian",
+            scale_mode="comparison",
+            non_invertible=True,
+        )
+        dumped = r.model_dump()
+        assert dumped["unsupported_layers"] == []
+        assert dumped["stability_warnings"] == []
+
+        r.unsupported_layers.append("attn:layer.0:non_2d")
+        r.stability_warnings.append("layer.0:perm_jump")
+        dumped = r.model_dump()
+        assert dumped["unsupported_layers"] == ["attn:layer.0:non_2d"]
+        assert dumped["stability_warnings"] == ["layer.0:perm_jump"]
+
+        # JSON round-trip preserves both fields.
+        from_json = CanonicalizationReportOutput.model_validate_json(
+            r.model_dump_json()
+        )
+        assert from_json.unsupported_layers == r.unsupported_layers
+        assert from_json.stability_warnings == r.stability_warnings
+
+    def test_explicit_list_inputs_still_supported(self) -> None:
+        r = CanonicalizationReportOutput(
+            enabled=True,
+            method="hungarian",
+            scale_mode="comparison",
+            non_invertible=True,
+            unsupported_layers=["a", "b"],
+            stability_warnings=["w1"],
+        )
+        assert r.unsupported_layers == ["a", "b"]
+        assert r.stability_warnings == ["w1"]
+
+    def test_json_schema_field_types_unchanged(self) -> None:
+        """Schema shape must still report array-of-string for both fields."""
+        schema = CanonicalizationReportOutput.model_json_schema()
+        props = schema["properties"]
+        for name in ("unsupported_layers", "stability_warnings"):
+            field_schema = props[name]
+            assert field_schema["type"] == "array"
+            assert field_schema["items"] == {"type": "string"}

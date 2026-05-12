@@ -32,7 +32,7 @@ Scoring recap::
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # ── Model loading result ──────────────────────────────────────────
 
@@ -125,8 +125,8 @@ class CanonicalizationReportOutput(BaseModel):
     attention_heads_aligned: int = 0
     mlp_channels_aligned: int = 0
     scale_normalized: bool = False
-    unsupported_layers: list[str] = []
-    stability_warnings: list[str] = []
+    unsupported_layers: list[str] = Field(default_factory=list)
+    stability_warnings: list[str] = Field(default_factory=list)
     skipped_reason: str | None = None
 
 

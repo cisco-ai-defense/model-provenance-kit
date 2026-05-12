@@ -277,30 +277,30 @@ def _solve_assignment(
     n = cost.shape[0]
     if cost.shape[0] != cost.shape[1]:
         raise ValueError("assignment requires a square cost matrix")
+    if not np.isfinite(cost).all():
+        raise ValueError("cost matrix must contain only finite values")
 
     if method == "hungarian" and _HAS_SCIPY:
         _, col = _scipy_lsa(cost)
         return np.asarray(col, dtype=np.int64)
 
-    # Greedy fallback: repeatedly pick the lowest-cost (row, col) pair.
-    work = cost.astype(np.float64, copy=True)
+    # Greedy fallback: sort every (row, col) pair by cost ascending and
+    # assign whenever both row and column are still free. Guarantees a
+    # complete permutation since the cost matrix is square.
+    m = cost.shape[1]
+    triples = [(float(cost[i, j]), i, j) for i in range(n) for j in range(m)]
+    triples.sort()
     perm = np.full(n, -1, dtype=np.int64)
-    used_rows: set[int] = set()
     used_cols: set[int] = set()
-    big = float(work.max() + 1.0) if work.size else 1.0
-    for _ in range(n):
-        flat_idx = int(np.argmin(work))
-        r, c = divmod(flat_idx, n)
-        if r in used_rows or c in used_cols:
-            # Belt-and-braces: zero-out used coordinates and retry once.
-            work[r, :] = big
-            work[:, c] = big
-            continue
-        perm[r] = c
-        used_rows.add(r)
-        used_cols.add(c)
-        work[r, :] = big
-        work[:, c] = big
+    assigned = 0
+    for _, i, j in triples:
+        if perm[i] == -1 and j not in used_cols:
+            perm[i] = j
+            used_cols.add(j)
+            assigned += 1
+            if assigned == n:
+                break
+    assert all(int(p) >= 0 for p in perm), "greedy assignment incomplete"
     return perm
 
 

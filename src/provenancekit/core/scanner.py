@@ -285,9 +285,7 @@ class ModelProvenanceScanner:
                 non_invertible=canon_cfg.scale_mode == "comparison",
                 skipped_reason="no_tensors_available",
             )
-            canon_output = CanonicalizationReportOutput(
-                **source_report.to_dict()
-            )
+            canon_output = CanonicalizationReportOutput(**source_report.to_dict())
 
         return CompareResult(
             model_a=model_a,
