@@ -70,6 +70,9 @@ benchmark = [
     "seaborn",
     "ipykernel",
 ]
+canonicalization = [
+    "scipy>=1.10",
+]
 
 [dependency-groups]
 dev = [

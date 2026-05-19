@@ -30,6 +30,25 @@ flag and disabled by default.
 When SciPy is unavailable the assignment falls back to a greedy
 max-matching solver. Pass `--canonicalize-method greedy` to force it.
 
+## Installing the Hungarian solver
+
+SciPy is an *optional* dependency. Install it via the `canonicalization`
+extra to enable the Hungarian assignment path:
+
+```
+pip install cisco-ai-provenance-kit[canonicalization]
+```
+
+or, with uv:
+
+```
+uv sync --extra canonicalization
+```
+
+The Hungarian solver is recommended for any model whose MLP intermediate
+width is ≥ 8192 (most modern LLMs). Without SciPy the greedy fallback is
+used, which is accurate but slower on wide layers.
+
 ## Important: comparison-only output
 
 > Scale normalization operates in a comparison space and is not
