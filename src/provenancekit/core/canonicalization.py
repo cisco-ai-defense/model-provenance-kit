@@ -554,12 +554,12 @@ class WeightCanonicalizer:
             return 0
 
         n_heads = arch_meta.get("num_attention_heads")
-        n_kv = arch_meta.get("num_key_value_heads") or n_heads
         head_dim = arch_meta.get("head_dim")
         hidden = arch_meta.get("hidden_size") or q_a.shape[1]
         if n_heads is None:
             report.unsupported_layers.append(f"attn:{q_a_name}:missing_num_heads")
             return 0
+        n_kv = arch_meta.get("num_key_value_heads") or n_heads
         if head_dim is None and hidden:
             head_dim = hidden // max(n_heads, 1)
         if head_dim is None or head_dim <= 0 or n_heads <= 0:
@@ -592,17 +592,24 @@ class WeightCanonicalizer:
 
         # Apply permutation to Q/K/V (output dim) and to O (input dim).
         out_b[roles_b["q"]] = _permute_attention_out(q_b, perm, head_dim)
-        if n_heads == (n_kv or n_heads):
+        if n_heads == n_kv:
             kv_perm = perm
         else:
-            # KV head permutation: collapse Q-head perm into KV-head groups.
-            ratio = n_heads // (n_kv or n_heads)
-            kv_perm_arr = np.array(
-                sorted({perm[i] // ratio for i in range(n_heads)}), dtype=np.int64
-            )
-            if kv_perm_arr.size != (n_kv or n_heads):
-                kv_perm_arr = np.arange(n_kv or n_heads, dtype=np.int64)
-            kv_perm = kv_perm_arr
+            # GQA/MQA: derive the KV-head permutation group-wise. Every Q
+            # head in A-side group ``g`` must map to the same B-side KV
+            # group; otherwise the Q permutation is incompatible with the
+            # KV grouping and the canonicalizer must not claim alignment.
+            ratio = n_heads // n_kv
+            kv_perm = np.empty(n_kv, dtype=np.int64)
+            for g in range(n_kv):
+                targets = {int(perm[g * ratio + r]) // ratio for r in range(ratio)}
+                if len(targets) != 1:
+                    report.unsupported_layers.append(f"attn:{q_a_name}:gqa_group_split")
+                    return 0
+                kv_perm[g] = targets.pop()
+            if sorted(kv_perm.tolist()) != list(range(n_kv)):
+                report.unsupported_layers.append(f"attn:{q_a_name}:gqa_perm_invalid")
+                return 0
         kv_head_count = n_kv or n_heads
         out_b[roles_b["k"]] = _permute_attention_out(k_b, kv_perm, head_dim)
         out_b[roles_b["v"]] = _permute_attention_out(v_b, kv_perm, head_dim)

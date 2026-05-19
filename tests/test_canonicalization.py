@@ -706,3 +706,217 @@ class TestCanonicalizationReportMutableDefaults:
             field_schema = props[name]
             assert field_schema["type"] == "array"
             assert field_schema["items"] == {"type": "string"}
+
+
+# ── GQA / MQA regression coverage ─────────────────────────────────
+
+
+def _make_gqa_attention_layer(
+    rng: np.random.Generator,
+    hidden: int,
+    n_heads: int,
+    n_kv: int,
+    head_dim: int,
+) -> dict[str, torch.Tensor]:
+    """Build q/k/v/o projections for a grouped-/multi-query attention block.
+
+    K and V carry ``n_kv`` heads (``n_kv * head_dim`` rows) while Q and O
+    carry the full ``n_heads`` — the shape that exercises the KV-head
+    permutation path of ``_align_attention_heads``.
+    """
+    q_dim = n_heads * head_dim
+    kv_dim = n_kv * head_dim
+    q = torch.tensor(rng.standard_normal((q_dim, hidden)), dtype=torch.float32)
+    k = torch.tensor(rng.standard_normal((kv_dim, hidden)), dtype=torch.float32)
+    v = torch.tensor(rng.standard_normal((kv_dim, hidden)), dtype=torch.float32)
+    o = torch.tensor(rng.standard_normal((hidden, q_dim)), dtype=torch.float32)
+    return {
+        "model.layers.0.self_attn.q_proj.weight": q,
+        "model.layers.0.self_attn.k_proj.weight": k,
+        "model.layers.0.self_attn.v_proj.weight": v,
+        "model.layers.0.self_attn.o_proj.weight": o,
+    }
+
+
+def _permute_gqa_attention_b(
+    state: dict[str, torch.Tensor],
+    perm_q: np.ndarray,
+    perm_kv: np.ndarray,
+    head_dim: int,
+    n_heads: int,
+    n_kv: int,
+) -> dict[str, torch.Tensor]:
+    """Apply independent Q-head and KV-head permutations to a GQA block.
+
+    ``perm_q`` permutes the ``n_heads`` Q heads (and the matching O input
+    heads); ``perm_kv`` permutes the ``n_kv`` KV heads of K and V.
+    """
+    out = dict(state)
+    perm_q_t = torch.as_tensor(perm_q, dtype=torch.long)
+    perm_kv_t = torch.as_tensor(perm_kv, dtype=torch.long)
+
+    q_name = "model.layers.0.self_attn.q_proj.weight"
+    q = out[q_name]
+    out[q_name] = (
+        q.reshape(n_heads, head_dim, -1)
+        .index_select(0, perm_q_t)
+        .reshape(n_heads * head_dim, -1)
+        .contiguous()
+    )
+    for role in ("k_proj", "v_proj"):
+        name = f"model.layers.0.self_attn.{role}.weight"
+        t = out[name]
+        out[name] = (
+            t.reshape(n_kv, head_dim, -1)
+            .index_select(0, perm_kv_t)
+            .reshape(n_kv * head_dim, -1)
+            .contiguous()
+        )
+    o_name = "model.layers.0.self_attn.o_proj.weight"
+    o = out[o_name]
+    out[o_name] = (
+        o.reshape(o.shape[0], n_heads, head_dim)
+        .index_select(1, perm_q_t)
+        .reshape(o.shape[0], n_heads * head_dim)
+        .contiguous()
+    )
+    return out
+
+
+class TestGQAKVPermutation:
+    """Regression coverage for KV-head permutation under GQA/MQA.
+
+    Guards against the KV-head permutation collapsing to the identity,
+    which silently leaves K and V unaligned for grouped-/multi-query
+    models while still reporting ``attention_heads_aligned == n_heads``.
+    """
+
+    def test_gqa_kv_permutation_recovers_alignment(self) -> None:
+        rng = np.random.default_rng(7)
+        hidden, n_heads, n_kv, head_dim = 16, 4, 2, 4
+        cfg_meta = _SynthArchConfig(
+            hidden_size=hidden,
+            num_attention_heads=n_heads,
+            num_key_value_heads=n_kv,
+            head_dim=head_dim,
+            intermediate_size=hidden * 2,
+        )
+        state_a = _make_gqa_attention_layer(rng, hidden, n_heads, n_kv, head_dim)
+
+        # B swaps the two KV groups and the two matching Q groups together,
+        # so the transform is function-preserving and fully recoverable.
+        perm_q = np.array([2, 3, 0, 1], dtype=np.int64)
+        perm_kv = np.array([1, 0], dtype=np.int64)
+        state_b = _permute_gqa_attention_b(
+            state_a, perm_q, perm_kv, head_dim, n_heads, n_kv
+        )
+
+        # Sanity: K is degraded before canonicalization.
+        k_name = "model.layers.0.self_attn.k_proj.weight"
+        raw_k_cos = _vec_cosine(state_a[k_name], state_b[k_name])
+        assert raw_k_cos < 0.95, f"unexpected raw k cosine {raw_k_cos!r}"
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            method="hungarian",
+        )
+        canonicalizer = WeightCanonicalizer(cfg)
+        view_a, view_b, report = canonicalizer.canonicalize_pair(
+            state_a, state_b, cfg_meta, cfg_meta
+        )
+
+        for role in ("q_proj", "k_proj", "v_proj", "o_proj"):
+            name = f"model.layers.0.self_attn.{role}.weight"
+            cos = _vec_cosine(view_a[name], view_b[name])
+            assert cos > 0.999, f"{role} cosine should approach 1.0 (got {cos:.4f})"
+
+        assert report.attention_heads_aligned == n_heads
+        assert report.unsupported_layers == []
+
+    def test_gqa_group_split_bails_with_unsupported_record(self) -> None:
+        rng = np.random.default_rng(8)
+        hidden, n_heads, n_kv, head_dim = 16, 4, 2, 4
+        cfg_meta = _SynthArchConfig(
+            hidden_size=hidden,
+            num_attention_heads=n_heads,
+            num_key_value_heads=n_kv,
+            head_dim=head_dim,
+            intermediate_size=hidden * 2,
+        )
+        state_a = _make_gqa_attention_layer(rng, hidden, n_heads, n_kv, head_dim)
+
+        # Make both KV groups identical so head assignment is driven purely
+        # by the Q signature: the recovered Q permutation is then exactly
+        # the one applied to B, with no KV signal to mask the incompatibility.
+        for role in ("k_proj", "v_proj"):
+            name = f"model.layers.0.self_attn.{role}.weight"
+            grp = state_a[name][:head_dim].clone()
+            state_a[name] = torch.cat([grp, grp], dim=0).contiguous()
+
+        # perm_q sends A-side group 0 heads {0, 1} to B positions {2, 1},
+        # which fall in different KV groups — an incompatible Q permutation.
+        perm_q = np.array([2, 1, 0, 3], dtype=np.int64)
+        perm_kv = np.array([0, 1], dtype=np.int64)
+        state_b = _permute_gqa_attention_b(
+            state_a, perm_q, perm_kv, head_dim, n_heads, n_kv
+        )
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            method="hungarian",
+        )
+        canonicalizer = WeightCanonicalizer(cfg)
+        _, _, report = canonicalizer.canonicalize_pair(
+            state_a, state_b, cfg_meta, cfg_meta
+        )
+
+        # The canonicalizer must bail rather than report a false success.
+        assert report.attention_heads_aligned == 0
+        assert report.layers_aligned == 0
+        assert any(
+            entry.endswith(":gqa_group_split") for entry in report.unsupported_layers
+        ), report.unsupported_layers
+
+    def test_mqa_single_kv_group_handles_trivial_permutation(self) -> None:
+        rng = np.random.default_rng(9)
+        hidden, n_heads, n_kv, head_dim = 16, 4, 1, 4
+        cfg_meta = _SynthArchConfig(
+            hidden_size=hidden,
+            num_attention_heads=n_heads,
+            num_key_value_heads=n_kv,
+            head_dim=head_dim,
+            intermediate_size=hidden * 2,
+        )
+        state_a = _make_gqa_attention_layer(rng, hidden, n_heads, n_kv, head_dim)
+
+        # MQA has a single KV group: it cannot be permuted, so K and V are
+        # carried over unchanged while the Q heads are shuffled.
+        perm_q = np.array([1, 2, 3, 0], dtype=np.int64)
+        perm_kv = np.array([0], dtype=np.int64)
+        state_b = _permute_gqa_attention_b(
+            state_a, perm_q, perm_kv, head_dim, n_heads, n_kv
+        )
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            method="hungarian",
+        )
+        canonicalizer = WeightCanonicalizer(cfg)
+        view_a, view_b, report = canonicalizer.canonicalize_pair(
+            state_a, state_b, cfg_meta, cfg_meta
+        )
+
+        # kv_perm collapses to [0]; K/V stay identical to A's.
+        for role in ("k_proj", "v_proj"):
+            name = f"model.layers.0.self_attn.{role}.weight"
+            cos = _vec_cosine(view_a[name], view_b[name])
+            assert cos > 0.999, f"{role} cosine should approach 1.0 (got {cos:.4f})"
+
+        assert report.attention_heads_aligned == n_heads
+        assert report.unsupported_layers == []
