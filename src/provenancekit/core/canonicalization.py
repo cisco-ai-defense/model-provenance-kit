@@ -590,8 +590,10 @@ class WeightCanonicalizer:
                 f"layer:{q_a_name}:perm_jump:{before:.3f}->{after:.3f}"
             )
 
-        # Apply permutation to Q/K/V (output dim) and to O (input dim).
-        out_b[roles_b["q"]] = _permute_attention_out(q_b, perm, head_dim)
+        # Derive the KV-head permutation *before* mutating ``out_b``. A
+        # GQA group-split bail must leave the comparison views byte-for-byte
+        # untouched; permuting Q up-front would silently reorder B's q_proj
+        # while the report still claims nothing was aligned.
         if n_heads == n_kv:
             kv_perm = perm
         else:
@@ -610,7 +612,10 @@ class WeightCanonicalizer:
             if sorted(kv_perm.tolist()) != list(range(n_kv)):
                 report.unsupported_layers.append(f"attn:{q_a_name}:gqa_perm_invalid")
                 return 0
-        kv_head_count = n_kv or n_heads
+
+        # All permutations validated — apply to Q/K/V (output dim) and to
+        # O (input dim).
+        out_b[roles_b["q"]] = _permute_attention_out(q_b, perm, head_dim)
         out_b[roles_b["k"]] = _permute_attention_out(k_b, kv_perm, head_dim)
         out_b[roles_b["v"]] = _permute_attention_out(v_b, kv_perm, head_dim)
 
@@ -622,8 +627,6 @@ class WeightCanonicalizer:
                 out_b[o_b_name] = _permute_attention_in(o_b, perm, head_dim)
             else:
                 report.unsupported_layers.append(f"attn:{o_b_name}:o_shape_mismatch")
-        # Suppress unused-name warning
-        del kv_head_count
         return n_heads
 
     def _align_mlp_channels(

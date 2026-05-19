@@ -870,7 +870,7 @@ class TestGQAKVPermutation:
             method="hungarian",
         )
         canonicalizer = WeightCanonicalizer(cfg)
-        _, _, report = canonicalizer.canonicalize_pair(
+        _, view_b, report = canonicalizer.canonicalize_pair(
             state_a, state_b, cfg_meta, cfg_meta
         )
 
@@ -880,6 +880,16 @@ class TestGQAKVPermutation:
         assert any(
             entry.endswith(":gqa_group_split") for entry in report.unsupported_layers
         ), report.unsupported_layers
+
+        # Bailing must leave B's comparison view byte-identical to the input.
+        # The Q permutation used to be applied before the KV-group check, so
+        # a group-split bail silently reordered q_proj while the report still
+        # claimed ``attention_heads_aligned == 0`` — an inconsistent view.
+        for role in ("q_proj", "k_proj", "v_proj", "o_proj"):
+            name = f"model.layers.0.self_attn.{role}.weight"
+            assert torch.equal(view_b[name], state_b[name]), (
+                f"{role} mutated despite gqa_group_split bail"
+            )
 
     def test_mqa_single_kv_group_handles_trivial_permutation(self) -> None:
         rng = np.random.default_rng(9)
