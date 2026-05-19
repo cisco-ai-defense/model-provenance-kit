@@ -284,22 +284,34 @@ def _solve_assignment(
         _, col = _scipy_lsa(cost)
         return np.asarray(col, dtype=np.int64)
 
-    # Greedy fallback: sort every (row, col) pair by cost ascending and
-    # assign whenever both row and column are still free. Guarantees a
+    # Greedy fallback: scan every (row, col) cell in ascending cost order
+    # and assign whenever both row and column are still free. Guarantees a
     # complete permutation since the cost matrix is square.
+    #
+    # The cells are ordered by sorting flat indices rather than building a
+    # list of ``(cost, row, col)`` tuples: the tuple form materialised
+    # ~n*m Python objects (~24 bytes each), which OOMs at LLM MLP widths
+    # (n = intermediate_size). A stable argsort over the flattened float32
+    # cost reproduces the same ordering — ties break by flat index, i.e.
+    # lexicographically by (row, col), exactly as the tuple sort did — at
+    # 4 bytes/cell plus the int index array.
     m = cost.shape[1]
-    triples = [(float(cost[i, j]), i, j) for i in range(n) for j in range(m)]
-    triples.sort()
+    flat = cost.astype(np.float32, copy=False).reshape(-1)
+    order = np.argsort(flat, kind="stable")
     perm = np.full(n, -1, dtype=np.int64)
-    used_cols: set[int] = set()
+    row_used = np.zeros(n, dtype=bool)
+    col_used = np.zeros(m, dtype=bool)
     assigned = 0
-    for _, i, j in triples:
-        if perm[i] == -1 and j not in used_cols:
-            perm[i] = j
-            used_cols.add(j)
-            assigned += 1
-            if assigned == n:
-                break
+    for idx in order:
+        i, j = divmod(int(idx), m)
+        if row_used[i] or col_used[j]:
+            continue
+        perm[i] = j
+        row_used[i] = True
+        col_used[j] = True
+        assigned += 1
+        if assigned == n:
+            break
     assert all(int(p) >= 0 for p in perm), "greedy assignment incomplete"
     return perm
 

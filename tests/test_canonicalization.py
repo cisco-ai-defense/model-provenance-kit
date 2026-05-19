@@ -1024,3 +1024,74 @@ class TestFloat32CostMatrix:
             assert cos > 0.999, f"{name} cosine should approach 1.0 (got {cos:.4f})"
         assert report.attention_heads_aligned == n_heads
         assert report.mlp_channels_aligned == intermediate
+
+
+# ── Vectorized greedy fallback coverage (Fix 3) ───────────────────
+
+
+def _naive_greedy(cost: np.ndarray) -> np.ndarray:
+    """Pre-vectorisation greedy: sort ``(cost, row, col)`` tuples ascending.
+
+    This is the reference implementation the vectorized
+    flat-index/argsort path must reproduce byte-for-byte.
+    """
+    n, m = cost.shape
+    triples = [(float(cost[i, j]), i, j) for i in range(n) for j in range(m)]
+    triples.sort()
+    perm = np.full(n, -1, dtype=np.int64)
+    used_cols: set[int] = set()
+    assigned = 0
+    for _, i, j in triples:
+        if perm[i] == -1 and j not in used_cols:
+            perm[i] = j
+            used_cols.add(j)
+            assigned += 1
+            if assigned == n:
+                break
+    return perm
+
+
+class TestVectorizedGreedy:
+    """Lock the vectorized greedy fallback against the naive reference.
+
+    The greedy solver used to materialise an ``(cost, row, col)`` tuple
+    per cell — ~n*m Python objects, which OOMs at LLM MLP widths. The
+    vectorized form sorts flat indices instead. A stable argsort breaks
+    ties by flat index, i.e. lexicographically by ``(row, col)``, which
+    matches the tuple sort exactly, so the recovered permutation must be
+    byte-identical to the naive implementation.
+    """
+
+    @pytest.mark.parametrize("n", [32, 64, 256, 1024])
+    def test_vectorized_matches_naive(self, n: int) -> None:
+        rng = np.random.default_rng(20260519 + n)
+        cost = rng.standard_normal((n, n)).astype(np.float32)
+        vectorized = _solve_assignment(cost, method="greedy")
+        naive = _naive_greedy(cost)
+        _assert_complete_perm(vectorized, n)
+        assert vectorized.tolist() == naive.tolist(), (
+            f"n={n}: vectorized greedy diverged from the naive reference"
+        )
+
+    def test_vectorized_matches_naive_with_heavy_ties(self) -> None:
+        # Integer-valued costs create large blocks of equal cells, which
+        # stresses the stable-sort tie-break that must match the tuple
+        # sort's (cost, row, col) lexicographic ordering.
+        n = 128
+        rng = np.random.default_rng(424242)
+        cost = rng.integers(0, 4, size=(n, n)).astype(np.float32)
+        vectorized = _solve_assignment(cost, method="greedy")
+        naive = _naive_greedy(cost)
+        _assert_complete_perm(vectorized, n)
+        assert vectorized.tolist() == naive.tolist()
+
+    def test_vectorized_recovers_known_permutation(self) -> None:
+        # A cost matrix whose unique minimum-cost assignment is a known
+        # permutation: greedy must recover it.
+        n = 512
+        perm = np.random.default_rng(7).permutation(n)
+        cost = np.full((n, n), 1.0, dtype=np.float32)
+        cost[np.arange(n), perm] = 0.0
+        recovered = _solve_assignment(cost, method="greedy")
+        _assert_complete_perm(recovered, n)
+        assert recovered.tolist() == perm.tolist()
