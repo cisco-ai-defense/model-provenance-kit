@@ -123,16 +123,33 @@ def _add_canonicalize_flags(p: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Disable head/MLP permutation alignment within canonicalization.",
     )
+    p.add_argument(
+        "--canonicalize-max-mlp-width",
+        dest="canonicalize_max_mlp_width",
+        type=int,
+        default=8192,
+        help=(
+            "Skip MLP-channel permutation alignment when the intermediate "
+            "width exceeds N channels. The assignment solver is O(N^2) in "
+            "the MLP width, so wide layers are gated off by default (8192). "
+            "Pass 0 or a negative value to disable the gate and align MLP "
+            "layers of any width."
+        ),
+    )
 
 
 def _build_canonicalization(args: argparse.Namespace) -> CanonicalizationConfig:
     """Build a :class:`CanonicalizationConfig` from CLI flags."""
+    raw_width = getattr(args, "canonicalize_max_mlp_width", 8192)
+    # 0 or negative means "no limit" — disable the MLP-width gate.
+    max_mlp_width = raw_width if raw_width is not None and raw_width > 0 else None
     return CanonicalizationConfig(
         enabled=getattr(args, "canonicalize", False),
         align_permutations=not getattr(args, "canonicalize_no_perm", False),
         normalize_scales=not getattr(args, "canonicalize_no_scale", False),
         method=getattr(args, "canonicalize_method", "hungarian"),
         scale_mode=getattr(args, "canonicalize_scale_mode", "comparison"),
+        max_mlp_width=max_mlp_width,
     )
 
 

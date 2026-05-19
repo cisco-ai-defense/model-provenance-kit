@@ -28,6 +28,7 @@ Synthetic transformer-like state dicts validate:
 
 from __future__ import annotations
 
+import argparse
 import contextlib
 import sys
 from dataclasses import dataclass
@@ -37,6 +38,7 @@ import numpy as np
 import pytest
 import torch
 
+from provenancekit.cli import _build_canonicalization
 from provenancekit.cli import main as cli_main
 from provenancekit.core.canonicalization import (
     _HAS_SCIPY,
@@ -1095,3 +1097,163 @@ class TestVectorizedGreedy:
         recovered = _solve_assignment(cost, method="greedy")
         _assert_complete_perm(recovered, n)
         assert recovered.tolist() == perm.tolist()
+
+
+# ── MLP-width threshold gate coverage (Fix 4) ─────────────────────
+
+
+class TestMLPWidthThreshold:
+    """Lock the ``max_mlp_width`` gate on MLP-channel alignment.
+
+    MLP-channel alignment is O(n*m) in the intermediate width. The gate
+    skips alignment for layers wider than ``max_mlp_width`` (default
+    8192) and records the skip in ``unsupported_layers``; ``None``
+    disables the gate.
+    """
+
+    def test_mlp_width_threshold_default_skips_wide_layer(self) -> None:
+        # An LLaMA-3-8B-width MLP layer (intermediate 14336). The default
+        # gate (8192) must skip alignment without building the cost
+        # matrix and record an ``mlp_width_exceeded`` entry.
+        rng = np.random.default_rng(31)
+        hidden, intermediate = 16, 14336
+        state_a = _make_mlp_layer(rng, hidden, intermediate)
+        perm = np.random.default_rng(32).permutation(intermediate)
+        state_b = _permute_mlp_b(state_a, perm)
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+        )
+        assert cfg.max_mlp_width == 8192  # default
+
+        view_a, view_b, report = WeightCanonicalizer(cfg).canonicalize_pair(
+            state_a, state_b, None, None
+        )
+
+        assert report.mlp_channels_aligned == 0
+        assert any(
+            entry.endswith(":mlp_width_exceeded") for entry in report.unsupported_layers
+        ), report.unsupported_layers
+        # Alignment skipped: B's projections are byte-identical to input.
+        for role in ("up_proj", "gate_proj", "down_proj"):
+            name = f"model.layers.0.mlp.{role}.weight"
+            assert torch.equal(view_b[name], state_b[name]), (
+                f"{role} mutated despite the mlp_width_exceeded gate"
+            )
+
+    def test_mlp_width_threshold_override_via_config(self) -> None:
+        # An MLP layer wider than a configured threshold: with the
+        # threshold set the layer is gated, and with ``max_mlp_width=None``
+        # the gate is disabled, alignment runs, and the permutation is
+        # recovered with no unsupported entry.
+        #
+        # A modest width with a lowered threshold is used rather than the
+        # full LLaMA-3-8B 14336: with the gate off the test executes the
+        # real O(n*m) alignment solve, and a 14336-wide solve is a
+        # multi-minute operation unfit for the unit suite. The
+        # gate-disabled path at full LLM width is measured by the
+        # standalone scalability harness instead.
+        rng = np.random.default_rng(33)
+        hidden, intermediate = 16, 384
+        state_a = _make_mlp_layer(rng, hidden, intermediate)
+        perm = np.random.default_rng(34).permutation(intermediate)
+        state_b = _permute_mlp_b(state_a, perm)
+
+        # Sanity: a threshold below the layer width gates it off.
+        gated = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            max_mlp_width=intermediate // 2,
+        )
+        _, _, gated_report = WeightCanonicalizer(gated).canonicalize_pair(
+            state_a, state_b, None, None
+        )
+        assert gated_report.mlp_channels_aligned == 0
+        assert any(
+            entry.endswith(":mlp_width_exceeded")
+            for entry in gated_report.unsupported_layers
+        )
+
+        # Override: max_mlp_width=None disables the gate entirely.
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            method="hungarian",
+            max_mlp_width=None,
+        )
+        view_a, view_b, report = WeightCanonicalizer(cfg).canonicalize_pair(
+            state_a, state_b, None, None
+        )
+
+        assert report.mlp_channels_aligned == intermediate
+        assert report.unsupported_layers == []
+        up_cos = _vec_cosine(
+            view_a["model.layers.0.mlp.up_proj.weight"],
+            view_b["model.layers.0.mlp.up_proj.weight"],
+        )
+        assert up_cos > 0.999, f"override alignment failed (cosine {up_cos:.4f})"
+
+    def test_mlp_width_threshold_allows_layer_at_limit(self) -> None:
+        # A layer exactly at the threshold is not gated (strict ``>``).
+        rng = np.random.default_rng(35)
+        hidden, intermediate = 16, 256
+        state_a = _make_mlp_layer(rng, hidden, intermediate)
+        perm = np.random.default_rng(36).permutation(intermediate)
+        state_b = _permute_mlp_b(state_a, perm)
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            max_mlp_width=intermediate,
+        )
+        _, _, report = WeightCanonicalizer(cfg).canonicalize_pair(
+            state_a, state_b, None, None
+        )
+        assert report.mlp_channels_aligned == intermediate
+        assert report.unsupported_layers == []
+
+
+class TestMaxMLPWidthCLI:
+    """Lock the ``--canonicalize-max-mlp-width`` CLI flag and its wiring."""
+
+    def test_flag_appears_in_compare_and_scan_help(self) -> None:
+        for cmd in ("compare", "scan"):
+            old_argv = sys.argv
+            old_stdout = sys.stdout
+            buf = StringIO()
+            try:
+                sys.argv = ["provenancekit", cmd, "--help"]
+                sys.stdout = buf
+                with contextlib.suppress(SystemExit):
+                    cli_main()
+            finally:
+                sys.argv = old_argv
+                sys.stdout = old_stdout
+            assert "--canonicalize-max-mlp-width" in buf.getvalue(), cmd
+
+    @pytest.mark.parametrize(
+        "raw,expected",
+        [
+            (8192, 8192),
+            (16384, 16384),
+            (1, 1),
+            (0, None),
+            (-1, None),
+            (-9999, None),
+        ],
+    )
+    def test_build_canonicalization_maps_width(
+        self, raw: int, expected: int | None
+    ) -> None:
+        args = argparse.Namespace(canonicalize_max_mlp_width=raw)
+        cfg = _build_canonicalization(args)
+        assert cfg.max_mlp_width == expected
+
+    def test_default_when_flag_absent(self) -> None:
+        cfg = _build_canonicalization(argparse.Namespace())
+        assert cfg.max_mlp_width == 8192

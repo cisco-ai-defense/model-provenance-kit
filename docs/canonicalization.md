@@ -81,6 +81,23 @@ provenancekit compare base-model suspect-model --canonicalize --canonicalize-sca
 | `--canonicalize-scale-mode {comparison,function_preserving}` | Scale handling. Default is `comparison` (non-invertible). |
 | `--no-scale-normalize` | Skip per-channel scale normalization. |
 | `--no-permutation-align` | Skip head / channel permutation alignment. |
+| `--canonicalize-max-mlp-width N` | Skip MLP-channel alignment when the intermediate width exceeds `N`. Default `8192`. Pass `0` or a negative value to disable the gate. |
+
+### MLP-width gate
+
+MLP-channel alignment solves an assignment over the intermediate width,
+which is O(n*m) in both memory and time. On LLM-class models the
+intermediate width is large (LLaMA-3-8B uses 14336), so the cost matrix
+alone runs to multiple gigabytes per layer.
+
+By default the canonicalizer gates MLP-channel alignment off for any
+layer whose intermediate width exceeds `8192` (`max_mlp_width`).
+Skipped layers are recorded in `unsupported_layers` with an
+`mlp_width_exceeded` suffix, and attention-head alignment still runs.
+Pass `--canonicalize-max-mlp-width 0` (or set `max_mlp_width=None` on
+`CanonicalizationConfig`) to disable the gate and align MLP layers of
+any width — recommended only with the SciPy Hungarian solver installed,
+since the greedy fallback is slower on wide layers.
 
 ## JSON output additions
 

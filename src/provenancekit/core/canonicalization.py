@@ -91,6 +91,12 @@ class CanonicalizationConfig:
         head_alignment: Align attention heads when architecture metadata
             is available.
         mlp_alignment: Align MLP/intermediate channels.
+        max_mlp_width: Skip MLP-channel permutation alignment when the
+            intermediate width exceeds this many channels. The assignment
+            solver is O(n*m) in the intermediate width, so wide layers
+            are gated off by default (8192) and recorded in
+            ``unsupported_layers``. ``None`` disables the gate and aligns
+            MLP layers of any width.
         eps: Numerical floor used to guard against division by zero.
         method: Assignment solver. ``"hungarian"`` uses
             :func:`scipy.optimize.linear_sum_assignment`; falls back to
@@ -110,6 +116,7 @@ class CanonicalizationConfig:
     max_layers: int | None = None
     head_alignment: bool = True
     mlp_alignment: bool = True
+    max_mlp_width: int | None = 8192
     eps: float = 1e-8
     method: AlignMethod = "hungarian"
     scale_mode: ScaleMode = "comparison"
@@ -688,6 +695,14 @@ class WeightCanonicalizer:
             return 0
 
         intermediate = up_a.shape[0]
+        max_width = self._config.max_mlp_width
+        if max_width is not None and intermediate > max_width:
+            # The assignment cost matrix and its solve are O(n*m) in the
+            # intermediate width. Gate wide MLP layers off rather than
+            # build a multi-GB cost matrix; record the skip so callers
+            # can see alignment was not attempted for this block.
+            report.unsupported_layers.append(f"mlp:{up_a_name}:mlp_width_exceeded")
+            return 0
         meta_inter = arch_meta.get("intermediate_size")
         if meta_inter is not None and meta_inter != intermediate:
             report.unsupported_layers.append(f"mlp:{up_a_name}:intermediate_mismatch")
