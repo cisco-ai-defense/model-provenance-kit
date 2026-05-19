@@ -43,6 +43,7 @@ from provenancekit.core.canonicalization import (
     CanonicalizationConfig,
     ComparisonView,
     WeightCanonicalizer,
+    _build_cost_matrix,
     _solve_assignment,
     assert_not_comparison_view,
 )
@@ -930,3 +931,96 @@ class TestGQAKVPermutation:
 
         assert report.attention_heads_aligned == n_heads
         assert report.unsupported_layers == []
+
+
+# ── Float32 cost-matrix coverage (Fix 2) ──────────────────────────
+
+
+def _cosine_distance_float64(sigs_a: np.ndarray, sigs_b: np.ndarray) -> np.ndarray:
+    """Reference ``1 - cosine`` cost matrix computed entirely in float64."""
+    a = sigs_a.astype(np.float64)
+    b = sigs_b.astype(np.float64)
+    a_unit = a / (np.linalg.norm(a, axis=1, keepdims=True) + 1e-12)
+    b_unit = b / (np.linalg.norm(b, axis=1, keepdims=True) + 1e-12)
+    return 1.0 - a_unit @ b_unit.T
+
+
+class TestFloat32CostMatrix:
+    """Lock the float32 cost-matrix optimisation.
+
+    ``_build_cost_matrix`` used to materialise the assignment cost in the
+    NumPy-default float64. On LLM-width MLP layers that O(n*m) matrix
+    dominates peak memory; building it in float32 halves it. These tests
+    confirm the dtype change and that the precision loss does not move
+    the recovered assignment.
+    """
+
+    def test_cost_matrix_dtype_is_float32(self) -> None:
+        rng = np.random.default_rng(11)
+        sigs_a = rng.standard_normal((24, 40)).astype(np.float32)
+        sigs_b = rng.standard_normal((24, 40)).astype(np.float32)
+        cost = _build_cost_matrix(sigs_a, sigs_b)
+        assert cost.dtype == np.float32
+
+    def test_cost_matrix_matches_float64_reference(self) -> None:
+        rng = np.random.default_rng(12)
+        sigs_a = rng.standard_normal((32, 64)).astype(np.float32)
+        sigs_b = rng.standard_normal((32, 64)).astype(np.float32)
+        cost32 = _build_cost_matrix(sigs_a, sigs_b)
+        ref = _cosine_distance_float64(sigs_a, sigs_b)
+        # float32 cosine distance tracks the float64 reference tightly.
+        assert np.allclose(cost32, ref, atol=1e-4, rtol=0.0)
+
+    def test_recovered_permutation_matches_float64(self) -> None:
+        # A permuted copy of A: the unique optimal assignment is the
+        # inverse permutation. float32 and float64 cost must agree on it.
+        rng = np.random.default_rng(13)
+        n = 96
+        sigs_a = rng.standard_normal((n, 128)).astype(np.float32)
+        shuffle = rng.permutation(n)
+        sigs_b = sigs_a[shuffle].copy()
+
+        cost32 = _build_cost_matrix(sigs_a, sigs_b)
+        cost64 = _cosine_distance_float64(sigs_a, sigs_b)
+
+        for method in ("hungarian", "greedy"):
+            perm32 = _solve_assignment(cost32, method=method)
+            perm64 = _solve_assignment(cost64, method=method)
+            assert perm32.tolist() == perm64.tolist(), (
+                f"{method}: float32 cost changed the recovered permutation"
+            )
+
+    def test_alignment_quality_preserved_on_fixtures(self) -> None:
+        # End-to-end on the existing synthetic fixtures: the float32 cost
+        # path must still recover near-perfect alignment.
+        rng = np.random.default_rng(14)
+        hidden, n_heads, head_dim, intermediate = 32, 4, 8, 128
+        cfg_meta = _SynthArchConfig(
+            hidden_size=hidden,
+            num_attention_heads=n_heads,
+            num_key_value_heads=n_heads,
+            head_dim=head_dim,
+            intermediate_size=intermediate,
+        )
+        state_a = _make_attention_layer(rng, hidden, n_heads, head_dim)
+        state_a.update(_make_mlp_layer(rng, hidden, intermediate))
+
+        attn_perm = np.array([2, 0, 3, 1], dtype=np.int64)
+        state_b = _permute_attention_b(state_a, attn_perm, head_dim, n_heads)
+        mlp_perm = np.random.default_rng(15).permutation(intermediate)
+        state_b = _permute_mlp_b(state_b, mlp_perm)
+
+        cfg = CanonicalizationConfig(
+            enabled=True,
+            align_permutations=True,
+            normalize_scales=False,
+            method="hungarian",
+        )
+        view_a, view_b, report = WeightCanonicalizer(cfg).canonicalize_pair(
+            state_a, state_b, cfg_meta, cfg_meta
+        )
+        for name in state_a:
+            cos = _vec_cosine(view_a[name], view_b[name])
+            assert cos > 0.999, f"{name} cosine should approach 1.0 (got {cos:.4f})"
+        assert report.attention_heads_aligned == n_heads
+        assert report.mlp_channels_aligned == intermediate

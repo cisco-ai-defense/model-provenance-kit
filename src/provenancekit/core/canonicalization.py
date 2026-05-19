@@ -305,15 +305,22 @@ def _solve_assignment(
 
 
 def _build_cost_matrix(sigs_a: np.ndarray, sigs_b: np.ndarray) -> np.ndarray:
-    """Compute ``1 - cosine`` between every row of A and every row of B."""
-    a = sigs_a.astype(np.float64, copy=False)
-    b = sigs_b.astype(np.float64, copy=False)
+    """Compute ``1 - cosine`` between every row of A and every row of B.
+
+    The cost matrix is built in ``float32`` rather than the NumPy default
+    ``float64``. This halves peak memory of the assignment step, which is
+    O(n*m) and dominates on LLM-width MLP layers (n = intermediate_size).
+    The precision loss is immaterial: the matrix holds cosine distances
+    consumed by a permutation solver, not values carried into scoring.
+    """
+    a = sigs_a.astype(np.float32, copy=False)
+    b = sigs_b.astype(np.float32, copy=False)
     a_norm = np.linalg.norm(a, axis=1, keepdims=True) + 1e-12
     b_norm = np.linalg.norm(b, axis=1, keepdims=True) + 1e-12
     a_unit = a / a_norm
     b_unit = b / b_norm
     sim = a_unit @ b_unit.T
-    cost: np.ndarray = 1.0 - sim
+    cost: np.ndarray = (1.0 - sim).astype(np.float32, copy=False)
     return cost
 
 
