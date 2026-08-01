@@ -1,0 +1,116 @@
+{
+  "bundle_id": "f633accf-6ca9-46df-bfc8-3fc2d6c5b60e",
+  "model_id": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+  "asset_id": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct__hf-safetensors",
+  "family_id": "nvidia--nemotron",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-07-31T23:51:07.772202+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "arch_hash": "994620a1ca6ce42a42525b8e57b9f7ca8449c82d951a24769aba3653c16645b5",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "attention_bias": false,
+    "attention_style": "GQA",
+    "bos_token_id": 128000,
+    "eos_token_id": 128009,
+    "family_hash": "9047eb0a6742f7bc4e2ae3db6f46419286344e905592e52b3872846a8d19d18b",
+    "gqa_ratio": 4.0,
+    "head_dim": 128,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "intermediate_size": 14336,
+    "max_position_embeddings": 1073152,
+    "model_type": "llama",
+    "norm_type": "RMSNorm",
+    "num_attention_heads": 32,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 8,
+    "pos_encoding": "absolute",
+    "qk_norm": false,
+    "rope_scaling": {
+      "factor": 128.0,
+      "high_freq_factor": 4.0,
+      "low_freq_factor": 1.0,
+      "original_max_position_embeddings": 8192,
+      "rope_theta": 500000,
+      "rope_type": "llama3"
+    },
+    "rope_theta": null,
+    "tie_word_embeddings": false,
+    "token_id_signature": "bos=128000|eos=128009",
+    "tokenizer_hash": "b47fcb7017102fb3594326d69acc6b74872032ed15def90890d49d61ea94d220",
+    "vocab_size": 129024
+  },
+  "tfv": {
+    "avg_token_length": 6.54,
+    "bos_token_id": 128000,
+    "eos_token_id": 128009,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120 \u0120\u0120\u0120",
+      "\u0120\u0120 \u0120\u0120",
+      "\u0120\u0120\u0120 \u0120",
+      "i n"
+    ],
+    "max_token_length": 128,
+    "merge_rule_hash": "252057d84cdb86d246d2018f5ee39e7e27adcc7cdf8ae4ae423a589ed29c61dd",
+    "num_added_tokens": 256,
+    "num_merges": 280147,
+    "num_special_tokens": 2,
+    "pad_token_id": null,
+    "pct_byte_tokens": 0.0,
+    "pct_single_char": 0.002,
+    "pct_whitespace_prefix": 0.4512,
+    "script_distribution": {
+      "Latin": 0.9922,
+      "Other": 0.0078
+    },
+    "special_token_ids": {
+      "mask": null,
+      "pad": null,
+      "unk": null
+    },
+    "tokenizer_class": "TokenizersBackend",
+    "vocab_size": 128256
+  },
+  "vocab": {
+    "size": 128256
+  },
+  "signals": {
+    "hidden_size": 4096,
+    "num_layers": 32,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 65,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 266240,
+    "lep_profile_length": 32,
+    "wsp_signature_length": 64,
+    "wvc_layer_count": 32,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:0bbc839a441037d03227bcb5348a1daf0f66f8a82d68f1123129133867e610c4",
+      "availability": "local"
+    }
+  ]
+}

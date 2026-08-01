@@ -1,0 +1,112 @@
+{
+  "bundle_id": "e42f47ea-568b-4f56-82f1-1b261ab49b1e",
+  "model_id": "OpenCodeReasoning-Nemotron-1.1-7B",
+  "asset_id": "OpenCodeReasoning-Nemotron-1.1-7B__hf-safetensors",
+  "family_id": "nvidia--nemotron",
+  "source_id": "add_models_to_db",
+  "status": "ok",
+  "updated_at": "2026-07-31T23:51:07.772202+00:00",
+  "missing_signals": [],
+  "mfi": {
+    "arch_hash": "c49c3c199b61e41df25f31c95f003276bea3482d5186039df2aba75d12c50c0e",
+    "architectures": [
+      "Qwen2ForCausalLM"
+    ],
+    "attention_bias": null,
+    "attention_style": "GQA",
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "family_hash": "87ad4eac5ce65d66c76a147e0ee1c61474c70003330a495fa47f7edbe8c78613",
+    "gqa_ratio": 7.0,
+    "head_dim": null,
+    "hidden_act": "silu",
+    "hidden_size": 3584,
+    "intermediate_size": 18944,
+    "max_position_embeddings": 32768,
+    "model_type": "qwen2",
+    "norm_type": "RMSNorm",
+    "num_attention_heads": 28,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 4,
+    "pos_encoding": "absolute",
+    "qk_norm": false,
+    "rope_scaling": {
+      "rope_theta": 1000000.0,
+      "rope_type": "default"
+    },
+    "rope_theta": null,
+    "tie_word_embeddings": false,
+    "token_id_signature": "bos=None|eos=151645",
+    "tokenizer_hash": "e360e6f6266884e6667874f3a7d158ca20c4639e2e1dc80427e1edc2c69a38c7",
+    "vocab_size": 152064
+  },
+  "tfv": {
+    "avg_token_length": 6.44,
+    "bos_token_id": null,
+    "eos_token_id": 151645,
+    "first_5_merges": [
+      "\u0120 \u0120",
+      "\u0120\u0120 \u0120\u0120",
+      "i n",
+      "\u0120 t",
+      "\u0120\u0120\u0120\u0120 \u0120\u0120\u0120\u0120"
+    ],
+    "max_token_length": 128,
+    "merge_rule_hash": "0cef762278477deab2bb6aab7d3921a09f3468c48f97a99123a635daf2ba2467",
+    "num_added_tokens": 22,
+    "num_merges": 151387,
+    "num_special_tokens": 2,
+    "pad_token_id": 151643,
+    "pct_byte_tokens": 0.0,
+    "pct_single_char": 0.0017,
+    "pct_whitespace_prefix": 0.3496,
+    "script_distribution": {
+      "Latin": 0.987,
+      "Other": 0.013
+    },
+    "special_token_ids": {
+      "mask": null,
+      "pad": 151643,
+      "unk": null
+    },
+    "tokenizer_class": "Qwen2Tokenizer",
+    "vocab_size": 151665
+  },
+  "vocab": {
+    "size": 151665
+  },
+  "signals": {
+    "hidden_size": 3584,
+    "num_layers": 28,
+    "eas_anchor_count": 64,
+    "nlf_mode": "direct",
+    "nlf_num_layers": 57,
+    "eas_self_sim_shape": [
+      64,
+      64
+    ],
+    "end_histogram_bins": 20,
+    "nlf_vector_length": 204288,
+    "lep_profile_length": 28,
+    "wsp_signature_length": 56,
+    "wvc_layer_count": 28,
+    "wvc_layer_vector_length": 28672
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "OpenCodeReasoning-Nemotron-1.1-7B-deep-signals",
+      "type": "deep_signals",
+      "path": "features/deep-signals/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-1.1-7B__hf-safetensors_deep-signals.parquet",
+      "signals": [
+        "eas_self_sim",
+        "nlf_vector",
+        "lep_profile",
+        "end_histogram",
+        "wsp_signature",
+        "wvc_layer_sigs"
+      ],
+      "checksum": "sha256:5436b306f7ec9e3526807b2d737a86b4cc8213411338eeb52427c6d7e9af2c6a",
+      "availability": "local"
+    }
+  ]
+}

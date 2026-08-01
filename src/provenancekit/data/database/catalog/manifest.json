@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-20T19:42:57.105651+00:00",
+  "updated_at": "2026-07-31T23:52:52.131996+00:00",
   "shard_strategy": "by_family",
   "shards": [
     {
@@ -135,7 +135,7 @@
     {
       "family_id": "nvidia--nemotron",
       "shard_path": "catalog/by-family/nvidia--nemotron.json",
-      "asset_count": 5
+      "asset_count": 37
     },
     {
       "family_id": "openaicommunity--gpt",
