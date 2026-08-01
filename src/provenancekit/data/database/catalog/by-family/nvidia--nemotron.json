@@ -132,7 +132,7 @@
       "model_id": "Llama-3.1-Nemotron-Nano-VL-8B-V1",
       "format": "safetensors",
       "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-VL-8B-V1__hf-safetensors_features.json",
-      "param_bucket": "<=1B",
+      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1",
       "canonical_name": "Llama-3.1-Nemotron-Nano-VL-8B-V1"
     },
@@ -159,7 +159,7 @@
       "model_id": "NVIDIA-Nemotron-Nano-9B-v2-Base",
       "format": "safetensors",
       "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2-Base__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
+      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2-Base",
       "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2-Base"
     },
@@ -168,7 +168,7 @@
       "model_id": "NVIDIA-Nemotron-Nano-9B-v2",
       "format": "safetensors",
       "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
+      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2",
       "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2"
     },

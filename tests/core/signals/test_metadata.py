@@ -20,6 +20,7 @@ import pytest
 
 from provenancekit.core.signals.metadata import (
     _resolve_intermediate_size,
+    _resolve_text_backbone,
     _tier3_soft_score,
     classify,
     similarity,
@@ -67,6 +68,17 @@ class _MockConfig:
     def __init__(self, **kwargs: Any) -> None:
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+
+# ── _resolve_text_backbone ─────────────────────────────────────────
+
+
+class TestResolveTextBackbone:
+    def test_llm_config(self) -> None:
+        llm_config = _MockConfig(hidden_size=4096)
+        config = _MockConfig(hidden_size=0, llm_config=llm_config)
+
+        assert _resolve_text_backbone(config) is llm_config
 
 
 # ── _resolve_intermediate_size ─────────────────────────────────────

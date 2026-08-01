@@ -166,7 +166,7 @@ def _resolve_text_backbone(config: Any) -> Any:
     """Resolve to the text backbone for composite/multimodal models."""
     cfg = config
     if not hasattr(cfg, "hidden_size") or getattr(cfg, "hidden_size", 0) == 0:
-        for sub_attr in ("text_config", "decoder"):
+        for sub_attr in ("text_config", "llm_config", "decoder"):
             sub = getattr(cfg, sub_attr, None)
             if sub is not None and getattr(sub, "hidden_size", 0) > 0:
                 return sub
