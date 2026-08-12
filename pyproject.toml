@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cisco-ai-provenance-kit"
-version = "1.0.0"
+version = "1.1.0"
 description = "Model provenance detection and family identification toolkit"
 readme = "README.md"
 requires-python = ">=3.12"
