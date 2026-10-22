@@ -170,6 +170,10 @@ class TestLoadStateDict:
                 return_value=None,
             ),
             patch(
+                "provenancekit.services.model_loader._try_pytorch_bin",
+                return_value=None,
+            ),
+            patch(
                 "provenancekit.services.model_loader._try_automodel",
             ) as mock_auto,
         ):
@@ -216,38 +220,71 @@ class TestLoadStateDict:
             with pytest.raises(ModelLoadError, match="All AutoModel strategies failed"):
                 load_state_dict("broken/model")
 
-    def test_raw_bin_fallback_when_config_contradicts_weights(
-        self,
-        tmp_path: Path,
-    ) -> None:
-        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
-        emb = torch.randn(30, 8)
-        torch.save(
-            {"embeddings.word_embeddings.weight": emb}, tmp_path / "pytorch_model.bin"
-        )
+    @staticmethod
+    def _load_local(path: Path) -> tuple[Any, MagicMock]:
         with (
             patch(
                 "provenancekit.services.model_loader.estimate_model_params",
                 return_value=int(1e8),
             ),
-            patch(
-                "provenancekit.services.model_loader.AutoConfig",
-            ) as mock_cfg,
-            patch(
-                "provenancekit.services.model_loader.AutoModelForCausalLM",
-            ) as mock_causal,
-            patch(
-                "provenancekit.services.model_loader.AutoModel",
-            ) as mock_auto,
+            patch("provenancekit.services.model_loader.AutoConfig") as mock_cfg,
+            patch("provenancekit.services.model_loader._try_automodel") as mock_auto,
         ):
             mock_cfg.from_pretrained.return_value = MagicMock()
-            mock_causal.from_pretrained.side_effect = ValueError("not causal")
-            mock_auto.from_pretrained.side_effect = RuntimeError("size mismatch")
-            result = load_state_dict(str(tmp_path))
+            return load_state_dict(str(path)), mock_auto
+
+    def test_raw_bin_loaded_before_automodel(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        emb = torch.randn(30, 8)
+        torch.save(
+            {"embeddings.word_embeddings.weight": emb}, tmp_path / "pytorch_model.bin"
+        )
+        result, mock_auto = self._load_local(tmp_path)
+        mock_auto.assert_not_called()
         assert result.strategy == LoadStrategy.full
         assert result.source == "pytorch_bin_raw"
         assert result.state_dict is not None
         assert torch.equal(result.state_dict["embeddings.word_embeddings.weight"], emb)
+
+    def test_raw_bin_keeps_encoder_and_dtype(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        state = {
+            "model.encoder.layers.0.fc1.weight": torch.randn(8, 4),
+            "model.decoder.layers.0.fc1.weight": torch.randn(8, 4),
+        }
+        torch.save(state, tmp_path / "pytorch_model.bin")
+        result, _ = self._load_local(tmp_path)
+        assert result.state_dict is not None
+        assert set(result.state_dict) == set(state)
+        assert all(t.dtype == torch.float32 for t in result.state_dict.values())
+
+    def test_raw_bin_sharded_with_symlinks(self, tmp_path: Path) -> None:
+        blobs = tmp_path / "blobs"
+        snap = tmp_path / "snapshots" / "rev"
+        blobs.mkdir()
+        snap.mkdir(parents=True)
+        (snap / "config.json").write_text("{}", encoding="utf-8")
+        weight_map = {}
+        for i in range(2):
+            name = f"pytorch_model-0000{i + 1}-of-00002.bin"
+            torch.save({f"w{i}": torch.randn(4)}, blobs / f"blob{i}")
+            (snap / name).symlink_to(f"../../blobs/blob{i}")
+            weight_map[f"w{i}"] = name
+        (snap / "pytorch_model.bin.index.json").write_text(
+            json.dumps({"weight_map": weight_map}), encoding="utf-8"
+        )
+        result, mock_auto = self._load_local(snap)
+        mock_auto.assert_not_called()
+        assert result.source == "pytorch_bin_raw"
+        assert result.state_dict is not None
+        assert set(result.state_dict) == {"w0", "w1"}
+
+    def test_raw_bin_drops_non_tensor_entries(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        torch.save({"w": torch.randn(4), "step": 7}, tmp_path / "pytorch_model.bin")
+        result, _ = self._load_local(tmp_path)
+        assert result.state_dict is not None
+        assert set(result.state_dict) == {"w"}
 
     def test_hf_cache_symlinked_shards_use_safetensors(self, tmp_path: Path) -> None:
         blobs = tmp_path / "blobs"

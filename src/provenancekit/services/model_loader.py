@@ -26,8 +26,10 @@ Loading cascade
 2. If > ``huge_model_params`` → return ``strategy="streaming"``.
 3. Try safetensors single-shard direct load (fast, no model init).
 4. Try safetensors multi-shard load (with disk-size guard).
-5. Fall back to ``AutoModelForCausalLM`` → ``AutoModel``.
-6. On failure → raise :class:`~provenancekit.exceptions.ModelLoadError`.
+5. Try raw ``pytorch_model.bin`` tensors (single or sharded,
+   ``weights_only=True``).
+6. Fall back to ``AutoModelForCausalLM`` → ``AutoModel``.
+7. On failure → raise :class:`~provenancekit.exceptions.ModelLoadError`.
 """
 
 import json as _json
@@ -333,26 +335,20 @@ def load_state_dict(
         log.info("safetensors_loaded", model_id=model_name, source=result.source)
         return result
 
-    # AutoModel casts to fp16 and returns module order, so its signals are
-    # not directly comparable with the raw-tensor paths.
-    log.warning("automodel_fallback", model_id=model_name)
-    try:
-        return _try_automodel(
-            model_name, config, trust_remote_code=settings.trust_remote_code
-        )
-    except ModelLoadError as exc:
-        # AutoModel builds the module from config, so a config that
-        # contradicts the stored tensors fails here; raw tensors still
-        # let downstream consistency checks see the real shapes.
-        result = _try_pytorch_bin(model_name, config)
-        if result is None:
-            raise
-        log.warning(
-            "automodel_failed_raw_bin_loaded",
-            model_id=model_name,
-            error=str(exc).splitlines()[0][:200],
-        )
+    # Raw tensors keep every stored weight in its stored dtype.  AutoModel
+    # builds a module from config instead: *ForCausalLM drops the encoder
+    # of encoder-decoder models, weights are cast to fp16, and a config
+    # that contradicts the tensors fails to load at all.
+    log.info("trying_pytorch_bin", model_id=model_name)
+    result = _try_pytorch_bin(model_name, config)
+    if result is not None:
+        log.info("pytorch_bin_loaded", model_id=model_name, source=result.source)
         return result
+
+    log.warning("automodel_fallback", model_id=model_name)
+    return _try_automodel(
+        model_name, config, trust_remote_code=settings.trust_remote_code
+    )
 
 
 # ── Private helpers ────────────────────────────────────────────────
@@ -608,8 +604,10 @@ def _try_safetensors_sharded(
 
 
 def _load_bin(path: str) -> dict[str, Any]:
-    state: dict[str, Any] = torch.load(path, map_location="cpu", weights_only=True)
-    return state
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    if not isinstance(state, dict):
+        return {}
+    return {k: v for k, v in state.items() if isinstance(v, torch.Tensor)}
 
 
 def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
@@ -647,8 +645,13 @@ def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
             state = _load_bin(single_path)
         else:
             return None
+    except ModelLoadError as exc:
+        log.warning("pytorch_bin_shard_rejected", model_id=model_name, error=str(exc))
+        return None
     except Exception as exc:  # noqa: BLE001
         log.debug("pytorch_bin_raw_load_failed", model_id=model_name, error=str(exc))
+        return None
+    if not state:
         return None
 
     return LoadResult(
