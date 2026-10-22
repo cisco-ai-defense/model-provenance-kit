@@ -78,6 +78,22 @@ def extract_layer_index(name: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
+_DIGIT_RUN_RE = re.compile(r"(\d+)")
+
+
+def canonical_tensor_key(name: str) -> tuple[str | int, ...]:
+    """Sort key giving one tensor order regardless of how weights were loaded.
+
+    Natural order on the name: digit runs compare as numbers, so
+    ``layers.2.`` sorts before ``layers.10.``.  safetensors returns names
+    alphabetically while ``torch.load`` and ``AutoModel`` keep module
+    order; signals that concatenate tensors must use this key instead.
+    """
+    return tuple(
+        int(part) if i % 2 else part for i, part in enumerate(_DIGIT_RUN_RE.split(name))
+    )
+
+
 # ── Norm tensor detection ─────────────────────────────────────────
 
 _NORM_KEYWORDS: list[str] = [

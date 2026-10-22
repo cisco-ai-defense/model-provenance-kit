@@ -51,6 +51,7 @@ from provenancekit.services.model_loader import (
 )
 from provenancekit.utils.paths import UnsafeShardPathError, safe_shard_join
 from provenancekit.utils.tensor import (
+    canonical_tensor_key,
     classify_tensor_name,
     cosine_clamp,
     extract_layer_index,
@@ -300,35 +301,22 @@ def _extract_signals_streaming_impl(
 
     # ── NLF ──
     log.info("streaming_nlf_start", model_id=model_name)
-    norm_weights: list[np.ndarray] = []
-    norm_layer_stats: list[dict[str, float]] = []
-    for tname in sorted(weight_map.keys()):
+    named_norms: list[tuple[str, np.ndarray]] = []
+    for tname in weight_map:
         if not is_norm_tensor_name(tname):
             continue
         try:
-            t = _to_float(_load_tensor(tname)).flatten()
-            if t.dim() == 0 or t.numel() < 64:
+            t = _to_float(_load_tensor(tname))
+            if t.dim() != 1 or t.numel() < 64:
                 del t
                 continue
-            w: np.ndarray = t.cpu().numpy()
-            norm_weights.append(w)
-            norm_layer_stats.append(
-                {
-                    "mean": float(w.mean()),
-                    "std": float(w.std()),
-                    "max": float(w.max()),
-                    "min": float(w.min()),
-                }
-            )
+            named_norms.append((tname, t.cpu().numpy()))
             del t
         except Exception as exc:  # noqa: BLE001
             log.debug("streaming_nlf_tensor_failed", tensor=tname, error=str(exc))
             continue
 
-    nlf_vector, nlf_mode, nlf_num_layers = _build_nlf(
-        norm_weights,
-        norm_layer_stats,
-    )
+    nlf_vector, nlf_mode, nlf_num_layers = _build_nlf(named_norms)
 
     log.info(
         "streaming_nlf_done", model_id=model_name, mode=nlf_mode, layers=nlf_num_layers
@@ -352,7 +340,7 @@ def _extract_signals_streaming_impl(
     layer_signs: dict[int, dict[str, int]] = defaultdict(
         lambda: {"positive": 0, "near_zero": 0, "total": 0},
     )
-    wvc_layer_data: dict[int, list[np.ndarray]] = defaultdict(list)
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]] = defaultdict(list)
 
     shard_to_tensors: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for tname, shard_file in weight_map.items():
@@ -656,39 +644,31 @@ def _extract_nlf(
     state_dict: dict[str, Any],
 ) -> tuple[np.ndarray | None, str | None, int]:
     """Extract NLF vector from norm-layer weights."""
-    norm_weights: list[np.ndarray] = []
-    norm_layer_stats: list[dict[str, float]] = []
-
-    for name, param in state_dict.items():
-        if is_norm_tensor_name(name) and param.dim() == 1 and param.numel() >= 64:
-            w: np.ndarray = param.detach().float().cpu().numpy()
-            norm_weights.append(w)
-            norm_layer_stats.append(
-                {
-                    "mean": float(w.mean()),
-                    "std": float(w.std()),
-                    "max": float(w.max()),
-                    "min": float(w.min()),
-                }
-            )
-
-    return _build_nlf(norm_weights, norm_layer_stats)
+    named_norms: list[tuple[str, np.ndarray]] = [
+        (name, param.detach().float().cpu().numpy())
+        for name, param in state_dict.items()
+        if is_norm_tensor_name(name) and param.dim() == 1 and param.numel() >= 64
+    ]
+    return _build_nlf(named_norms)
 
 
 def _build_nlf(
-    norm_weights: list[np.ndarray],
-    norm_layer_stats: list[dict[str, float]],
+    named_norms: list[tuple[str, np.ndarray]],
 ) -> tuple[np.ndarray | None, str | None, int]:
-    """Build final NLF vector from collected norm weights."""
-    if not norm_weights:
+    """Build final NLF vector from ``(tensor_name, weights)`` pairs."""
+    if not named_norms:
         return None, None, 0
 
+    norm_weights = [
+        w for _, w in sorted(named_norms, key=lambda nw: canonical_tensor_key(nw[0]))
+    ]
     sizes = {w.shape[0] for w in norm_weights}
     if len(sizes) == 1:
         return np.concatenate(norm_weights), "direct", len(norm_weights)
 
     stats_array = np.array(
-        [[s["mean"], s["std"], s["max"], s["min"]] for s in norm_layer_stats]
+        [[w.mean(), w.std(), w.max(), w.min()] for w in norm_weights],
+        dtype=np.float64,
     ).flatten()
     return stats_array, "stats", len(norm_weights)
 
@@ -703,7 +683,7 @@ def _extract_lep_wsp_wvc(
     layer_signs: dict[int, dict[str, int]] = defaultdict(
         lambda: {"positive": 0, "near_zero": 0, "total": 0},
     )
-    wvc_layer_data: dict[int, list[np.ndarray]] = defaultdict(list)
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]] = defaultdict(list)
 
     for name, param in state_dict.items():
         layer_idx = extract_layer_index(name)
@@ -726,7 +706,7 @@ def _extract_lep_wsp_wvc(
                 if n > wvc_subsample:
                     stride = n // wvc_subsample
                     flat = flat[::stride][:wvc_subsample]
-                wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+                wvc_layer_data[layer_idx].append((name, flat.cpu().numpy()))
 
         if n_elem >= 1024:
             layer_signs[layer_idx]["positive"] += n_pos
@@ -775,7 +755,7 @@ def _process_tensor_full(
     wvc_subsample: int,
     layer_energy: dict[int, float],
     layer_signs: dict[int, dict[str, int]],
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> None:
     """Process a single tensor in the streaming non-sliced path."""
     n_elem = tensor.numel()
@@ -794,7 +774,7 @@ def _process_tensor_full(
             if n > wvc_subsample:
                 stride = n // wvc_subsample
                 flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+            wvc_layer_data[layer_idx].append((tname, flat.cpu().numpy()))
 
     if n_elem >= 1024:
         layer_signs[layer_idx]["positive"] += n_pos
@@ -810,7 +790,7 @@ def _process_tensor_sliced(
     wvc_subsample: int,
     layer_energy: dict[int, float],
     layer_signs: dict[int, dict[str, int]],
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> None:
     """Process a tensor via row-slicing for very large models."""
     sl = f.get_slice(tname)
@@ -853,7 +833,7 @@ def _process_tensor_sliced(
             if n > wvc_subsample:
                 stride = n // wvc_subsample
                 flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+            wvc_layer_data[layer_idx].append((tname, flat.cpu().numpy()))
 
         del tensor
 
@@ -891,11 +871,19 @@ def _build_wsp(
 
 
 def _build_wvc(
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> dict[int, np.ndarray] | None:
-    """Build WVC per-layer signatures."""
+    """Build WVC per-layer signatures from ``(tensor_name, sample)`` pairs."""
     if not wvc_layer_data:
         return None
     return {
-        li: np.concatenate(wvc_layer_data[li]) for li in sorted(wvc_layer_data.keys())
+        li: np.concatenate(
+            [
+                sample
+                for _, sample in sorted(
+                    wvc_layer_data[li], key=lambda ns: canonical_tensor_key(ns[0])
+                )
+            ]
+        )
+        for li in sorted(wvc_layer_data.keys())
     }
