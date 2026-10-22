@@ -26,6 +26,7 @@ Checks (each is skipped when the needed tensors or fields are absent):
 * ``vocab_size``        vs token-embedding row count
 * ``hidden_size``       vs token-embedding column count or per-layer norm size
 * ``num_hidden_layers`` vs layer count of a stored layer stack
+  (encoder-decoder: ``encoder_layers`` / ``decoder_layers`` vs their own stack)
 * ``intermediate_size`` vs an MLP projection dimension (dense models only)
 """
 
@@ -65,6 +66,11 @@ _EMBEDDING_SUFFIXES: tuple[str, ...] = (
 
 _LAYER_STACK_RE = re.compile(r"^(.*?(?:layers?|h|block))\.\s*(\d+)\.")
 
+_ENCODER_DECODER_LAYER_FIELDS: dict[str, tuple[str, ...]] = {
+    "encoder": ("encoder_layers", "num_layers"),
+    "decoder": ("decoder_layers", "num_decoder_layers"),
+}
+
 _MOE_CONFIG_FIELDS: tuple[str, ...] = (
     "num_experts",
     "num_local_experts",
@@ -99,10 +105,15 @@ def check_config_consistency(config: Any, shapes: Shapes) -> list[ConfigInconsis
     embedding = _find_embedding_shape(shapes)
     findings: list[ConfigInconsistency] = []
 
+    layer_checks = (
+        _check_encoder_decoder_layers(cfg, shapes)
+        if _is_encoder_decoder(cfg)
+        else [_check_num_hidden_layers(cfg, shapes)]
+    )
     for finding in (
         _check_vocab_size(cfg, embedding),
         _check_hidden_size(cfg, embedding, shapes),
-        _check_num_hidden_layers(cfg, shapes),
+        *layer_checks,
         _check_intermediate_size(cfg, shapes),
     ):
         if finding is not None:
@@ -117,7 +128,7 @@ def check_config_consistency(config: Any, shapes: Shapes) -> list[ConfigInconsis
     return findings
 
 
-# ?? Individual checks ?????????????????????????????????????????????
+# -- Individual checks ------------------------------------------------
 
 
 def _check_vocab_size(
@@ -169,6 +180,25 @@ def _check_num_hidden_layers(cfg: Any, shapes: Shapes) -> ConfigInconsistency | 
     )
 
 
+def _check_encoder_decoder_layers(
+    cfg: Any, shapes: Shapes
+) -> list[ConfigInconsistency | None]:
+    # num_hidden_layers aliases the encoder depth here, and some loaders
+    # (e.g. *ForCausalLM) keep only the decoder, so each side is checked
+    # against its own stack and skipped when that stack is absent.
+    stacks = _layer_stack_counts(shapes)
+    findings: list[ConfigInconsistency | None] = []
+    for side, fields in _ENCODER_DECODER_LAYER_FIELDS.items():
+        field, declared = _first_declared(cfg, fields)
+        counts = sorted({c for prefix, c in stacks.items() if side in prefix})
+        if declared is None or not counts or declared in counts:
+            continue
+        findings.append(
+            ConfigInconsistency(field=field, declared=declared, observed=counts)
+        )
+    return findings
+
+
 def _check_intermediate_size(cfg: Any, shapes: Shapes) -> ConfigInconsistency | None:
     if _is_moe(cfg) or getattr(cfg, "block_auto_adjust_ff_dim", False):
         return None
@@ -188,7 +218,7 @@ def _check_intermediate_size(cfg: Any, shapes: Shapes) -> ConfigInconsistency | 
     )
 
 
-# ?? Shape helpers ?????????????????????????????????????????????????
+# -- Shape helpers ----------------------------------------------------
 
 
 def _find_embedding_shape(shapes: Shapes) -> tuple[int, int] | None:
@@ -231,6 +261,23 @@ def _layer_matrix_dims(shapes: Shapes) -> set[int]:
 
 def _is_moe(cfg: Any) -> bool:
     return any(_positive_int(getattr(cfg, f, 0)) for f in _MOE_CONFIG_FIELDS)
+
+
+def _is_encoder_decoder(cfg: Any) -> bool:
+    # *ForCausalLM wrappers reset is_encoder_decoder on the loaded config,
+    # so a declared decoder depth is also accepted as evidence.
+    if getattr(cfg, "is_encoder_decoder", False) is True:
+        return True
+    _, decoder_layers = _first_declared(cfg, _ENCODER_DECODER_LAYER_FIELDS["decoder"])
+    return decoder_layers is not None
+
+
+def _first_declared(cfg: Any, fields: Sequence[str]) -> tuple[str, int | None]:
+    for field in fields:
+        value = _positive_int(getattr(cfg, field, None))
+        if value is not None:
+            return field, value
+    return fields[0], None
 
 
 def _positive_int(value: Any) -> int | None:

@@ -30,7 +30,7 @@ from provenancekit.core.signals.weight_signals import extract_signals
 from provenancekit.models.signals import ConfigInconsistency, WeightSignalFeatures
 from tests.core.signals.test_metadata import _make_fp
 
-# ?? Fixture builders ??????????????????????????????????????????????
+# -- Fixture builders --------------------------------------------------
 
 
 def _llama_config(**overrides: Any) -> SimpleNamespace:
@@ -71,7 +71,7 @@ def _fields(findings: list[ConfigInconsistency]) -> list[str]:
     return [f.field for f in findings]
 
 
-# ?? check_config_consistency ??????????????????????????????????????
+# -- check_config_consistency ------------------------------------------
 
 
 class TestConsistentConfigs:
@@ -165,6 +165,66 @@ class TestNumHiddenLayers:
         ]
 
 
+def _bart_config(encoder_layers: int = 12, decoder_layers: int = 6) -> SimpleNamespace:
+    return _llama_config(
+        is_encoder_decoder=True,
+        num_hidden_layers=encoder_layers,
+        encoder_layers=encoder_layers,
+        decoder_layers=decoder_layers,
+    )
+
+
+def _bart_shapes(encoder: int = 12, decoder: int = 6) -> dict[str, tuple[int, ...]]:
+    return {
+        "model.shared.weight": (1000, 64),
+        **{f"model.encoder.layers.{i}.fc1.weight": (176, 64) for i in range(encoder)},
+        **{f"model.decoder.layers.{i}.fc1.weight": (176, 64) for i in range(decoder)},
+    }
+
+
+class TestEncoderDecoderLayers:
+    def test_matching_stacks_have_no_findings(self) -> None:
+        assert check_config_consistency(_bart_config(), _bart_shapes()) == []
+
+    def test_decoder_only_load_is_not_flagged(self) -> None:
+        shapes = {k: v for k, v in _bart_shapes().items() if "encoder" not in k}
+        assert check_config_consistency(_bart_config(), shapes) == []
+
+    def test_causal_lm_wrapper_config_is_still_encoder_decoder(self) -> None:
+        cfg = _bart_config()
+        cfg.is_encoder_decoder = False
+        shapes = {k: v for k, v in _bart_shapes().items() if "encoder" not in k}
+        assert check_config_consistency(cfg, shapes) == []
+
+    def test_edited_decoder_layers_is_flagged(self) -> None:
+        findings = check_config_consistency(
+            _bart_config(decoder_layers=12), _bart_shapes()
+        )
+        assert findings == [
+            ConfigInconsistency(field="decoder_layers", declared=12, observed=[6])
+        ]
+
+    def test_edited_encoder_layers_is_flagged(self) -> None:
+        findings = check_config_consistency(
+            _bart_config(encoder_layers=6), _bart_shapes()
+        )
+        assert findings == [
+            ConfigInconsistency(field="encoder_layers", declared=6, observed=[12])
+        ]
+
+    def test_t5_style_fields_and_block_stacks(self) -> None:
+        cfg = SimpleNamespace(
+            is_encoder_decoder=True, num_layers=4, num_decoder_layers=2
+        )
+        shapes = {
+            **{f"encoder.block.{i}.layer.0.weight": (8, 8) for i in range(4)},
+            **{f"decoder.block.{i}.layer.0.weight": (8, 8) for i in range(3)},
+        }
+        assert check_config_consistency(cfg, shapes) == [
+            ConfigInconsistency(field="num_decoder_layers", declared=2, observed=[3])
+        ]
+
+
 class TestIntermediateSize:
     def test_edited_intermediate_size_is_flagged(self) -> None:
         cfg = _llama_config(intermediate_size=256)
@@ -190,7 +250,7 @@ class TestIntermediateSize:
         assert check_config_consistency(cfg, _llama_shapes()) == []
 
 
-# ?? collect_shapes ????????????????????????????????????????????????
+# -- collect_shapes ----------------------------------------------------
 
 
 class TestCollectShapes:
@@ -199,7 +259,7 @@ class TestCollectShapes:
         assert collect_shapes(sd) == {"a": (3, 4), "b": (5,)}
 
 
-# ?? similarity(metadata_trusted=False) ????????????????????????????
+# -- similarity(metadata_trusted=False) --------------------------------
 
 
 class TestUntrustedMetadataSkipsTiers:
@@ -217,7 +277,7 @@ class TestUntrustedMetadataSkipsTiers:
         assert similarity(fp_a, fp_b, metadata_trusted=False).tier == 3
 
 
-# ?? Extraction and cache round-trip ???????????????????????????????
+# -- Extraction and cache round-trip -----------------------------------
 
 
 def _tiny_state_dict(layers: int = 2) -> dict[str, torch.Tensor]:

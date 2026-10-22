@@ -617,8 +617,8 @@ def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
             )
         else:
             index_path = try_hf_download(model_name, "pytorch_model.bin.index.json")
-            single_path = None if index_path else try_hf_download(
-                model_name, "pytorch_model.bin"
+            single_path = (
+                None if index_path else try_hf_download(model_name, "pytorch_model.bin")
             )
             base_dir = os.path.dirname(index_path or single_path or "")  # noqa: PTH120
 

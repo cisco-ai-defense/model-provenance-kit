@@ -222,7 +222,9 @@ class TestLoadStateDict:
     ) -> None:
         (tmp_path / "config.json").write_text("{}", encoding="utf-8")
         emb = torch.randn(30, 8)
-        torch.save({"embeddings.word_embeddings.weight": emb}, tmp_path / "pytorch_model.bin")
+        torch.save(
+            {"embeddings.word_embeddings.weight": emb}, tmp_path / "pytorch_model.bin"
+        )
         with (
             patch(
                 "provenancekit.services.model_loader.estimate_model_params",
