@@ -34,14 +34,29 @@ import json
 from typing import Any
 
 import structlog
+from pydantic import ValidationError
 from transformers import AutoConfig, AutoTokenizer
 
 from provenancekit.config.constants import FAMILY_MAP
+from provenancekit.exceptions import ExtractionError
 from provenancekit.models.signals import MFIFingerprint, MFISimilarity
 
 log = structlog.get_logger()
 
 DIM_SIM_THRESHOLD = 0.90
+
+UNKNOWN_ARCHITECTURES: tuple[str, ...] = ("unknown",)
+
+
+def has_known_architectures(architectures: list[str] | None) -> bool:
+    """Return whether ``architectures`` carries a real value.
+
+    A missing or ``["unknown"]`` value must never count as a Tier 1
+    match, otherwise two configs both lacking the key would match on
+    a shared absent value.
+    """
+    return bool(architectures) and tuple(architectures) != UNKNOWN_ARCHITECTURES
+
 
 # ── Config field resolution ────────────────────────────────────────
 
@@ -123,7 +138,8 @@ def extract_fingerprint(
 
     fp: dict[str, Any] = {
         "model_type": getattr(config, "model_type", "unknown"),
-        "architectures": getattr(config, "architectures", ["unknown"]),
+        "architectures": getattr(config, "architectures", None)
+        or list(UNKNOWN_ARCHITECTURES),
         "hidden_size": getattr(cfg, "hidden_size", 0),
         "num_hidden_layers": getattr(cfg, "num_hidden_layers", 0),
         "num_attention_heads": getattr(cfg, "num_attention_heads", 0),
@@ -156,7 +172,18 @@ def extract_fingerprint(
     _derive_tokenizer_hash(fp, tokenizer)
     _derive_hashes(fp)
 
-    return MFIFingerprint(**fp), tokenizer
+    try:
+        return MFIFingerprint(**fp), tokenizer
+    except ValidationError as exc:
+        fields = sorted({".".join(str(p) for p in err["loc"]) for err in exc.errors()})
+        raise ExtractionError(
+            f"Invalid config fields for '{model_name}': {', '.join(fields)}",
+            details={
+                "model_id": model_name,
+                "stage": "mfi_fingerprint",
+                "fields": fields,
+            },
+        ) from exc
 
 
 # ── Derived field helpers ──────────────────────────────────────────
@@ -320,8 +347,16 @@ def similarity(
     ``num_hidden_layers`` differ despite a ``family_hash`` match,
     the pair is demoted to Tier 3 where dimension features
     participate directly in scoring.
+
+    Tier 1 is skipped when either side has no known ``architectures``.
     """
-    if fp_a.arch_hash and fp_b.arch_hash and fp_a.arch_hash == fp_b.arch_hash:
+    if (
+        has_known_architectures(fp_a.architectures)
+        and has_known_architectures(fp_b.architectures)
+        and fp_a.arch_hash
+        and fp_b.arch_hash
+        and fp_a.arch_hash == fp_b.arch_hash
+    ):
         return MFISimilarity(score=1.0, tier=1, match_type="exact")
 
     if fp_a.family_hash and fp_b.family_hash and fp_a.family_hash == fp_b.family_hash:

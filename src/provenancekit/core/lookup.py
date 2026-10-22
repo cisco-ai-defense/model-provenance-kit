@@ -41,6 +41,7 @@ from provenancekit.core.scoring import (
     compute_tokenizer_score,
     interpret_score,
 )
+from provenancekit.core.signals.metadata import has_known_architectures
 from provenancekit.core.signals.metadata import similarity as mfi_similarity
 from provenancekit.core.signals.tokenizer import tfv_similarity
 from provenancekit.core.signals.weight_signals import (
@@ -178,9 +179,14 @@ def stage2_hash_check(
     )
 
     hash_match_count = 0
+    test_arch_known = has_known_architectures(test_fp.architectures)
     for cand in candidates:
         db_mfi = cand.bundle.mfi
-        arch_match = db_mfi.get("arch_hash") == test_fp.arch_hash
+        arch_match = (
+            test_arch_known
+            and has_known_architectures(db_mfi.get("architectures"))
+            and db_mfi.get("arch_hash") == test_fp.arch_hash
+        )
         family_match = db_mfi.get("family_hash") == test_fp.family_hash
 
         if arch_match:
