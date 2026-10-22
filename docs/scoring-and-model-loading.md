@@ -63,29 +63,38 @@ tokenizer, tokenizer score ~1.0, but they have no weight lineage). Conversely,
 a model can be derived from a base model and have its tokenizer rebuilt during
 continued pretraining.
 
-### MFI Gate
+### Weights Decide, Metadata Supports
 
-The MFI gate short-circuits scoring for structurally matched pairs:
+MFI tiers come from `config.json` alone, which is trivially edited, so a
+metadata match can never produce a match verdict on its own. Whenever weight
+evidence exists, `pipeline_score = identity_score`; the MFI score is reported
+separately in `mfi_score` / `mfi_tier`.
 
 ```
-Tier 1 (arch_hash match)           → pipeline_score = 1.0
-Tier 2 (family_hash + same dims)   → pipeline_score = 0.9
-Tier 3 (soft match / demoted)      → pipeline_score = identity_score
+Tier 1 (arch_hash match)           → metadata match
+Tier 2 (family_hash + same dims)   → metadata match
+Tier 3 (soft match / demoted)      → no metadata match
 ```
 
-Tier 1 and Tier 2 pairs are overwhelmingly likely to share provenance based
-on metadata alone — expensive weight analysis is skipped. Tier 3 pairs
-(including same-family/different-size demotions) require the full identity
-score.
+When there is no weight evidence (identity is NaN, e.g. no deep-signal
+fingerprint or the weights could not be loaded), `pipeline_score` falls back
+to the MFI score so results can still be ranked, and the decision is marked
+**unverified**.
 
 ### Score Interpretation
 
-| Pipeline Score | Verdict |
-|----------------|---------|
-| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
-| S > 0.75 | High-Confidence Match |
-| 0.65 < S ≤ 0.75 | Weak Match |
-| S ≤ 0.65 | Not Matched |
+| MFI Tier | Identity Score (I) | Verdict | `verification` |
+|----------|--------------------|---------|----------------|
+| 1–2 | I > 0.75 | Confirmed Match | `weights_agree` |
+| 1–2 | 0.65 < I ≤ 0.75 | Weak Match (metadata match, weak weight evidence) | `weights_weak` |
+| 1–2 | I ≤ 0.65 | Not Matched (metadata/weight conflict) | `weights_conflict` |
+| 3 | I > 0.75 | High-Confidence Match | `weights_only` |
+| 3 | 0.65 < I ≤ 0.75 | Weak Match | `weights_only` |
+| 3 | I ≤ 0.65 | Not Matched | `weights_only` |
+| 1–2, or 3 with MFI > 0.65 | NaN | Metadata Match (unverified) | `unverified` |
+| 3 with MFI ≤ 0.65 | NaN | Not Matched (unverified) | `unverified` |
+
+In scan mode, weight-backed matches are ranked ahead of unverified ones.
 
 ### Worked Examples
 

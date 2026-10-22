@@ -21,15 +21,18 @@ Scoring architecture::
     identity_score  = NaN-aware weighted avg of EAS, NLF, LEP, END, WVC
     tokenizer_score = 0.25 × TFV + 0.75 × VOA  (reporting only)
 
-    Pipeline Score  = MFI gate:
-        Tier <= 2  →  mfi_score
-        Tier  3    →  identity_score
+    Pipeline Score  = identity_score when weight evidence exists,
+                      otherwise mfi_score (decision marked unverified)
+
+Weights decide, metadata supports: MFI Tier 1/2 alone never yields a
+match verdict (see :func:`decide`).
 
 NaN-aware: when a signal returns NaN (incompatible comparison), it is
 excluded and the remaining weights are proportionally rescaled.
 """
 
 import math
+from dataclasses import dataclass
 
 from provenancekit.config.constants import IDENTITY_WEIGHTS, TOKENIZER_WEIGHTS
 from provenancekit.models.results import ScoreInterpretation
@@ -94,3 +97,66 @@ def interpret_score(score: float) -> ScoreInterpretation:
     if score > _SCORE_WEAK_MATCH:
         return ScoreInterpretation(label="Weak Match", colour="#f39c12")
     return ScoreInterpretation(label="Not Matched", colour="#e74c3c")
+
+
+# ── Verdict ───────────────────────────────────────────────────────
+
+VERIFICATION_WEIGHTS_AGREE = "weights_agree"
+VERIFICATION_WEIGHTS_WEAK = "weights_weak"
+VERIFICATION_WEIGHTS_CONFLICT = "weights_conflict"
+VERIFICATION_WEIGHTS_ONLY = "weights_only"
+VERIFICATION_UNVERIFIED = "unverified"
+
+DECISION_CONFIRMED = "Confirmed Match"
+DECISION_METADATA_WEAK = "Weak Match (metadata match, weak weight evidence)"
+DECISION_METADATA_CONFLICT = "Not Matched (metadata/weight conflict)"
+DECISION_METADATA_UNVERIFIED = "Metadata Match (unverified)"
+DECISION_NOT_MATCHED_UNVERIFIED = "Not Matched (unverified)"
+
+_UNVERIFIED_INTERPRETATION = ScoreInterpretation(
+    label="Unverified (no weight evidence)", colour="#999999"
+)
+
+
+@dataclass(frozen=True)
+class Verdict:
+    """Final pipeline score, decision label and verification status."""
+
+    pipeline_score: float
+    decision: str
+    verification: str
+    interpretation: ScoreInterpretation
+
+
+def decide(mfi_score: float, mfi_tier: int, identity: float) -> Verdict:
+    """Combine MFI and weight identity into a provenance verdict.
+
+    Only weight evidence can produce a match verdict.  Without it the
+    MFI score is kept as ``pipeline_score`` (for ranking) and the
+    decision is marked unverified.
+    """
+    if math.isnan(identity):
+        metadata_match = mfi_tier <= 2 or mfi_score > _SCORE_WEAK_MATCH
+        return Verdict(
+            pipeline_score=mfi_score,
+            decision=(
+                DECISION_METADATA_UNVERIFIED
+                if metadata_match
+                else DECISION_NOT_MATCHED_UNVERIFIED
+            ),
+            verification=VERIFICATION_UNVERIFIED,
+            interpretation=_UNVERIFIED_INTERPRETATION,
+        )
+
+    interp = interpret_score(identity)
+    if mfi_tier > 2:
+        return Verdict(identity, interp.label, VERIFICATION_WEIGHTS_ONLY, interp)
+    if identity > _SCORE_HIGH_CONFIDENCE:
+        return Verdict(identity, DECISION_CONFIRMED, VERIFICATION_WEIGHTS_AGREE, interp)
+    if identity > _SCORE_WEAK_MATCH:
+        return Verdict(
+            identity, DECISION_METADATA_WEAK, VERIFICATION_WEIGHTS_WEAK, interp
+        )
+    return Verdict(
+        identity, DECISION_METADATA_CONFLICT, VERIFICATION_WEIGHTS_CONFLICT, interp
+    )

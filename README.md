@@ -18,7 +18,7 @@ Model Provenance Kit is a Python toolkit and CLI for detecting model provenance.
 - **Database scan**: scan a model against a reference database of known base-model fingerprints.
 - **Deep-signal fingerprints**: download pre-computed weight fingerprints for weight-level matching.
 - **Multi-signal pipeline**: combines metadata (MFI), tokenizer (TFV, VOA), and weight signals (EAS, NLF, LEP, END, WVC) into a single pipeline score.
-- **MFI gate**: architecture metadata acts as a fast structural gate before expensive weight analysis.
+- **Weights decide**: architecture metadata (MFI) supports the verdict but never confirms a match without weight evidence.
 - **Two-layer caching**: in-memory + disk JSON cache for fast repeat runs.
 - **Multiple output formats**: Rich terminal table (default), JSON, or plain text.
 - **Streaming support**: models over 20 GB are loaded via streaming to limit memory usage.
@@ -39,7 +39,7 @@ For deeper technical details, see the guides in [`docs/`](docs/):
 |-------|-------------|
 | [Pipeline Architecture](docs/architecture.md) | End-to-end data flow, compare vs scan modes, phase breakdown |
 | [Signal Reference](docs/signals.md) | Extraction, similarity, and behaviour of all 8 provenance signals |
-| [Scoring and Model Loading](docs/scoring-and-model-loading.md) | Identity/tokenizer scores, MFI gate, NaN handling, large-model streaming |
+| [Scoring and Model Loading](docs/scoring-and-model-loading.md) | Identity/tokenizer scores, verdict rules, NaN handling, large-model streaming |
 | [Database and Caching](docs/database-and-caching.md) | Seed database layout, deep-signal download, two-layer cache, HMAC integrity |
 
 For the formal definition of model provenance — what counts as a provenance relationship and what does not — see the [Model Provenance Constitution](docs/constitution/model_provenance_constitution.md).
@@ -217,7 +217,7 @@ provenancekit scan gpt2 --db-root /path/to/my/database
 2. Run a 3-stage lookup against the provenance database:
    - **Stage 1 (Param Filter)**: size-bucket filtering (±1 adjacent bucket).
    - **Stage 2 (Hash Check)**: annotate candidates with exact/family/none match.
-   - **Stage 3 (Similarity)**: full scoring per candidate with MFI gate.
+   - **Stage 3 (Similarity)**: full scoring per candidate (MFI tier + weight identity).
 3. Return ranked matches with scores, decision labels, and signal breakdowns.
 
 ### `provenancekit download-deepsignals-fingerprint`
@@ -290,18 +290,23 @@ Model ProvenanceKit combines three categories of evidence into a single pipeline
 
 **Tokenizer score**: supplementary context, 25% TFV + 75% VOA. Reported alongside identity but not used in the pipeline decision.
 
-**Pipeline score**: final decision score using the MFI gate:
-- MFI Tier 1-2 (structural match): pipeline score = MFI score
-- MFI Tier 3 (no structural match): pipeline score = identity score
+**Pipeline score**: final decision score. Weights decide, metadata supports:
+- Weight evidence available: pipeline score = identity score
+- No weight evidence: pipeline score = MFI score, and the decision is marked unverified
 
 ### Score Interpretation
 
-| Pipeline Score | Verdict |
-|----------------|---------|
-| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
-| S > 0.75 | High-Confidence Match |
-| 0.65 < S ≤ 0.75 | Weak Match |
-| S ≤ 0.65 | Not Matched |
+| MFI Tier | Identity Score (I) | Verdict |
+|----------|--------------------|---------|
+| 1–2 | I > 0.75 | Confirmed Match |
+| 1–2 | 0.65 < I ≤ 0.75 | Weak Match (metadata match, weak weight evidence) |
+| 1–2 | I ≤ 0.65 | Not Matched (metadata/weight conflict) |
+| 3 | I > 0.75 | High-Confidence Match |
+| 3 | 0.65 < I ≤ 0.75 | Weak Match |
+| 3 | I ≤ 0.65 | Not Matched |
+| any | NaN | Metadata Match (unverified) / Not Matched (unverified) |
+
+Every result includes a `verification` field: `weights_agree`, `weights_weak`, `weights_conflict`, `weights_only` or `unverified`.
 
 ## Caching
 

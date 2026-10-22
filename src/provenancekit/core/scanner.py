@@ -17,13 +17,12 @@
 """Model provenance scanner — the main orchestrator.
 
 Coordinates MFI fingerprinting, tokenizer analysis, weight signal
-extraction, scoring, and the MFI gate to produce:
+extraction and scoring to produce:
 
 *  A ``CompareResult`` for pairwise model comparison.
 *  A ``ScanResult`` for one-vs-many database lookup.
 """
 
-import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -38,7 +37,7 @@ from provenancekit.core.lookup import run_lookup
 from provenancekit.core.scoring import (
     compute_identity_score,
     compute_tokenizer_score,
-    interpret_score,
+    decide,
 )
 from provenancekit.core.signals.metadata import (
     classify,
@@ -224,19 +223,9 @@ class ModelProvenanceScanner:
         identity = compute_identity_score(eas_s, nlf_s, lep_s, end_s, wvc_s)
         tokenizer = compute_tokenizer_score(tfv_s, voa_s)
 
-        if mfi.tier <= 2:
-            pipeline_score = mfi.score
-            decision = "Confirmed Match"
-        elif not math.isnan(identity):
-            pipeline_score = identity
-            decision = ""
-        else:
-            pipeline_score = mfi.score
-            decision = interpret_score(pipeline_score).label + " (metadata only)"
-
-        interpretation = interpret_score(pipeline_score)
-        if not decision:
-            decision = interpretation.label
+        verdict = decide(mfi.score, mfi.tier, identity)
+        pipeline_score = verdict.pipeline_score
+        decision = verdict.decision
         scoring_elapsed = time.monotonic() - t_score
         metadata_extract_elapsed = data_a.base_elapsed + data_b.base_elapsed
         weight_feature_extract_elapsed = data_a.weight_elapsed + data_b.weight_elapsed
@@ -285,8 +274,9 @@ class ModelProvenanceScanner:
                 tokenizer_score=nan_safe(tokenizer),
                 pipeline_score=pipeline_score,
                 provenance_decision=decision,
+                verification=verdict.verification,
             ),
-            interpretation=interpretation,
+            interpretation=verdict.interpretation,
             time_seconds=round(elapsed, 3),
             timing=TimingBreakdown(
                 total_seconds=round(elapsed, 3),

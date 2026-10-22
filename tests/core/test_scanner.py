@@ -218,11 +218,33 @@ class TestCompareUnit:
         result = self._scanner.compare("gpt2", "gpt2")
         assert isinstance(result, CompareResult)
 
-    def test_mfi_tier1_uses_mfi_score(self) -> None:
+    def test_mfi_tier1_with_agreeing_weights_confirms(self) -> None:
         result = self._scanner.compare("gpt2", "gpt2")
-        assert result.scores.pipeline_score == 1.0
+        assert result.scores.pipeline_score == result.scores.identity_score == 1.0
         assert result.scores.provenance_decision == "Confirmed Match"
+        assert result.scores.verification == "weights_agree"
         assert result.scores.mfi_tier == 1
+
+    def test_mfi_tier1_with_conflicting_weights_not_matched(self) -> None:
+        for name in ("eas", "nlf", "lep", "end", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = 0.5
+        result = self._scanner.compare("bert", "biomedbert")
+        assert result.scores.mfi_tier == 1
+        assert result.scores.pipeline_score == 0.5
+        assert result.scores.provenance_decision == (
+            "Not Matched (metadata/weight conflict)"
+        )
+        assert result.scores.verification == "weights_conflict"
+
+    def test_mfi_tier1_without_weights_is_unverified(self) -> None:
+        self._mocks["extract_signals"].return_value = None
+        for name in ("eas", "nlf", "lep", "end", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = float("nan")
+        result = self._scanner.compare("bart", "distilbart")
+        assert result.scores.identity_score is None
+        assert result.scores.pipeline_score == 1.0
+        assert result.scores.provenance_decision == "Metadata Match (unverified)"
+        assert result.scores.verification == "unverified"
 
     def test_mfi_tier3_uses_identity_score(self) -> None:
         self._mocks["mfi_similarity"].return_value = MFISimilarity(

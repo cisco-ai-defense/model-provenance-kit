@@ -79,11 +79,12 @@ class SignalScores(BaseModel):
 
 
 class PipelineScore(BaseModel):
-    """Decomposed scoring output with MFI gate.
+    """Decomposed scoring output.
 
-    ``pipeline_score`` is the final decision value: equal to
-    ``mfi_score`` when ``mfi_tier <= 2``, otherwise equal to
-    ``identity_score``.
+    ``pipeline_score`` equals ``identity_score`` whenever weight evidence
+    exists, otherwise ``mfi_score``.  ``verification`` states whether the
+    decision is backed by weights: ``weights_agree``, ``weights_weak``,
+    ``weights_conflict``, ``weights_only`` or ``unverified``.
     """
 
     mfi_score: float
@@ -93,6 +94,7 @@ class PipelineScore(BaseModel):
     tokenizer_score: float | None
     pipeline_score: float
     provenance_decision: str
+    verification: str = "unverified"
 
 
 class ScoreInterpretation(BaseModel):
@@ -165,7 +167,8 @@ class ScanMatchScores(BaseModel):
     """Score breakdown for a single scan match against a DB model.
 
     All signal values are ``None`` when the signal could not be
-    computed (e.g. missing deep-signals parquet).
+    computed (e.g. missing deep-signals parquet).  ``verification`` has
+    the same meaning as in :class:`PipelineScore`.
     """
 
     pipeline_score: float | None
@@ -180,6 +183,7 @@ class ScanMatchScores(BaseModel):
     end: float | None
     wvc: float | None
     tfv: float | None
+    verification: str = "unverified"
 
 
 class ScanMatch(BaseModel):

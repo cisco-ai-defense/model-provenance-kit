@@ -37,9 +37,10 @@ import structlog
 
 from provenancekit.config.settings import Settings
 from provenancekit.core.scoring import (
+    VERIFICATION_UNVERIFIED,
     compute_identity_score,
     compute_tokenizer_score,
-    interpret_score,
+    decide,
 )
 from provenancekit.core.signals.metadata import has_known_architectures
 from provenancekit.core.signals.metadata import similarity as mfi_similarity
@@ -241,7 +242,8 @@ def stage3_similarity(
     3. If the test model has weight signals and the DB model has a
        deep-signals parquet, load it, reconstruct
        ``WeightSignalFeatures``, and compute EAS/NLF/LEP/END/WVC.
-    4. Derive ``pipeline_score`` via the MFI gate and ``decision``.
+    4. Derive ``pipeline_score``, ``decision`` and ``verification`` via
+       :func:`~provenancekit.core.scoring.decide`.
 
     .. note::
        VOA (Vocabulary Overlap Analysis) is **not** computed here.
@@ -309,18 +311,9 @@ def stage3_similarity(
             0.0,
         )
 
-        # -- MFI gate: decide pipeline_score and decision label --
-        if mfi_sim.tier <= 2:
-            pipeline_score = mfi_sim.score
-            decision = "Confirmed Match"
-        elif not math.isnan(identity):
-            pipeline_score = identity
-            decision = interpret_score(pipeline_score).label
-        else:
-            # No weight signals available — fall back to MFI soft score
-            # so Tier 3 candidates still surface rather than being dropped.
-            pipeline_score = mfi_sim.score
-            decision = interpret_score(pipeline_score).label + " (metadata only)"
+        verdict = decide(mfi_sim.score, mfi_sim.tier, identity)
+        pipeline_score = verdict.pipeline_score
+        decision = verdict.decision
 
         # -- Derive match_type from hash annotation or MFI tier --
         if cand.hash_match:
@@ -370,6 +363,7 @@ def stage3_similarity(
                     end=nan_safe(end_s),
                     wvc=nan_safe(wvc_s),
                     tfv=nan_safe(tfv_s),
+                    verification=verdict.verification,
                 ),
                 provenance_decision=decision,
                 elapsed_ms=elapsed,
@@ -436,9 +430,12 @@ def run_lookup(
         metadata_trusted=metadata_trusted,
     )
 
-    # Rank, threshold, and trim
+    # Rank (weight-backed results ahead of unverified ones), threshold, trim
     matches.sort(
-        key=lambda m: m.scores.pipeline_score or 0,
+        key=lambda m: (
+            m.scores.verification != VERIFICATION_UNVERIFIED,
+            m.scores.pipeline_score or 0,
+        ),
         reverse=True,
     )
 

@@ -31,7 +31,14 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from provenancekit.core.scoring import interpret_score
+from provenancekit.core.scoring import (
+    VERIFICATION_UNVERIFIED,
+    VERIFICATION_WEIGHTS_AGREE,
+    VERIFICATION_WEIGHTS_CONFLICT,
+    VERIFICATION_WEIGHTS_ONLY,
+    VERIFICATION_WEIGHTS_WEAK,
+    interpret_score,
+)
 from provenancekit.models.results import CompareResult, ScanModelInfo, ScanResult
 from provenancekit.models.signals import ConfigInconsistency
 from provenancekit.utils.tensor import estimate_param_count, format_param_count
@@ -39,6 +46,19 @@ from provenancekit.utils.tensor import estimate_param_count, format_param_count
 _CONFIG_INCONSISTENT_NOTE = (
     "config.json contradicts the stored weights; metadata Tier 1/2 not applied"
 )
+
+_VERIFICATION_TEXT = {
+    VERIFICATION_WEIGHTS_AGREE: ("metadata and weights agree", "green"),
+    VERIFICATION_WEIGHTS_WEAK: ("metadata match, weak weight evidence", "yellow"),
+    VERIFICATION_WEIGHTS_CONFLICT: ("metadata and weights CONFLICT", "bold red"),
+    VERIFICATION_WEIGHTS_ONLY: ("weight evidence only", ""),
+    VERIFICATION_UNVERIFIED: ("no weight evidence; metadata only", "dim"),
+}
+
+
+def _verification_text(verification: str) -> Text:
+    label, style = _VERIFICATION_TEXT.get(verification, (verification, ""))
+    return Text(label, style=style)
 
 
 def _fmt(value: float | None, precision: int = 4) -> str:
@@ -86,6 +106,7 @@ def format_table(result: CompareResult, include_timing: bool = False) -> str:
     decision_text = Text(s.provenance_decision)
     decision_text.stylize(f"bold {interp.colour}")
     table.add_row("Provenance Decision", decision_text)
+    table.add_row("Verification", _verification_text(s.verification))
 
     verdict = Text(
         f"{_fmt(s.pipeline_score)}  ({interp.label})",
@@ -173,6 +194,7 @@ def format_plain(result: CompareResult, include_timing: bool = False) -> str:
         f"tfv:             {_fmt(sig.tfv)}",
         f"voa:             {_fmt(sig.voa)}",
         f"provenance_decision: {s.provenance_decision}",
+        f"verification:    {s.verification}",
         f"time_seconds:    {result.time_seconds:.1f}",
     ]
     lines.extend(
@@ -196,9 +218,9 @@ def format_plain(result: CompareResult, include_timing: bool = False) -> str:
 # ── Scan formatters ──────────────────────────────────────────────
 
 
-def _decision_colour(pipeline_score: float | None) -> str:
+def _decision_colour(pipeline_score: float | None, verification: str) -> str:
     """Map a pipeline score to a Rich colour string."""
-    if pipeline_score is None:
+    if pipeline_score is None or verification == VERIFICATION_UNVERIFIED:
         return "#999999"
     return interpret_score(pipeline_score).colour
 
@@ -259,7 +281,7 @@ def format_scan_table(
         )
         for rank, m in enumerate(result.matches, 1):
             s = m.scores
-            colour = _decision_colour(s.pipeline_score)
+            colour = _decision_colour(s.pipeline_score, s.verification)
 
             decision_text = Text(m.provenance_decision)
             decision_text.stylize(f"bold {colour}")
@@ -277,6 +299,7 @@ def format_scan_table(
                 + (f"  [{m.param_bucket}]" if m.param_bucket else ""),
             )
             table.add_row("  Provenance Decision", decision_text)
+            table.add_row("  Verification", _verification_text(s.verification))
             table.add_row("  Pipeline Score", pipeline_text)
             table.add_row(
                 "  MFI Score",
@@ -360,6 +383,7 @@ def format_scan_plain(
         lines.append(f"match_{rank}_model_id:       {m.model_id}")
         lines.append(f"match_{rank}_family:         {m.family_name} ({m.family_id})")
         lines.append(f"match_{rank}_provenance_decision: {m.provenance_decision}")
+        lines.append(f"match_{rank}_verification:   {s.verification}")
         lines.append(f"match_{rank}_match_type:     {m.match_type}")
         lines.append(f"match_{rank}_pipeline_score: {_fmt(s.pipeline_score)}")
         lines.append(f"match_{rank}_mfi_score:      {s.mfi_score:.4f}")
