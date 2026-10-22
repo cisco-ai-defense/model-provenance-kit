@@ -333,9 +333,23 @@ def load_state_dict(
         return result
 
     log.info("trying_automodel", model_id=model_name)
-    return _try_automodel(
-        model_name, config, trust_remote_code=settings.trust_remote_code
-    )
+    try:
+        return _try_automodel(
+            model_name, config, trust_remote_code=settings.trust_remote_code
+        )
+    except ModelLoadError as exc:
+        # AutoModel builds the module from config, so a config that
+        # contradicts the stored tensors fails here; raw tensors still
+        # let downstream consistency checks see the real shapes.
+        result = _try_pytorch_bin(model_name, config)
+        if result is None:
+            raise
+        log.warning(
+            "automodel_failed_raw_bin_loaded",
+            model_id=model_name,
+            error=str(exc).splitlines()[0][:200],
+        )
+        return result
 
 
 # ── Private helpers ────────────────────────────────────────────────
@@ -581,6 +595,58 @@ def _try_safetensors_sharded(
                 error=str(exc),
             )
     return None
+
+
+def _load_bin(path: str) -> dict[str, Any]:
+    state: dict[str, Any] = torch.load(path, map_location="cpu", weights_only=True)
+    return state
+
+
+def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
+    """Load raw ``pytorch_model.bin`` tensors without building the module."""
+    try:
+        if is_local_hf_snapshot(model_name):
+            base_dir = model_name
+            index_path: str | None = os.path.join(  # noqa: PTH118
+                base_dir, "pytorch_model.bin.index.json"
+            )
+            if not os.path.isfile(index_path):  # noqa: PTH113
+                index_path = None
+            single_path: str | None = os.path.join(  # noqa: PTH118
+                base_dir, "pytorch_model.bin"
+            )
+        else:
+            index_path = try_hf_download(model_name, "pytorch_model.bin.index.json")
+            single_path = None if index_path else try_hf_download(
+                model_name, "pytorch_model.bin"
+            )
+            base_dir = os.path.dirname(index_path or single_path or "")  # noqa: PTH120
+
+        state: dict[str, Any] = {}
+        if index_path is not None:
+            with open(index_path, encoding="utf-8") as f:  # noqa: PTH123
+                idx = _json.load(f)
+            for shard in sorted(set(idx["weight_map"].values())):
+                shard_path = _safe_shard_path(base_dir, shard)
+                if not os.path.isfile(shard_path):  # noqa: PTH113
+                    if is_local_hf_snapshot(model_name):
+                        return None
+                    shard_path = hf_hub_download(model_name, shard)
+                state.update(_load_bin(shard_path))
+        elif single_path is not None and os.path.isfile(single_path):  # noqa: PTH113
+            state = _load_bin(single_path)
+        else:
+            return None
+    except Exception as exc:  # noqa: BLE001
+        log.debug("pytorch_bin_raw_load_failed", model_id=model_name, error=str(exc))
+        return None
+
+    return LoadResult(
+        state_dict=state,
+        config=config,
+        strategy=LoadStrategy.full,
+        source="pytorch_bin_raw",
+    )
 
 
 def _try_automodel(

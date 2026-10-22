@@ -205,12 +205,70 @@ class TestLoadStateDict:
             patch(
                 "provenancekit.services.model_loader.AutoModel",
             ) as mock_auto,
+            patch(
+                "provenancekit.services.model_loader._try_pytorch_bin",
+                return_value=None,
+            ),
         ):
             mock_cfg.from_pretrained.return_value = MagicMock()
             mock_causal.from_pretrained.side_effect = ValueError("bad")
             mock_auto.from_pretrained.side_effect = RuntimeError("also bad")
             with pytest.raises(ModelLoadError, match="All AutoModel strategies failed"):
                 load_state_dict("broken/model")
+
+    def test_raw_bin_fallback_when_config_contradicts_weights(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        emb = torch.randn(30, 8)
+        torch.save({"embeddings.word_embeddings.weight": emb}, tmp_path / "pytorch_model.bin")
+        with (
+            patch(
+                "provenancekit.services.model_loader.estimate_model_params",
+                return_value=int(1e8),
+            ),
+            patch(
+                "provenancekit.services.model_loader.AutoConfig",
+            ) as mock_cfg,
+            patch(
+                "provenancekit.services.model_loader.AutoModelForCausalLM",
+            ) as mock_causal,
+            patch(
+                "provenancekit.services.model_loader.AutoModel",
+            ) as mock_auto,
+        ):
+            mock_cfg.from_pretrained.return_value = MagicMock()
+            mock_causal.from_pretrained.side_effect = ValueError("not causal")
+            mock_auto.from_pretrained.side_effect = RuntimeError("size mismatch")
+            result = load_state_dict(str(tmp_path))
+        assert result.strategy == LoadStrategy.full
+        assert result.source == "pytorch_bin_raw"
+        assert result.state_dict is not None
+        assert torch.equal(result.state_dict["embeddings.word_embeddings.weight"], emb)
+
+    def test_raw_bin_fallback_reraises_without_bin(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        with (
+            patch(
+                "provenancekit.services.model_loader.estimate_model_params",
+                return_value=int(1e8),
+            ),
+            patch(
+                "provenancekit.services.model_loader.AutoConfig",
+            ) as mock_cfg,
+            patch(
+                "provenancekit.services.model_loader.AutoModelForCausalLM",
+            ) as mock_causal,
+            patch(
+                "provenancekit.services.model_loader.AutoModel",
+            ) as mock_auto,
+        ):
+            mock_cfg.from_pretrained.return_value = MagicMock()
+            mock_causal.from_pretrained.side_effect = ValueError("bad")
+            mock_auto.from_pretrained.side_effect = RuntimeError("also bad")
+            with pytest.raises(ModelLoadError, match="All AutoModel strategies failed"):
+                load_state_dict(str(tmp_path))
 
     def test_local_safetensors_single_file_no_hub_download(
         self,
