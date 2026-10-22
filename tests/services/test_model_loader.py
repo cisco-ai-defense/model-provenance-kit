@@ -249,6 +249,52 @@ class TestLoadStateDict:
         assert result.state_dict is not None
         assert torch.equal(result.state_dict["embeddings.word_embeddings.weight"], emb)
 
+    def test_hf_cache_symlinked_shards_use_safetensors(self, tmp_path: Path) -> None:
+        blobs = tmp_path / "blobs"
+        snap = tmp_path / "snapshots" / "rev"
+        blobs.mkdir()
+        snap.mkdir(parents=True)
+        (snap / "config.json").write_text("{}", encoding="utf-8")
+        weight_map = {}
+        for i, name in enumerate(("model-00001-of-00002", "model-00002-of-00002")):
+            save_file({f"w{i}": torch.randn(4)}, str(blobs / f"blob{i}"))
+            (snap / f"{name}.safetensors").symlink_to(f"../../blobs/blob{i}")
+            weight_map[f"w{i}"] = f"{name}.safetensors"
+        (snap / "model.safetensors.index.json").write_text(
+            json.dumps({"weight_map": weight_map}), encoding="utf-8"
+        )
+        with (
+            patch(
+                "provenancekit.services.model_loader.estimate_model_params",
+                return_value=int(1e8),
+            ),
+            patch("provenancekit.services.model_loader.AutoConfig") as mock_cfg,
+            patch("provenancekit.services.model_loader._try_automodel") as mock_auto,
+        ):
+            mock_cfg.from_pretrained.return_value = MagicMock()
+            result = load_state_dict(str(snap))
+        mock_auto.assert_not_called()
+        assert result.source == "safetensors_sharded"
+        assert result.state_dict is not None
+        assert set(result.state_dict) == {"w0", "w1"}
+
+    def test_traversal_in_shard_index_is_rejected(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{}", encoding="utf-8")
+        (tmp_path / "model.safetensors.index.json").write_text(
+            json.dumps({"weight_map": {"w": "../outside.safetensors"}}),
+            encoding="utf-8",
+        )
+        with (
+            patch(
+                "provenancekit.services.model_loader.estimate_model_params",
+                return_value=int(1e8),
+            ),
+            patch("provenancekit.services.model_loader.AutoConfig") as mock_cfg,
+            pytest.raises(ModelLoadError, match="escapes model directory"),
+        ):
+            mock_cfg.from_pretrained.return_value = MagicMock()
+            load_state_dict(str(tmp_path))
+
     def test_raw_bin_fallback_reraises_without_bin(self, tmp_path: Path) -> None:
         (tmp_path / "config.json").write_text("{}", encoding="utf-8")
         with (

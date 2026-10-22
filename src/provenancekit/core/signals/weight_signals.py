@@ -28,7 +28,6 @@ Six public similarity functions compute NaN-aware pairwise scores from
 import gc
 import os
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -50,6 +49,7 @@ from provenancekit.services.model_loader import (
     resolve_hf_model_ref,
     try_hf_download,
 )
+from provenancekit.utils.paths import UnsafeShardPathError, safe_shard_join
 from provenancekit.utils.tensor import (
     classify_tensor_name,
     cosine_clamp,
@@ -227,14 +227,13 @@ def _extract_signals_streaming_impl(
     def _get_shard_path(shard_file: str) -> str:
         if shard_file not in _shard_paths:
             if is_local_hf_snapshot(model_name):
-                joined = os.path.join(model_name, shard_file)  # noqa: PTH118
-                resolved = Path(joined).resolve()
-                if not resolved.is_relative_to(Path(model_name).resolve()):
+                try:
+                    _shard_paths[shard_file] = safe_shard_join(model_name, shard_file)
+                except UnsafeShardPathError as exc:
                     raise ExtractionError(
-                        f"Shard path escapes model directory: {shard_file}",
+                        str(exc),
                         details={"model_name": model_name, "shard": shard_file},
-                    )
-                _shard_paths[shard_file] = str(resolved)
+                    ) from exc
             else:
                 path = try_hf_download(model_name, shard_file)
                 if path is None:

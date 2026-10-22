@@ -46,6 +46,7 @@ from provenancekit.config.settings import Settings
 from provenancekit.exceptions import ModelLoadError
 from provenancekit.models.parsing import ModelFormat
 from provenancekit.models.results import LoadResult, LoadStrategy
+from provenancekit.utils.paths import UnsafeShardPathError, safe_shard_join
 from provenancekit.utils.tensor import estimate_param_count
 
 log = structlog.get_logger()
@@ -56,13 +57,13 @@ _LOCAL_HF_MARKER = "config.json"
 
 def _safe_shard_path(base_dir: str, shard: str) -> str:
     """Join base_dir and shard, rejecting path traversal attempts."""
-    result = Path(os.path.join(base_dir, shard)).resolve()  # noqa: PTH118
-    if not result.is_relative_to(Path(base_dir).resolve()):
+    try:
+        return safe_shard_join(base_dir, shard)
+    except UnsafeShardPathError as exc:
         raise ModelLoadError(
-            f"Shard path escapes model directory: {shard}",
+            str(exc),
             details={"base_dir": base_dir, "shard": shard},
-        )
-    return str(result)
+        ) from exc
 
 
 def resolve_hf_model_ref(model_ref: str) -> str:
@@ -332,7 +333,9 @@ def load_state_dict(
         log.info("safetensors_loaded", model_id=model_name, source=result.source)
         return result
 
-    log.info("trying_automodel", model_id=model_name)
+    # AutoModel casts to fp16 and returns module order, so its signals are
+    # not directly comparable with the raw-tensor paths.
+    log.warning("automodel_fallback", model_id=model_name)
     try:
         return _try_automodel(
             model_name, config, trust_remote_code=settings.trust_remote_code
@@ -587,6 +590,13 @@ def _try_safetensors_sharded(
                 strategy=LoadStrategy.full,
                 source="safetensors_sharded",
             )
+        except ModelLoadError as exc:
+            log.warning(
+                "safetensors_shard_rejected",
+                model_id=model_name,
+                error=str(exc),
+            )
+            return None
         except Exception as exc:  # noqa: BLE001
             log.debug(
                 "safetensors_sharded_probe_failed",
