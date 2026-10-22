@@ -66,6 +66,7 @@ from provenancekit.models.results import (
     CachedEntry,
     CompareResult,
     LoadStrategy,
+    ModelConfigInconsistency,
     PipelineScore,
     ScanModelInfo,
     ScanResult,
@@ -73,6 +74,7 @@ from provenancekit.models.results import (
     TimingBreakdown,
 )
 from provenancekit.models.signals import (
+    ConfigInconsistency,
     MFIFingerprint,
     TokenizerFeatures,
     WeightSignalFeatures,
@@ -84,6 +86,14 @@ from provenancekit.utils import nan_safe
 from provenancekit.utils.tensor import compute_param_bucket
 
 log = structlog.get_logger()
+
+
+def _config_inconsistencies(
+    ws: WeightSignalFeatures | None,
+) -> list[ConfigInconsistency]:
+    if ws is None or ws.config_inconsistencies is None:
+        return []
+    return ws.config_inconsistencies
 
 
 @dataclass
@@ -184,7 +194,14 @@ class ModelProvenanceScanner:
         _phase("computing similarity scores")
         t_score = time.monotonic()
         log.info("scoring_start")
-        mfi = mfi_similarity(data_a.fp, data_b.fp)
+        config_inconsistent = [
+            ModelConfigInconsistency(model=model_id, **c.model_dump())
+            for model_id, data in ((model_a, data_a), (model_b, data_b))
+            for c in _config_inconsistencies(data.ws)
+        ]
+        mfi = mfi_similarity(
+            data_a.fp, data_b.fp, metadata_trusted=not config_inconsistent
+        )
         family_a, _ = classify(data_a.fp)
         family_b, _ = classify(data_b.fp)
 
@@ -277,6 +294,7 @@ class ModelProvenanceScanner:
                 weight_feature_extract_seconds=round(weight_feature_extract_elapsed, 3),
                 cache_hit=cache_hit,
             ),
+            config_inconsistent=config_inconsistent,
         )
 
     def scan(
@@ -338,6 +356,7 @@ class ModelProvenanceScanner:
         _phase("matching against provenance database")
         t_lookup = time.monotonic()
         db_service = self._get_db_service()
+        config_inconsistent = _config_inconsistencies(data.ws)
         matches = run_lookup(
             data.fp,
             data.tfv,
@@ -345,6 +364,7 @@ class ModelProvenanceScanner:
             db_service,
             top_k=effective_top_k,
             threshold=effective_threshold,
+            metadata_trusted=not config_inconsistent,
         )
         lookup_seconds = round(time.monotonic() - t_lookup, 3)
 
@@ -370,6 +390,7 @@ class ModelProvenanceScanner:
             family_hash=data.fp.family_hash,
             param_bucket=compute_param_bucket(data.fp),
             has_weight_signals=data.ws is not None,
+            config_inconsistent=config_inconsistent,
         )
 
         result = ScanResult(

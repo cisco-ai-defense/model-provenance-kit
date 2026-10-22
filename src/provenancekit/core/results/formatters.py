@@ -33,7 +33,12 @@ from rich.text import Text
 
 from provenancekit.core.scoring import interpret_score
 from provenancekit.models.results import CompareResult, ScanModelInfo, ScanResult
+from provenancekit.models.signals import ConfigInconsistency
 from provenancekit.utils.tensor import estimate_param_count, format_param_count
+
+_CONFIG_INCONSISTENT_NOTE = (
+    "config.json contradicts the stored weights; metadata Tier 1/2 not applied"
+)
 
 
 def _fmt(value: float | None, precision: int = 4) -> str:
@@ -41,6 +46,11 @@ def _fmt(value: float | None, precision: int = 4) -> str:
     if value is None:
         return "N/A"
     return f"{value:.{precision}f}"
+
+
+def _fmt_inconsistency(c: ConfigInconsistency) -> str:
+    observed = ", ".join(str(v) for v in c.observed)
+    return f"{c.field}: declared {c.declared}, weights show {observed}"
 
 
 def _format_params(info: ScanModelInfo) -> str:
@@ -88,6 +98,15 @@ def format_table(result: CompareResult, include_timing: bool = False) -> str:
     )
     table.add_row("Weight Identity Score", _fmt(s.identity_score))
     table.add_row("Tokenizer Score", _fmt(s.tokenizer_score))
+
+    if result.config_inconsistent:
+        table.add_section()
+        table.add_row(
+            Text("Config Inconsistent", style="bold yellow"),
+            Text(_CONFIG_INCONSISTENT_NOTE, style="yellow"),
+        )
+        for c in result.config_inconsistent:
+            table.add_row(f"  {c.model}", _fmt_inconsistency(c))
 
     table.add_section()
     table.add_row(Text("Weight Feature Scores", style="bold underline"), "")
@@ -156,6 +175,10 @@ def format_plain(result: CompareResult, include_timing: bool = False) -> str:
         f"provenance_decision: {s.provenance_decision}",
         f"time_seconds:    {result.time_seconds:.1f}",
     ]
+    lines.extend(
+        f"config_inconsistent: {c.model}: {_fmt_inconsistency(c)}"
+        for c in result.config_inconsistent
+    )
     if include_timing and result.timing is not None:
         lines.extend(
             [
@@ -211,6 +234,13 @@ def format_scan_table(
         "Weight signals",
         "yes" if info.has_weight_signals else "no",
     )
+    if info.config_inconsistent:
+        table.add_row(
+            Text("Config Inconsistent", style="bold yellow"),
+            Text(_CONFIG_INCONSISTENT_NOTE, style="yellow"),
+        )
+        for c in info.config_inconsistent:
+            table.add_row("", _fmt_inconsistency(c))
 
     # ── Matches ──
     table.add_section()
@@ -313,6 +343,10 @@ def format_scan_plain(
         f"arch_hash:        {info.arch_hash}",
         f"family_hash:      {info.family_hash}",
         f"weight_signals:   {'yes' if info.has_weight_signals else 'no'}",
+        *(
+            f"config_inconsistent: {_fmt_inconsistency(c)}"
+            for c in info.config_inconsistent
+        ),
         f"match_count:      {result.match_count}",
         f"elapsed_ms:       {result.elapsed_ms:.0f}",
     ]

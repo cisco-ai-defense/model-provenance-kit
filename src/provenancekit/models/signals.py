@@ -128,12 +128,31 @@ class VocabOverlap(BaseModel):
     overlap_pct_b: float
 
 
+class ConfigInconsistency(BaseModel):
+    """A ``config.json`` field that contradicts the stored tensor shapes.
+
+    Attributes:
+        field: Config field name (e.g. ``vocab_size``).
+        declared: Value declared in ``config.json``.
+        observed: Values derived from the stored tensors that the
+            declared value was checked against.
+    """
+
+    field: str
+    declared: int
+    observed: list[int]
+
+
 class WeightSignalFeatures(BaseModel):
     """Weight-level signal features for EAS, NLF, LEP, END, WSP, and WVC.
 
     Holds numpy arrays from weight analysis.  Provides ``to_cache_dict``
     / ``from_cache_dict`` for JSON-safe persistence of the feature
     vectors without losing fidelity.
+
+    ``config_inconsistencies`` is ``None`` when the config/shape check
+    was not run (e.g. database entries or older cache entries) and an
+    empty list when it ran and found no contradiction.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -149,6 +168,7 @@ class WeightSignalFeatures(BaseModel):
     end_histogram: np.ndarray | None
     wsp_signature: np.ndarray | None
     wvc_layer_sigs: dict[int, np.ndarray] | None
+    config_inconsistencies: list[ConfigInconsistency] | None = None
 
     def to_cache_dict(self) -> dict[str, Any]:
         """Serialise to a JSON-safe dict (numpy arrays → lists)."""
@@ -172,6 +192,11 @@ class WeightSignalFeatures(BaseModel):
             "end_histogram": _arr(self.end_histogram),
             "wsp_signature": _arr(self.wsp_signature),
             "wvc_layer_sigs": wvc,
+            "config_inconsistencies": (
+                [c.model_dump() for c in self.config_inconsistencies]
+                if self.config_inconsistencies is not None
+                else None
+            ),
         }
 
     @classmethod
@@ -186,6 +211,13 @@ class WeightSignalFeatures(BaseModel):
         if raw_wvc is not None:
             wvc = {int(k): np.array(v) for k, v in raw_wvc.items()}
 
+        raw_ci = d.get("config_inconsistencies")
+        config_inconsistencies = (
+            [ConfigInconsistency.model_validate(c) for c in raw_ci]
+            if raw_ci is not None
+            else None
+        )
+
         return cls(
             hidden_size=d["hidden_size"],
             num_layers=d["num_layers"],
@@ -198,4 +230,5 @@ class WeightSignalFeatures(BaseModel):
             end_histogram=_arr(d.get("end_histogram")),
             wsp_signature=_arr(d.get("wsp_signature")),
             wvc_layer_sigs=wvc,
+            config_inconsistencies=config_inconsistencies,
         )

@@ -32,7 +32,9 @@ Scoring recap::
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from provenancekit.models.signals import ConfigInconsistency
 
 # ── Model loading result ──────────────────────────────────────────
 
@@ -109,11 +111,21 @@ class TimingBreakdown(BaseModel):
     cache_hit: str
 
 
+class ModelConfigInconsistency(ConfigInconsistency):
+    """A :class:`ConfigInconsistency` attributed to one compared model."""
+
+    model: str
+
+
 class CompareResult(BaseModel):
     """Full top-level comparison output for a model pair.
 
     Matches the structure produced by the benchmark pipeline and
     serialised to JSON.
+
+    ``config_inconsistent`` lists ``config.json`` fields that contradict
+    the stored tensors of either model.  When non-empty, MFI Tier 1/2
+    is not applied for the pair.
     """
 
     model_a: str
@@ -125,6 +137,7 @@ class CompareResult(BaseModel):
     interpretation: ScoreInterpretation
     time_seconds: float
     timing: TimingBreakdown | None = None
+    config_inconsistent: list[ModelConfigInconsistency] = Field(default_factory=list)
 
 
 class CachedEntry(BaseModel):
@@ -184,7 +197,12 @@ class ScanMatch(BaseModel):
 
 
 class ScanModelInfo(BaseModel):
-    """Extracted metadata about the scanned (query) model."""
+    """Extracted metadata about the scanned (query) model.
+
+    ``config_inconsistent`` lists ``config.json`` fields that contradict
+    the query model's stored tensors.  When non-empty, MFI Tier 1/2 is
+    not applied to any database candidate.
+    """
 
     model_path: str
     model_type: str
@@ -203,6 +221,7 @@ class ScanModelInfo(BaseModel):
     family_hash: str
     param_bucket: str
     has_weight_signals: bool
+    config_inconsistent: list[ConfigInconsistency] = Field(default_factory=list)
 
 
 class ScanResult(BaseModel):

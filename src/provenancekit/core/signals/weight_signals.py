@@ -38,9 +38,13 @@ from transformers import AutoConfig
 
 from provenancekit.config.settings import Settings
 from provenancekit.core.signals.anchors import get_anchor_ids
+from provenancekit.core.signals.config_consistency import (
+    check_config_consistency,
+    collect_shapes,
+)
 from provenancekit.core.signals.streamers import create_streamer
 from provenancekit.exceptions import ExtractionError
-from provenancekit.models.signals import WeightSignalFeatures
+from provenancekit.models.signals import ConfigInconsistency, WeightSignalFeatures
 from provenancekit.services.model_loader import (
     is_local_hf_snapshot,
     resolve_hf_model_ref,
@@ -123,6 +127,8 @@ def _extract_signals_impl(
     )
     log.info("signal_lep_wsp_wvc_done")
 
+    config_inconsistencies = _safe_config_check(config, collect_shapes(state_dict))
+
     gc.collect()
 
     return WeightSignalFeatures(
@@ -137,6 +143,7 @@ def _extract_signals_impl(
         end_histogram=end_histogram,
         wsp_signature=wsp_signature,
         wvc_layer_sigs=wvc_layer_sigs,
+        config_inconsistencies=config_inconsistencies,
     )
 
 
@@ -253,11 +260,13 @@ def _extract_signals_streaming_impl(
     eas_self_sim: np.ndarray | None = None
     eas_anchor_count = 0
     end_histogram: np.ndarray | None = None
+    tensor_shapes: dict[str, tuple[int, ...]] = {}
 
     emb_name = find_embedding_name_in_weight_map(weight_map)
     if emb_name is not None:
         try:
             emb_tensor = _to_float(_load_tensor(emb_name))
+            tensor_shapes[emb_name] = tuple(emb_tensor.shape)
             v_size, _ = emb_tensor.shape
             if v_size > _MAX_EMBEDDING_ROWS:
                 log.warning(
@@ -372,6 +381,9 @@ def _extract_signals_streaming_impl(
                 for tname, layer_idx in tensors_in_shard:
                     try:
                         if _use_slicing:
+                            tensor_shapes[tname] = tuple(
+                                streamer.get_slice(handle, tname).get_shape()
+                            )
                             _process_tensor_sliced(
                                 handle,
                                 tname,
@@ -384,6 +396,7 @@ def _extract_signals_streaming_impl(
                             )
                         else:
                             tensor = _to_float(streamer.get_tensor(handle, tname))
+                            tensor_shapes[tname] = tuple(tensor.shape)
                             _process_tensor_full(
                                 tensor,
                                 tname,
@@ -412,6 +425,7 @@ def _extract_signals_streaming_impl(
     lep_profile = _build_lep(layer_energy)
     wsp_signature = _build_wsp(layer_signs)
     wvc_layer_sigs = _build_wvc(wvc_layer_data)
+    config_inconsistencies = _safe_config_check(config, tensor_shapes)
 
     gc.collect()
     log.info("streaming_complete", model_id=model_name)
@@ -427,7 +441,21 @@ def _extract_signals_streaming_impl(
         end_histogram=end_histogram,
         wsp_signature=wsp_signature,
         wvc_layer_sigs=wvc_layer_sigs,
+        config_inconsistencies=config_inconsistencies,
     )
+
+
+def _safe_config_check(
+    config: Any | None, shapes: dict[str, tuple[int, ...]]
+) -> list[ConfigInconsistency] | None:
+    """Run the config/shape check; ``None`` means it could not be run."""
+    if config is None or not shapes:
+        return None
+    try:
+        return check_config_consistency(config, shapes)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("config_consistency_check_failed", error=str(exc))
+        return None
 
 
 # ── Similarity functions (NaN-aware) ──────────────────────────────

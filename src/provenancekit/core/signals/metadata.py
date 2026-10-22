@@ -340,6 +340,8 @@ def classify(fp: MFIFingerprint) -> tuple[str, float]:
 def similarity(
     fp_a: MFIFingerprint,
     fp_b: MFIFingerprint,
+    *,
+    metadata_trusted: bool = True,
 ) -> MFISimilarity:
     """Dimension-aware three-tier MFI similarity.
 
@@ -349,7 +351,14 @@ def similarity(
     participate directly in scoring.
 
     Tier 1 is skipped when either side has no known ``architectures``.
+    Tiers 1 and 2 are both skipped when ``metadata_trusted`` is False,
+    i.e. when a config was found to contradict its stored tensors.
     """
+    if not metadata_trusted:
+        return MFISimilarity(
+            score=_tier3_soft_score(fp_a, fp_b), tier=3, match_type="soft_match"
+        )
+
     if (
         has_known_architectures(fp_a.architectures)
         and has_known_architectures(fp_b.architectures)

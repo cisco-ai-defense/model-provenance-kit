@@ -22,6 +22,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+from provenancekit.core.results.formatters import format_plain
 from provenancekit.core.scanner import ModelProvenanceScanner
 from provenancekit.exceptions import ExtractionError, ModelLoadError
 from provenancekit.models.results import (
@@ -32,6 +33,7 @@ from provenancekit.models.results import (
     SignalScores,
 )
 from provenancekit.models.signals import (
+    ConfigInconsistency,
     MFIFingerprint,
     MFISimilarity,
     TokenizerFeatures,
@@ -96,7 +98,9 @@ def _fake_tfv() -> TokenizerFeatures:
     )
 
 
-def _fake_ws() -> WeightSignalFeatures:
+def _fake_ws(
+    config_inconsistencies: list[ConfigInconsistency] | None = None,
+) -> WeightSignalFeatures:
     return WeightSignalFeatures(
         hidden_size=768,
         num_layers=12,
@@ -109,6 +113,7 @@ def _fake_ws() -> WeightSignalFeatures:
         end_histogram=np.ones(50, dtype=np.float64),
         wsp_signature=np.ones(12, dtype=np.float64),
         wvc_layer_sigs={i: np.ones(100, dtype=np.float64) for i in range(12)},
+        config_inconsistencies=config_inconsistencies,
     )
 
 
@@ -248,6 +253,31 @@ class TestCompareUnit:
         result = self._scanner.compare("gpt2", "gpt2")
         assert result.interpretation.label != ""
         assert result.interpretation.colour.startswith("#")
+
+    def test_consistent_configs_keep_metadata_tiers(self) -> None:
+        self._mocks["extract_signals"].return_value = _fake_ws(
+            config_inconsistencies=[]
+        )
+        result = self._scanner.compare("model_a", "model_b")
+        _, kwargs = self._mocks["mfi_similarity"].call_args
+        assert kwargs["metadata_trusted"] is True
+        assert result.config_inconsistent == []
+
+    def test_inconsistent_config_disables_metadata_tiers(self) -> None:
+        finding = ConfigInconsistency(
+            field="vocab_size", declared=28996, observed=[30522]
+        )
+        self._mocks["extract_signals"].return_value = _fake_ws(
+            config_inconsistencies=[finding]
+        )
+        result = self._scanner.compare("model_a", "model_b")
+        _, kwargs = self._mocks["mfi_similarity"].call_args
+        assert kwargs["metadata_trusted"] is False
+        assert [(c.model, c.field) for c in result.config_inconsistent] == [
+            ("model_a", "vocab_size"),
+            ("model_b", "vocab_size"),
+        ]
+        assert "config_inconsistent: model_a: vocab_size" in format_plain(result)
 
 
 class TestCompareWeightFailure:

@@ -163,6 +163,8 @@ def stage1_param_filter(
 def stage2_hash_check(
     test_fp: MFIFingerprint,
     candidates: list[_LookupCandidate],
+    *,
+    metadata_trusted: bool = True,
 ) -> list[_LookupCandidate]:
     """Annotate candidates with arch_hash / family_hash match info.
 
@@ -170,13 +172,18 @@ def stage2_hash_check(
     is carried forward for logging and result annotation only.  This
     avoids false negatives when config variations (e.g. ``rope_scaling``)
     change the hash despite the model being a clear derivative.
+
+    No hash labels are assigned when ``metadata_trusted`` is False.
     """
     t0 = time.perf_counter()
     log.info(
         "stage2_start",
         test_arch_hash=test_fp.arch_hash,
         test_family_hash=test_fp.family_hash,
+        metadata_trusted=metadata_trusted,
     )
+    if not metadata_trusted:
+        return candidates
 
     hash_match_count = 0
     test_arch_known = has_known_architectures(test_fp.architectures)
@@ -223,6 +230,8 @@ def stage3_similarity(
     test_ws: WeightSignalFeatures | None,
     candidates: list[_LookupCandidate],
     db_service: DatabaseService,
+    *,
+    metadata_trusted: bool = True,
 ) -> list[ScanMatch]:
     """Score every candidate using MFI, tokenizer, and weight signals.
 
@@ -253,7 +262,7 @@ def stage3_similarity(
 
         # -- MFI similarity --
         db_fp = MFIFingerprint.model_validate(bundle.mfi)
-        mfi_sim = mfi_similarity(test_fp, db_fp)
+        mfi_sim = mfi_similarity(test_fp, db_fp, metadata_trusted=metadata_trusted)
 
         # -- TFV similarity --
         tfv_s = float("nan")
@@ -382,6 +391,7 @@ def run_lookup(
     *,
     top_k: int = DEFAULT_TOP_K,
     threshold: float = DEFAULT_THRESHOLD,
+    metadata_trusted: bool = True,
 ) -> list[ScanMatch]:
     """Run the full 3-stage lookup and return ranked matches.
 
@@ -392,6 +402,9 @@ def run_lookup(
         db_service: Initialised database service.
         top_k: Maximum number of matches to return.
         threshold: Minimum ``pipeline_score`` for inclusion.
+        metadata_trusted: ``False`` when the query model's config
+            contradicts its stored tensors; MFI Tier 1/2 and hash
+            labels are then not applied.
 
     Returns:
         Up to *top_k* :class:`ScanMatch` objects sorted by descending
@@ -409,10 +422,19 @@ def run_lookup(
         return []
 
     # Stage 2 — hash check (annotate only)
-    candidates = stage2_hash_check(test_fp, candidates)
+    candidates = stage2_hash_check(
+        test_fp, candidates, metadata_trusted=metadata_trusted
+    )
 
     # Stage 3 — full similarity
-    matches = stage3_similarity(test_fp, test_tfv, test_ws, candidates, db_service)
+    matches = stage3_similarity(
+        test_fp,
+        test_tfv,
+        test_ws,
+        candidates,
+        db_service,
+        metadata_trusted=metadata_trusted,
+    )
 
     # Rank, threshold, and trim
     matches.sort(
