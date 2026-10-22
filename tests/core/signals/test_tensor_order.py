@@ -98,6 +98,26 @@ class TestCanonicalTensorKey:
         assert sorted(names, key=canonical_tensor_key)[0] == "h.0.ln_1"
 
 
+class TestWvcSliceSampling:
+    @pytest.mark.parametrize("shape", [(1000, 777), (300, 7, 11), (64, 64)])
+    def test_slice_sample_matches_in_memory_sample(
+        self, tmp_path: Path, shape: tuple[int, ...]
+    ) -> None:
+        from safetensors import safe_open
+
+        from provenancekit.core.signals.weight_signals import (
+            _wvc_sample,
+            _wvc_sample_from_slice,
+        )
+
+        tensor = torch.randn(*shape).to(torch.bfloat16)
+        save_file({"w": tensor}, str(tmp_path / "t.safetensors"))
+        with safe_open(str(tmp_path / "t.safetensors"), "pt") as f:
+            sl = f.get_slice("w")
+            sliced = _wvc_sample_from_slice(sl, sl.get_shape(), 512)
+        np.testing.assert_array_equal(sliced, _wvc_sample(tensor, 512))
+
+
 class TestFullLoadOrderInvariance:
     def test_shuffled_state_dict_gives_identical_signals(self) -> None:
         state = _llama_state()
@@ -141,6 +161,30 @@ class TestStreamingMatchesFullLoad:
         full = extract_signals(state, config=None)
         assert streamed is not None and full is not None
         _assert_same_order_signals(full, streamed)
+
+    def test_row_sliced_streaming(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Large-model row-sliced path: same WVC samples, same LEP scale."""
+        from provenancekit.core.signals import weight_signals
+
+        monkeypatch.setattr(weight_signals, "_SLICE_DISK_THRESHOLD_BYTES", 0)
+        state = _llama_state()
+        for name in state:
+            layer = canonical_tensor_key(name)[1] if ".layers." in name else 0
+            state[name] = state[name] * (1 + int(layer))
+        _write_config(tmp_path)
+        save_file(
+            {n: t.contiguous() for n, t in state.items()},
+            str(tmp_path / "model.safetensors"),
+        )
+
+        streamed = extract_signals_streaming(str(tmp_path))
+        full = extract_signals(state, config=None)
+        assert streamed is not None and full is not None
+        _assert_same_order_signals(full, streamed)
+        assert streamed.lep_profile is not None and full.lep_profile is not None
+        np.testing.assert_allclose(streamed.lep_profile, full.lep_profile, rtol=0.05)
 
     def test_pytorch_bin_streaming(self, tmp_path: Path) -> None:
         state = _llama_state()

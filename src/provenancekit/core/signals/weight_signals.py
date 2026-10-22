@@ -28,6 +28,7 @@ Six public similarity functions compute NaN-aware pairwise scores from
 import gc
 import os
 from collections import defaultdict
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
@@ -65,6 +66,7 @@ log = structlog.get_logger()
 
 _LIGHT_SAMPLE_SIZE: int = 131072  # 128K elements
 _MAX_EMBEDDING_ROWS: int = 1_000_000  # blocks adversarial shapes
+_SLICE_DISK_THRESHOLD_BYTES: float = 20e9  # row-slice LEP/WSP above this size
 
 
 def _to_float(t: torch.Tensor) -> torch.Tensor:
@@ -324,14 +326,13 @@ def _extract_signals_streaming_impl(
 
     # ── LEP + WSP + WVC: shard-by-shard scan ──
     log.info("streaming_lep_wsp_wvc_start", model_id=model_name)
-    _slice_disk_threshold = 20e9
     total_disk_bytes = sum(
         os.path.getsize(_get_shard_path(sf))  # noqa: PTH202
         for sf in shard_files
         if os.path.isfile(_get_shard_path(sf))  # noqa: PTH113
     )
     _use_slicing = (
-        total_disk_bytes > _slice_disk_threshold and streamer.supports_slicing
+        total_disk_bytes > _SLICE_DISK_THRESHOLD_BYTES and streamer.supports_slicing
     )
     _slice_sample_rows = 32
 
@@ -701,12 +702,9 @@ def _extract_lep_wsp_wvc(
 
             cat = classify_tensor_name(name)
             if cat not in ("norm", "embedding", "lm_head", "other"):
-                flat = param.detach().float().flatten()
-                n = flat.numel()
-                if n > wvc_subsample:
-                    stride = n // wvc_subsample
-                    flat = flat[::stride][:wvc_subsample]
-                wvc_layer_data[layer_idx].append((name, flat.cpu().numpy()))
+                wvc_layer_data[layer_idx].append(
+                    (name, _wvc_sample(param, wvc_subsample))
+                )
 
         if n_elem >= 1024:
             layer_signs[layer_idx]["positive"] += n_pos
@@ -769,12 +767,9 @@ def _process_tensor_full(
 
         cat = classify_tensor_name(tname)
         if cat not in ("norm", "embedding", "lm_head", "other"):
-            flat = tensor.detach().float().flatten()
-            n = flat.numel()
-            if n > wvc_subsample:
-                stride = n // wvc_subsample
-                flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append((tname, flat.cpu().numpy()))
+            wvc_layer_data[layer_idx].append(
+                (tname, _wvc_sample(tensor, wvc_subsample))
+            )
 
     if n_elem >= 1024:
         layer_signs[layer_idx]["positive"] += n_pos
@@ -815,7 +810,7 @@ def _process_tensor_sliced(
             tensor = sl[:, :].float()
         scale_factor = total_rows / sample_rows
 
-        energy = float(torch.sum(tensor**2)) * scale_factor
+        energy = (float(torch.sum(tensor**2)) * scale_factor) ** 0.5
         layer_energy[layer_idx] += energy
 
         flat_t = tensor.flatten()
@@ -828,14 +823,63 @@ def _process_tensor_sliced(
 
         cat = classify_tensor_name(tname)
         if cat not in ("norm", "embedding", "lm_head", "other"):
-            flat = tensor.detach().float().flatten()
-            n = flat.numel()
-            if n > wvc_subsample:
-                stride = n // wvc_subsample
-                flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append((tname, flat.cpu().numpy()))
+            wvc_layer_data[layer_idx].append(
+                (tname, _wvc_sample_from_slice(sl, shape, wvc_subsample))
+            )
 
         del tensor
+
+
+def _wvc_sample_indices(n_elem: int, wvc_subsample: int) -> np.ndarray | None:
+    """Flat element positions sampled for WVC, or ``None`` to keep all.
+
+    Every load path must sample these exact positions so the same weights
+    give the same WVC signature.
+    """
+    if n_elem <= wvc_subsample:
+        return None
+    stride = n_elem // wvc_subsample
+    return np.arange(0, n_elem, stride, dtype=np.int64)[:wvc_subsample]
+
+
+def _wvc_sample(tensor: Any, wvc_subsample: int) -> np.ndarray:
+    """WVC sample from an in-memory tensor."""
+    flat = tensor.detach().float().flatten()
+    idx = _wvc_sample_indices(flat.numel(), wvc_subsample)
+    if idx is not None:
+        flat = flat[torch.from_numpy(idx)]
+    return flat.cpu().numpy()
+
+
+def _wvc_sample_from_slice(
+    sl: Any, shape: Sequence[int], wvc_subsample: int
+) -> np.ndarray:
+    """WVC sample read row-by-row from a safetensors slice.
+
+    Reads only the rows (and column span) that contain sampled positions,
+    giving the same values as ``_wvc_sample`` on the fully loaded tensor.
+    """
+    total_rows = int(shape[0])
+    row_len = 1
+    for s in shape[1:]:
+        row_len *= int(s)
+    idx = _wvc_sample_indices(total_rows * row_len, wvc_subsample)
+    if idx is None:
+        return sl[:].float().flatten().cpu().numpy()
+
+    rows, cols = np.divmod(idx, row_len)
+    pieces: list[torch.Tensor] = []
+    for row in np.unique(rows):
+        row_cols = cols[rows == row]
+        r = int(row)
+        if len(shape) == 2:
+            lo, hi = int(row_cols.min()), int(row_cols.max()) + 1
+            segment = sl[r : r + 1, lo:hi].flatten()
+            pieces.append(segment[torch.from_numpy(row_cols - lo)])
+        else:
+            segment = sl[r : r + 1].flatten()
+            pieces.append(segment[torch.from_numpy(row_cols)])
+    return torch.cat(pieces).float().cpu().numpy()
 
 
 # ── Signal aggregation builders ────────────────────────────────────
