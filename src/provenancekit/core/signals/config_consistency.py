@@ -26,7 +26,8 @@ Checks (each is skipped when the needed tensors or fields are absent):
 * ``vocab_size``        vs token-embedding row count
 * ``hidden_size``       vs token-embedding column count or per-layer norm size
 * ``num_hidden_layers`` vs layer count of a stored layer stack
-  (encoder-decoder: ``encoder_layers`` / ``decoder_layers`` vs their own stack)
+  (encoder-decoder: ``encoder_layers`` / ``decoder_layers`` vs their own stack;
+  ALBERT: ``num_hidden_groups`` / ``inner_group_num`` vs the shared layer groups)
 * ``intermediate_size`` vs an MLP projection dimension (dense models only)
 """
 
@@ -71,6 +72,8 @@ _ENCODER_DECODER_LAYER_FIELDS: dict[str, tuple[str, ...]] = {
     "decoder": ("decoder_layers", "num_decoder_layers"),
 }
 
+_ALBERT_GROUP = "albert_layer_groups."
+
 _MOE_CONFIG_FIELDS: tuple[str, ...] = (
     "num_experts",
     "num_local_experts",
@@ -105,11 +108,12 @@ def check_config_consistency(config: Any, shapes: Shapes) -> list[ConfigInconsis
     embedding = _find_embedding_shape(shapes)
     findings: list[ConfigInconsistency] = []
 
-    layer_checks = (
-        _check_encoder_decoder_layers(cfg, shapes)
-        if _is_encoder_decoder(cfg)
-        else [_check_num_hidden_layers(cfg, shapes)]
-    )
+    if _is_encoder_decoder(cfg):
+        layer_checks = _check_encoder_decoder_layers(cfg, shapes)
+    elif _is_albert(cfg):
+        layer_checks = _check_albert_layer_groups(cfg, shapes)
+    else:
+        layer_checks = [_check_num_hidden_layers(cfg, shapes)]
     for finding in (
         _check_vocab_size(cfg, embedding),
         _check_hidden_size(cfg, embedding, shapes),
@@ -199,6 +203,39 @@ def _check_encoder_decoder_layers(
     return findings
 
 
+def _check_albert_layer_groups(
+    cfg: Any, shapes: Shapes
+) -> list[ConfigInconsistency | None]:
+    # ALBERT reuses num_hidden_groups stored groups of inner_group_num layers
+    # across all num_hidden_layers positions, so the depth itself is not
+    # recoverable from the weights; only the stored group layout is checked.
+    group_counts = [
+        c
+        for prefix, c in _layer_stack_counts(shapes).items()
+        if _ALBERT_GROUP in prefix
+    ]
+    if not group_counts:
+        return []
+    findings: list[ConfigInconsistency | None] = []
+    groups = _positive_int(getattr(cfg, "num_hidden_groups", None)) or 1
+    if len(group_counts) != groups:
+        findings.append(
+            ConfigInconsistency(
+                field="num_hidden_groups", declared=groups, observed=[len(group_counts)]
+            )
+        )
+    inner = _positive_int(getattr(cfg, "inner_group_num", None)) or 1
+    if set(group_counts) != {inner}:
+        findings.append(
+            ConfigInconsistency(
+                field="inner_group_num",
+                declared=inner,
+                observed=sorted(set(group_counts)),
+            )
+        )
+    return findings
+
+
 def _check_intermediate_size(cfg: Any, shapes: Shapes) -> ConfigInconsistency | None:
     if _is_moe(cfg) or getattr(cfg, "block_auto_adjust_ff_dim", False):
         return None
@@ -261,6 +298,10 @@ def _layer_matrix_dims(shapes: Shapes) -> set[int]:
 
 def _is_moe(cfg: Any) -> bool:
     return any(_positive_int(getattr(cfg, f, 0)) for f in _MOE_CONFIG_FIELDS)
+
+
+def _is_albert(cfg: Any) -> bool:
+    return getattr(cfg, "model_type", None) == "albert"
 
 
 def _is_encoder_decoder(cfg: Any) -> bool:

@@ -225,6 +225,62 @@ class TestEncoderDecoderLayers:
         ]
 
 
+def _albert_config(**overrides: Any) -> SimpleNamespace:
+    values: dict[str, Any] = {
+        "model_type": "albert",
+        "vocab_size": 1000,
+        "hidden_size": 64,
+        "num_hidden_layers": 12,
+        "num_hidden_groups": 1,
+        "inner_group_num": 1,
+        "intermediate_size": 176,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def _albert_shapes(groups: int = 1, inner: int = 1) -> dict[str, tuple[int, ...]]:
+    shapes: dict[str, tuple[int, ...]] = {
+        "albert.embeddings.word_embeddings.weight": (1000, 16),
+        "albert.encoder.embedding_hidden_mapping_in.weight": (64, 16),
+    }
+    for g in range(groups):
+        for i in range(inner):
+            p = f"albert.encoder.albert_layer_groups.{g}.albert_layers.{i}"
+            shapes[f"{p}.attention.query.weight"] = (64, 64)
+            shapes[f"{p}.attention.LayerNorm.weight"] = (64,)
+            shapes[f"{p}.ffn.weight"] = (176, 64)
+            shapes[f"{p}.ffn_output.weight"] = (64, 176)
+    return shapes
+
+
+class TestAlbertLayerGroups:
+    def test_one_shared_group_for_twelve_layers_is_consistent(self) -> None:
+        assert check_config_consistency(_albert_config(), _albert_shapes()) == []
+
+    def test_multiple_groups_are_consistent(self) -> None:
+        cfg = _albert_config(num_hidden_groups=2, inner_group_num=3)
+        assert check_config_consistency(cfg, _albert_shapes(groups=2, inner=3)) == []
+
+    def test_edited_num_hidden_groups_is_flagged(self) -> None:
+        cfg = _albert_config(num_hidden_groups=3)
+        assert check_config_consistency(cfg, _albert_shapes()) == [
+            ConfigInconsistency(field="num_hidden_groups", declared=3, observed=[1])
+        ]
+
+    def test_edited_inner_group_num_is_flagged(self) -> None:
+        cfg = _albert_config(inner_group_num=2)
+        assert check_config_consistency(cfg, _albert_shapes()) == [
+            ConfigInconsistency(field="inner_group_num", declared=2, observed=[1])
+        ]
+
+    def test_group_fields_on_other_models_do_not_skip_layer_check(self) -> None:
+        cfg = _llama_config(num_hidden_layers=8, num_hidden_groups=1, inner_group_num=4)
+        assert _fields(check_config_consistency(cfg, _llama_shapes())) == [
+            "num_hidden_layers"
+        ]
+
+
 class TestIntermediateSize:
     def test_edited_intermediate_size_is_flagged(self) -> None:
         cfg = _llama_config(intermediate_size=256)
