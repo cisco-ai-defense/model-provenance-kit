@@ -94,6 +94,23 @@ def canonical_tensor_key(name: str) -> tuple[str | int, ...]:
     )
 
 
+# ── Quantized checkpoint helpers ──────────────────────────────────
+
+# Side tensors written by GPTQ / AWQ / bitsandbytes / FP8 quantizers.  They
+# hold scales, zero points and lookup tables, not weights, and some are
+# floating point (AWQ ``scales``, bitsandbytes ``nested_absmax``).
+_QUANT_AUX_RE = re.compile(
+    r"\.(?:qweight|qzeros|scales|g_idx|absmax|nested_absmax|quant_map|"
+    r"nested_quant_map|SCB|weight_format|weight_scale|weight_scale_inv|"
+    r"input_scale)$|\.quant_state\."
+)
+
+
+def is_quantization_aux_name(name: str) -> bool:
+    """Return ``True`` for quantizer side tensors (scales, zeros, quant maps)."""
+    return _QUANT_AUX_RE.search(name) is not None
+
+
 # ── Norm tensor detection ─────────────────────────────────────────
 
 _NORM_KEYWORDS: list[str] = [

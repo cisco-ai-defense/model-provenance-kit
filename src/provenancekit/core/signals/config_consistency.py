@@ -43,7 +43,11 @@ from provenancekit.core.signals.metadata import (
     _resolve_text_backbone,
 )
 from provenancekit.models.signals import ConfigInconsistency
-from provenancekit.utils.tensor import EMBEDDING_CANDIDATES, is_norm_tensor_name
+from provenancekit.utils.tensor import (
+    EMBEDDING_CANDIDATES,
+    is_norm_tensor_name,
+    is_quantization_aux_name,
+)
 
 log = structlog.get_logger()
 
@@ -284,14 +288,25 @@ def _layer_norm_widths(shapes: Shapes) -> set[int]:
     return {
         int(shape[0])
         for name, shape in shapes.items()
-        if len(shape) == 1 and _LAYER_STACK_RE.match(name) and is_norm_tensor_name(name)
+        if len(shape) == 1
+        and _LAYER_STACK_RE.match(name)
+        and is_norm_tensor_name(name)
+        and not is_quantization_aux_name(name)
     }
 
 
 def _layer_matrix_dims(shapes: Shapes) -> set[int]:
+    # bitsandbytes 4-bit packs each matrix into a flat [N, 1] byte tensor and
+    # quantizers add scale / zero-point side tensors; neither shape reflects
+    # the projection dimensions.
     dims: set[int] = set()
     for name, shape in shapes.items():
-        if len(shape) == 2 and _LAYER_STACK_RE.match(name):
+        if (
+            len(shape) == 2
+            and int(shape[1]) != 1
+            and _LAYER_STACK_RE.match(name)
+            and not is_quantization_aux_name(name)
+        ):
             dims.update(int(d) for d in shape)
     return dims
 

@@ -59,6 +59,7 @@ from provenancekit.utils.tensor import (
     find_embedding_in_state_dict,
     find_embedding_name_in_weight_map,
     is_norm_tensor_name,
+    is_quantization_aux_name,
     norm_vector_to_stats,
 )
 
@@ -305,10 +306,13 @@ def _extract_signals_streaming_impl(
     log.info("streaming_nlf_start", model_id=model_name)
     named_norms: list[tuple[str, np.ndarray]] = []
     for tname in weight_map:
-        if not is_norm_tensor_name(tname):
+        if not is_norm_tensor_name(tname) or is_quantization_aux_name(tname):
             continue
         try:
-            t = _to_float(_load_tensor(tname))
+            raw = _load_tensor(tname)
+            if not raw.is_floating_point():
+                continue
+            t = _to_float(raw)
             if t.dim() != 1 or t.numel() < 64:
                 del t
                 continue
@@ -383,8 +387,13 @@ def _extract_signals_streaming_impl(
                                 wvc_layer_data,
                             )
                         else:
-                            tensor = _to_float(streamer.get_tensor(handle, tname))
-                            tensor_shapes[tname] = tuple(tensor.shape)
+                            raw = streamer.get_tensor(handle, tname)
+                            tensor_shapes[tname] = tuple(raw.shape)
+                            if not _is_signal_tensor(tname, raw.is_floating_point()):
+                                del raw
+                                continue
+                            tensor = _to_float(raw)
+                            del raw
                             _process_tensor_full(
                                 tensor,
                                 tname,
@@ -648,7 +657,10 @@ def _extract_nlf(
     named_norms: list[tuple[str, np.ndarray]] = [
         (name, param.detach().float().cpu().numpy())
         for name, param in state_dict.items()
-        if is_norm_tensor_name(name) and param.dim() == 1 and param.numel() >= 64
+        if is_norm_tensor_name(name)
+        and _is_signal_tensor(name, param.is_floating_point())
+        and param.dim() == 1
+        and param.numel() >= 64
     ]
     return _build_nlf(named_norms)
 
@@ -688,7 +700,7 @@ def _extract_lep_wsp_wvc(
 
     for name, param in state_dict.items():
         layer_idx = extract_layer_index(name)
-        if layer_idx is None:
+        if layer_idx is None or not _is_signal_tensor(name, param.is_floating_point()):
             continue
 
         n_elem = param.numel()
@@ -789,6 +801,8 @@ def _process_tensor_sliced(
 ) -> None:
     """Process a tensor via row-slicing for very large models."""
     sl = f.get_slice(tname)
+    if not _is_signal_tensor(tname, str(sl.get_dtype()).startswith(("F", "BF"))):
+        return
     shape = sl.get_shape()
     ndim = len(shape)
     n_elem = 1
@@ -828,6 +842,16 @@ def _process_tensor_sliced(
             )
 
         del tensor
+
+
+def _is_signal_tensor(name: str, is_floating: bool) -> bool:
+    """Whether a tensor's values are comparable weights.
+
+    Quantized checkpoints store packed integers (GPTQ/AWQ ``qweight``,
+    bitsandbytes uint8 packs) plus scale/zero-point side tensors; reading
+    those as weights gives misleading LEP, WSP, WVC and NLF values.
+    """
+    return is_floating and not is_quantization_aux_name(name)
 
 
 def _wvc_sample_indices(n_elem: int, wvc_subsample: int) -> np.ndarray | None:
