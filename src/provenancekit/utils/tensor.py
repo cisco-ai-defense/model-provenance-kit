@@ -47,6 +47,8 @@ TENSOR_CATEGORIES: dict[str, list[str]] = {
     "embedding": ["embed_tokens", "wte", "word_embeddings", "shared.weight"],
     "norm": ["layernorm", "rmsnorm", "ln_", "norm"],
     "lm_head": ["lm_head", "cls"],
+    # GPT-2-style Conv1D names; last so they never override the above.
+    "fused_proj": ["c_attn", "c_fc", "c_proj"],
 }
 
 

@@ -23,6 +23,7 @@ import pytest
 import torch
 
 from provenancekit.core.signals.weight_signals import (
+    _extract_lep_wsp_wvc,
     eas_similarity,
     end_similarity,
     extract_signals,
@@ -384,3 +385,18 @@ class TestWeightSignalsOnline:
         # elements and are skipped by the NLF extractor; only check >= 0.
         assert feats.nlf_num_layers >= 0
         assert feats.lep_profile is not None
+
+
+class TestGpt2StyleWvc:
+    def test_conv1d_names_produce_wvc(self) -> None:
+        torch.manual_seed(0)
+        state = {}
+        for i in range(3):
+            state[f"h.{i}.attn.c_attn.weight"] = torch.randn(64, 192)
+            state[f"h.{i}.attn.c_proj.weight"] = torch.randn(64, 64)
+            state[f"h.{i}.mlp.c_fc.weight"] = torch.randn(64, 256)
+            state[f"h.{i}.mlp.c_proj.weight"] = torch.randn(256, 64)
+            state[f"h.{i}.ln_1.weight"] = torch.ones(64)
+        _, _, wvc = _extract_lep_wsp_wvc(state, light=False, wvc_subsample=256)
+        assert wvc is not None
+        assert sorted(wvc) == [0, 1, 2]
