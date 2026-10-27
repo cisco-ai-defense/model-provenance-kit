@@ -66,9 +66,10 @@ continued pretraining.
 ### Weights Decide, Metadata Supports
 
 MFI tiers come from `config.json` alone, which is trivially edited, so a
-metadata match can never produce a match verdict on its own. Whenever weight
-evidence exists, `pipeline_score = identity_score`; the MFI score is reported
-separately in `mfi_score` / `mfi_tier`.
+metadata match can never produce a match verdict on its own. Whenever
+sufficient weight evidence exists, `pipeline_score = identity_score`; the MFI
+score is reported separately in `mfi_score` / `mfi_tier`. The quantized-model
+exception is described below.
 
 ```
 Tier 1 (arch_hash match)           → metadata match
@@ -95,6 +96,34 @@ to the MFI score so results can still be ranked, and the decision is marked
 | 3 with MFI ≤ 0.65 | NaN | Not Matched (unverified) | `unverified` |
 
 In scan mode, weight-backed matches are ranked ahead of unverified ones.
+
+### Quantized Checkpoints and Shallow Evidence
+
+For bitsandbytes, AWQ, and GPTQ checkpoints, packed integer weights and
+quantizer side tensors are not comparable to the original floating-point
+weights. MPK excludes them from LEP and WVC while retaining comparable
+floating-point embeddings, norms, and output heads for EAS, NLF, and END.
+
+When both LEP and WVC are unavailable, a full match requires all of:
+
+- MFI Tier 1 or 2;
+- identity score above 0.75; and
+- tokenizer feature similarity (TFV) of at least 0.9.
+
+Such a result is marked `weights_shallow`, rather than `weights_agree`, because
+it lacks deep projection-weight evidence. If the guard does not pass, the raw
+`identity_score` is preserved but `pipeline_score` is capped at 0.75 and the
+verdict is **Weak Match (unverified, no deep weight signals)**.
+
+FP8 and MLX checkpoints currently return no weight evidence and therefore an
+unverified metadata verdict. Their packed/scaled tensors require
+format-specific dequantization before MPK can compare them reliably.
+
+Known limitation: two quantized sibling checkpoints with the same architecture
+and tokenizer may pass the shallow-evidence guard even when neither is the
+direct parent of the other. The result establishes strong shared-family/base
+evidence, not lineage direction. LEP/WVC recovery through scale-aware
+dequantization is required to reduce this ambiguity.
 
 ### Worked Examples
 

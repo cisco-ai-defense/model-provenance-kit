@@ -38,7 +38,10 @@ from provenancekit.core.signals.weight_signals import (
     nlf_similarity,
     wvc_similarity,
 )
-from provenancekit.utils.tensor import is_quantization_aux_name
+from provenancekit.utils.tensor import (
+    is_quantization_aux_name,
+    unsupported_quantization_format,
+)
 from tests.core.signals.test_tensor_order import _llama_state, _write_config
 
 StateDict = dict[str, torch.Tensor]
@@ -123,6 +126,78 @@ class TestQuantizationAuxNames:
     )
     def test_regular_tensors_are_not(self, name: str) -> None:
         assert not is_quantization_aux_name(name)
+
+
+class TestUnsupportedQuantization:
+    @pytest.mark.parametrize(
+        ("quantization_config", "expected"),
+        [
+            ({"quant_method": "fp8"}, "fp8"),
+            ({"quant_method": "compressed-tensors", "format": "float8"}, "fp8"),
+            ({"quant_method": "mlx", "bits": 4, "group_size": 64}, "mlx"),
+            ({"bits": 4, "group_size": 64}, "mlx"),
+            ({"quant_method": "awq", "bits": 4, "group_size": 128}, None),
+            ({"quant_method": "gptq", "bits": 4, "group_size": 128}, None),
+            ({"quant_method": "bitsandbytes_4bit"}, None),
+        ],
+    )
+    def test_config_detection(
+        self, quantization_config: dict[str, object], expected: str | None
+    ) -> None:
+        config = SimpleNamespace(quantization_config=quantization_config)
+        assert unsupported_quantization_format(config) == expected
+
+    def test_nested_text_config_detection(self) -> None:
+        config = SimpleNamespace(
+            text_config=SimpleNamespace(
+                quantization_config={"quant_method": "fp8"},
+            )
+        )
+        assert unsupported_quantization_format(config) == "fp8"
+
+    @pytest.mark.parametrize(
+        "quantization_config",
+        [
+            {"quant_method": "fp8"},
+            {"bits": 4, "group_size": 64},
+        ],
+    )
+    def test_full_load_returns_no_weight_evidence(
+        self, quantization_config: dict[str, object]
+    ) -> None:
+        config = SimpleNamespace(quantization_config=quantization_config)
+        assert extract_signals(_llama_state(), config=config) is None
+
+    def test_float8_dtype_fails_safe_without_config(self) -> None:
+        if not hasattr(torch, "float8_e4m3fn"):
+            pytest.skip("torch build has no FP8 dtype")
+        state = {
+            "model.layers.0.self_attn.q_proj.weight": torch.empty(
+                64,
+                64,
+                dtype=torch.float8_e4m3fn,
+            )
+        }
+        assert extract_signals(state, config=None) is None
+
+    def test_streaming_returns_before_reading_shards(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from provenancekit.core.signals import weight_signals
+
+        streamer = SimpleNamespace(
+            weight_map={},
+            format=SimpleNamespace(value="safetensors"),
+        )
+        config = SimpleNamespace(quantization_config={"quant_method": "fp8"})
+        monkeypatch.setattr(weight_signals, "create_streamer", lambda _name: streamer)
+        monkeypatch.setattr(
+            weight_signals.AutoConfig,
+            "from_pretrained",
+            lambda *_args, **_kwargs: config,
+        )
+
+        assert extract_signals_streaming("org/model") is None
 
 
 @pytest.mark.parametrize("quantize", [_bnb_4bit, _awq], ids=["bnb-4bit", "awq"])

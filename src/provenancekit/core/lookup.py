@@ -38,6 +38,7 @@ import structlog
 from provenancekit.config.settings import Settings
 from provenancekit.core.scoring import (
     VERIFICATION_UNVERIFIED,
+    VERIFICATION_WEIGHTS_SHALLOW,
     compute_identity_score,
     compute_tokenizer_score,
     decide,
@@ -311,7 +312,13 @@ def stage3_similarity(
             0.0,
         )
 
-        verdict = decide(mfi_sim.score, mfi_sim.tier, identity)
+        verdict = decide(
+            mfi_sim.score,
+            mfi_sim.tier,
+            identity,
+            deep_signals=not (math.isnan(lep_s) and math.isnan(wvc_s)),
+            tfv=tfv_s,
+        )
         pipeline_score = verdict.pipeline_score
         decision = verdict.decision
 
@@ -430,10 +437,11 @@ def run_lookup(
         metadata_trusted=metadata_trusted,
     )
 
-    # Rank (weight-backed results ahead of unverified ones), threshold, trim
+    # Rank (weight-backed, then shallow, then unverified), threshold, trim
+    evidence_rank = {VERIFICATION_UNVERIFIED: 0, VERIFICATION_WEIGHTS_SHALLOW: 1}
     matches.sort(
         key=lambda m: (
-            m.scores.verification != VERIFICATION_UNVERIFIED,
+            evidence_rank.get(m.scores.verification, 2),
             m.scores.pipeline_score or 0,
         ),
         reverse=True,

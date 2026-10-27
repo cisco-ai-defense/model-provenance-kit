@@ -36,6 +36,7 @@ from provenancekit.core.scoring import (
     VERIFICATION_WEIGHTS_AGREE,
     VERIFICATION_WEIGHTS_CONFLICT,
     VERIFICATION_WEIGHTS_ONLY,
+    VERIFICATION_WEIGHTS_SHALLOW,
     VERIFICATION_WEIGHTS_WEAK,
     interpret_score,
 )
@@ -52,6 +53,10 @@ _VERIFICATION_TEXT = {
     VERIFICATION_WEIGHTS_WEAK: ("metadata match, weak weight evidence", "yellow"),
     VERIFICATION_WEIGHTS_CONFLICT: ("metadata and weights CONFLICT", "bold red"),
     VERIFICATION_WEIGHTS_ONLY: ("weight evidence only", ""),
+    VERIFICATION_WEIGHTS_SHALLOW: (
+        "limited evidence; no deep weight signals",
+        "yellow",
+    ),
     VERIFICATION_UNVERIFIED: ("no weight evidence; metadata only", "dim"),
 }
 
@@ -222,6 +227,8 @@ def _decision_colour(pipeline_score: float | None, verification: str) -> str:
     """Map a pipeline score to a Rich colour string."""
     if pipeline_score is None or verification == VERIFICATION_UNVERIFIED:
         return "#999999"
+    if verification == VERIFICATION_WEIGHTS_SHALLOW:
+        return "#f39c12"
     return interpret_score(pipeline_score).colour
 
 

@@ -254,6 +254,25 @@ class TestCompareUnit:
         assert result.scores.mfi_tier == 3
         assert result.scores.pipeline_score == result.scores.identity_score
 
+    def test_shallow_guard_caps_pipeline_but_retains_identity(self) -> None:
+        self._mocks["mfi_similarity"].return_value = MFISimilarity(
+            score=0.3, tier=3, match_type="soft_match"
+        )
+        self._mocks["tfv_similarity"].return_value = 0.4
+        for name in ("eas", "nlf", "end"):
+            self._mocks[f"{name}_similarity"].return_value = 0.8
+        for name in ("lep", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = float("nan")
+
+        result = self._scanner.compare("model_a", "model_b")
+
+        assert result.scores.identity_score == 0.8
+        assert result.scores.pipeline_score == 0.75
+        assert result.scores.verification == "weights_shallow"
+        assert result.scores.provenance_decision == (
+            "Weak Match (unverified, no deep weight signals)"
+        )
+
     def test_assembles_all_signal_fields(self) -> None:
         result = self._scanner.compare("gpt2", "gpt2")
         signals = result.signals

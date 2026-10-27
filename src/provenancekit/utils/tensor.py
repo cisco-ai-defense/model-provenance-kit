@@ -22,6 +22,7 @@ and typing — so it can never create circular dependencies.
 """
 
 import re
+from collections.abc import Mapping
 from typing import Any, Protocol
 
 import numpy as np
@@ -109,6 +110,64 @@ _QUANT_AUX_RE = re.compile(
 def is_quantization_aux_name(name: str) -> bool:
     """Return ``True`` for quantizer side tensors (scales, zeros, quant maps)."""
     return _QUANT_AUX_RE.search(name) is not None
+
+
+_FP8_MARKERS: tuple[str, ...] = ("fp8", "float8", "e4m3", "e5m2")
+
+
+def is_float8_dtype(dtype: Any) -> bool:
+    """Return whether a torch/safetensors dtype denotes an FP8 format."""
+    return _contains_marker(str(dtype), _FP8_MARKERS)
+
+
+def unsupported_quantization_format(config: Any) -> str | None:
+    """Return an unsupported quantization format, if declared.
+
+    FP8 requires its scale tensors to reconstruct comparable weights.  MLX
+    packs even embeddings into integers, so retaining only floating tensors
+    is not a valid partial fingerprint.  Both formats therefore fail closed
+    to metadata/tokenizer-only (unverified) results until scale-aware
+    dequantization is implemented.
+    """
+    for candidate in (config, getattr(config, "text_config", None)):
+        raw = getattr(candidate, "quantization_config", None)
+        if raw is None and isinstance(candidate, Mapping):
+            raw = candidate.get("quantization_config")
+        if not isinstance(raw, Mapping):
+            continue
+
+        quant = dict(raw)
+        method = str(quant.get("quant_method") or "").lower()
+        if method == "mlx":
+            return "mlx"
+        if _contains_marker(quant, _FP8_MARKERS):
+            return "fp8"
+
+        # MLX configs currently omit quant_method and declare only their
+        # integer bit width and grouping.  Quantizers with an explicit method
+        # (e.g. HQQ) are not classified as MLX by this fallback.
+        if (
+            not method
+            and isinstance(quant.get("bits"), int)
+            and isinstance(quant.get("group_size"), int)
+        ):
+            return "mlx"
+    return None
+
+
+def _contains_marker(value: Any, markers: tuple[str, ...]) -> bool:
+    """Recursively search config keys and scalar values for format markers."""
+    if isinstance(value, Mapping):
+        return any(
+            _contains_marker(key, markers) or _contains_marker(item, markers)
+            for key, item in value.items()
+        )
+    if isinstance(value, (list, tuple)):
+        return any(_contains_marker(item, markers) for item in value)
+    if isinstance(value, str):
+        lowered = value.lower()
+        return any(marker in lowered for marker in markers)
+    return False
 
 
 # ── Norm tensor detection ─────────────────────────────────────────

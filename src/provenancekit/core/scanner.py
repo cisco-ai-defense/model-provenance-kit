@@ -23,6 +23,7 @@ extraction and scoring to produce:
 *  A ``ScanResult`` for one-vs-many database lookup.
 """
 
+import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -223,7 +224,13 @@ class ModelProvenanceScanner:
         identity = compute_identity_score(eas_s, nlf_s, lep_s, end_s, wvc_s)
         tokenizer = compute_tokenizer_score(tfv_s, voa_s)
 
-        verdict = decide(mfi.score, mfi.tier, identity)
+        verdict = decide(
+            mfi.score,
+            mfi.tier,
+            identity,
+            deep_signals=not (math.isnan(lep_s) and math.isnan(wvc_s)),
+            tfv=tfv_s,
+        )
         pipeline_score = verdict.pipeline_score
         decision = verdict.decision
         scoring_elapsed = time.monotonic() - t_score

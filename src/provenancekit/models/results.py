@@ -81,10 +81,13 @@ class SignalScores(BaseModel):
 class PipelineScore(BaseModel):
     """Decomposed scoring output.
 
-    ``pipeline_score`` equals ``identity_score`` whenever weight evidence
-    exists, otherwise ``mfi_score``.  ``verification`` states whether the
-    decision is backed by weights: ``weights_agree``, ``weights_weak``,
-    ``weights_conflict``, ``weights_only`` or ``unverified``.
+    ``pipeline_score`` normally equals ``identity_score`` whenever weight
+    evidence exists, otherwise ``mfi_score``.  It is capped in the Weak Match
+    band when only embedding-level weight signals are available and the
+    metadata/tokenizer guard does not confirm them.  ``verification`` states
+    whether the decision is backed by weights: ``weights_agree``,
+    ``weights_weak``, ``weights_conflict``, ``weights_only``,
+    ``weights_shallow`` (limited evidence without LEP/WVC), or ``unverified``.
     """
 
     mfi_score: float

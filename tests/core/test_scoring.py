@@ -187,3 +187,63 @@ class TestDecide:
     def test_metadata_alone_never_confirms(self) -> None:
         for tier in (1, 2, 3):
             assert "Confirmed" not in decide(1.0, tier, NAN).decision
+
+
+class TestDecideWithoutDeepSignals:
+    """LEP and WVC both missing, e.g. packed quantized weights."""
+
+    def test_quantized_vs_unrelated_capped(self) -> None:
+        # D05: Huihui-HY-MT1.5-1.8B vs phi-4-AWQ
+        v = decide(0.4511, 3, 0.7721, deep_signals=False, tfv=0.4329)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+        assert v.verification == "weights_shallow"
+        assert v.interpretation.label == "Weak Match (unverified)"
+        assert v.pipeline_score == 0.75
+
+    @pytest.mark.parametrize(("tier", "identity"), [(1, 1.0), (2, 0.9981)])
+    def test_quantized_vs_base_with_same_tokenizer_confirmed(
+        self, tier: int, identity: float
+    ) -> None:
+        # S40 (bnb-4bit) and S26 (AWQ) vs their base models
+        v = decide(1.0, tier, identity, deep_signals=False, tfv=1.0)
+        assert v.decision == "Confirmed Match"
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == identity
+        assert v.interpretation.colour == "#f39c12"
+
+    def test_tier3_with_same_tokenizer_is_still_capped(self) -> None:
+        # Q06: same-family siblings can share a tokenizer without lineage.
+        v = decide(0.4, 3, 0.80, deep_signals=False, tfv=0.95)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+        assert v.pipeline_score == 0.75
+
+    def test_tier1_capped_when_tokenizers_disagree(self) -> None:
+        v = decide(1.0, 1, 0.95, deep_signals=False, tfv=0.5)
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == 0.75
+
+    def test_missing_tfv_counts_as_disagreement(self) -> None:
+        v = decide(0.4, 3, 0.85, deep_signals=False)
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == 0.75
+
+    def test_tfv_boundary(self) -> None:
+        assert decide(1.0, 1, 0.85, deep_signals=False, tfv=0.9).decision == (
+            "Confirmed Match"
+        )
+        assert decide(1.0, 1, 0.85, deep_signals=False, tfv=0.8999).decision == (
+            "Weak Match (unverified, no deep weight signals)"
+        )
+
+    def test_high_confidence_boundary_is_not_confirmed(self) -> None:
+        v = decide(1.0, 1, 0.75, deep_signals=False, tfv=1.0)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+
+    def test_low_identity_not_matched_unchanged(self) -> None:
+        v = decide(0.4, 3, 0.50, deep_signals=False, tfv=0.2)
+        assert v.decision == "Not Matched"
+        assert v.verification == "weights_only"
+
+    def test_deep_signals_present_unaffected(self) -> None:
+        v = decide(0.4, 3, 0.80, deep_signals=True, tfv=0.2)
+        assert v.decision == "High-Confidence Match"

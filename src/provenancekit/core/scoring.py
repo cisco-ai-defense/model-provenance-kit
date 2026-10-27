@@ -21,8 +21,9 @@ Scoring architecture::
     identity_score  = NaN-aware weighted avg of EAS, NLF, LEP, END, WVC
     tokenizer_score = 0.25 × TFV + 0.75 × VOA  (reporting only)
 
-    Pipeline Score  = identity_score when weight evidence exists,
-                      otherwise mfi_score (decision marked unverified)
+    Pipeline Score  = identity_score when sufficient weight evidence exists;
+                      capped in the Weak Match band for unconfirmed shallow
+                      evidence; otherwise mfi_score (marked unverified)
 
 Weights decide, metadata supports: MFI Tier 1/2 alone never yields a
 match verdict (see :func:`decide`).
@@ -87,6 +88,11 @@ def compute_tokenizer_score(tfv_sim: float, voa_sim: float) -> float:
 _SCORE_HIGH_CONFIDENCE = 0.75
 _SCORE_WEAK_MATCH = 0.65
 
+# Without LEP and WVC (e.g. packed quantized weights) identity rests on
+# embedding-level signals, which score many unrelated models above 0.65.
+# Such a match only stands when metadata and the tokenizers also agree.
+_SHALLOW_TFV_MIN = 0.9
+
 
 def interpret_score(score: float) -> ScoreInterpretation:
     """Return a human-readable verdict and colour for a pipeline score."""
@@ -105,6 +111,7 @@ VERIFICATION_WEIGHTS_AGREE = "weights_agree"
 VERIFICATION_WEIGHTS_WEAK = "weights_weak"
 VERIFICATION_WEIGHTS_CONFLICT = "weights_conflict"
 VERIFICATION_WEIGHTS_ONLY = "weights_only"
+VERIFICATION_WEIGHTS_SHALLOW = "weights_shallow"
 VERIFICATION_UNVERIFIED = "unverified"
 
 DECISION_CONFIRMED = "Confirmed Match"
@@ -112,9 +119,16 @@ DECISION_METADATA_WEAK = "Weak Match (metadata match, weak weight evidence)"
 DECISION_METADATA_CONFLICT = "Not Matched (metadata/weight conflict)"
 DECISION_METADATA_UNVERIFIED = "Metadata Match (unverified)"
 DECISION_NOT_MATCHED_UNVERIFIED = "Not Matched (unverified)"
+DECISION_SHALLOW_UNVERIFIED = "Weak Match (unverified, no deep weight signals)"
 
 _UNVERIFIED_INTERPRETATION = ScoreInterpretation(
     label="Unverified (no weight evidence)", colour="#999999"
+)
+_SHALLOW_INTERPRETATION = ScoreInterpretation(
+    label="Weak Match (unverified)", colour="#f39c12"
+)
+_SHALLOW_CONFIRMED_INTERPRETATION = ScoreInterpretation(
+    label="Confirmed Match (limited weight evidence)", colour="#f39c12"
 )
 
 
@@ -128,12 +142,25 @@ class Verdict:
     interpretation: ScoreInterpretation
 
 
-def decide(mfi_score: float, mfi_tier: int, identity: float) -> Verdict:
+def decide(
+    mfi_score: float,
+    mfi_tier: int,
+    identity: float,
+    *,
+    deep_signals: bool = True,
+    tfv: float = float("nan"),
+) -> Verdict:
     """Combine MFI and weight identity into a provenance verdict.
 
     Only weight evidence can produce a match verdict.  Without it the
     MFI score is kept as ``pipeline_score`` (for ranking) and the
     decision is marked unverified.
+
+    ``deep_signals`` is False when neither LEP nor WVC could be compared.
+    A match on the remaining embedding-level signals is confirmed only
+    when MFI is Tier 1/2 and ``tfv`` shows tokenizer agreement.  Otherwise
+    it is capped at the top of the Weak Match band; the raw identity remains
+    available separately in ``identity_score``.
     """
     if math.isnan(identity):
         metadata_match = mfi_tier <= 2 or mfi_score > _SCORE_WEAK_MATCH
@@ -146,6 +173,26 @@ def decide(mfi_score: float, mfi_tier: int, identity: float) -> Verdict:
             ),
             verification=VERIFICATION_UNVERIFIED,
             interpretation=_UNVERIFIED_INTERPRETATION,
+        )
+
+    if not deep_signals and identity > _SCORE_WEAK_MATCH:
+        shallow_agreement = (
+            mfi_tier <= 2
+            and identity > _SCORE_HIGH_CONFIDENCE
+            and tfv >= _SHALLOW_TFV_MIN
+        )
+        if shallow_agreement:
+            return Verdict(
+                identity,
+                DECISION_CONFIRMED,
+                VERIFICATION_WEIGHTS_SHALLOW,
+                _SHALLOW_CONFIRMED_INTERPRETATION,
+            )
+        return Verdict(
+            min(identity, _SCORE_HIGH_CONFIDENCE),
+            DECISION_SHALLOW_UNVERIFIED,
+            VERIFICATION_WEIGHTS_SHALLOW,
+            _SHALLOW_INTERPRETATION,
         )
 
     interp = interpret_score(identity)

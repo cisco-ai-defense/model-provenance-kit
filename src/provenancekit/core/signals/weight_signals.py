@@ -58,9 +58,11 @@ from provenancekit.utils.tensor import (
     extract_layer_index,
     find_embedding_in_state_dict,
     find_embedding_name_in_weight_map,
+    is_float8_dtype,
     is_norm_tensor_name,
     is_quantization_aux_name,
     norm_vector_to_stats,
+    unsupported_quantization_format,
 )
 
 log = structlog.get_logger()
@@ -106,6 +108,19 @@ def _extract_signals_impl(
 ) -> WeightSignalFeatures | None:
     if settings is None:
         settings = Settings()
+    unsupported = unsupported_quantization_format(config)
+    if unsupported is None and any(
+        is_float8_dtype(getattr(tensor, "dtype", None))
+        for tensor in state_dict.values()
+    ):
+        unsupported = "fp8"
+    if unsupported is not None:
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            format=unsupported,
+        )
+        return None
+
     light = mode == "light"
 
     hidden_size = getattr(config, "hidden_size", 0) if config else 0
@@ -215,6 +230,15 @@ def _extract_signals_streaming_impl(
             f"'{model_name}': {config_exc}",
             details={"model_id": model_name, "stage": "config_load"},
         ) from config_exc
+
+    unsupported = unsupported_quantization_format(config)
+    if unsupported is not None:
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            model_id=model_name,
+            format=unsupported,
+        )
+        return None
 
     hidden_size: int = getattr(config, "hidden_size", 0)
     num_layers: int = getattr(config, "num_hidden_layers", 0)
