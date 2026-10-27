@@ -132,6 +132,7 @@ class _ModelData:
     mfi_cache_hit: bool
     tfv_cache_hit: bool
     ws_cache_hit: bool
+    ws_loader: dict[str, str | None] | None = None
 
 
 class ModelProvenanceScanner:
@@ -470,9 +471,11 @@ class ModelProvenanceScanner:
 
         t_ws = time.monotonic()
         ws: WeightSignalFeatures | None
+        loader: dict[str, str | None] | None = None
         if ws_cache_hit and cached is not None and cached.ws is not None:
             log.info("cache_hit_ws", model_id=model_id)
             ws = WeightSignalFeatures.from_cache_dict(cached.ws)
+            loader = cached.ws_loader
         else:
             ws, loader = self._extract_weight_signals(model_id, tokenizer)
             if ws is not None:
@@ -500,6 +503,7 @@ class ModelProvenanceScanner:
             mfi_cache_hit=mfi_cache_hit,
             tfv_cache_hit=tfv_cache_hit,
             ws_cache_hit=ws_cache_hit,
+            ws_loader=loader,
         )
 
     def _extract_base(
