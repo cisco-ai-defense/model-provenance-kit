@@ -98,11 +98,16 @@ class ShardRef(BaseModel):
 class CatalogManifest(BaseModel):
     """Top-level manifest listing all family shards.
 
-    Loaded from ``catalog/manifest.json``.
+    Loaded from ``catalog/manifest.json``.  ``extractor_version`` and
+    ``extraction_params`` describe how every feature bundle and
+    deep-signals parquet in the database was extracted; ``None`` means
+    the database predates versioning.
     """
 
     updated_at: str = ""
     shard_strategy: str = "by_family"
+    extractor_version: str | None = None
+    extraction_params: dict[str, int] | None = None
     shards: list[ShardRef] = Field(default_factory=list)
 
 
@@ -160,6 +165,7 @@ class FeatureBundle(BaseModel):
     source_id: str = ""
     status: str = "ok"
     updated_at: str = ""
+    extractor_version: str | None = None
     missing_signals: list[str] = Field(default_factory=list)
     mfi: dict[str, Any] = Field(default_factory=dict)
     tfv: dict[str, Any] = Field(default_factory=dict)

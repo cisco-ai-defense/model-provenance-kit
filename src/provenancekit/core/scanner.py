@@ -25,6 +25,7 @@ extraction and scoring to produce:
 
 import math
 import time
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -65,6 +66,7 @@ from provenancekit.exceptions import ExtractionError, ModelLoadError
 from provenancekit.models.results import (
     CachedEntry,
     CompareResult,
+    LoadResult,
     LoadStrategy,
     ModelConfigInconsistency,
     PipelineScore,
@@ -94,6 +96,27 @@ def _config_inconsistencies(
     if ws is None or ws.config_inconsistencies is None:
         return []
     return ws.config_inconsistencies
+
+
+def _loader_info(result: LoadResult) -> dict[str, str | None]:
+    """Describe how weights were read: strategy, source and dtype.
+
+    The dtype is the most common floating dtype among loaded tensors;
+    for streaming loads it falls back to the config's ``torch_dtype``.
+    """
+    dtype: str | None = None
+    if result.state_dict:
+        counts = Counter(
+            str(t.dtype)
+            for t in result.state_dict.values()
+            if getattr(t, "is_floating_point", lambda: False)()
+        )
+        if counts:
+            dtype = counts.most_common(1)[0][0]
+    if dtype is None:
+        config_dtype = getattr(result.config, "torch_dtype", None)
+        dtype = str(config_dtype) if config_dtype is not None else None
+    return {"strategy": str(result.strategy), "source": result.source, "dtype": dtype}
 
 
 @dataclass
@@ -336,6 +359,10 @@ class ModelProvenanceScanner:
             threshold=effective_threshold,
         )
 
+        # Fail before the (slow) extraction when the database is stale.
+        db_service = self._get_db_service()
+        db_service.check_compatibility(self._settings)
+
         # 1. Extract features from the query model (reuses compare's extraction)
         _phase("extracting features")
         t_extract = time.monotonic()
@@ -352,7 +379,6 @@ class ModelProvenanceScanner:
         # 2. Run 3-stage DB lookup
         _phase("matching against provenance database")
         t_lookup = time.monotonic()
-        db_service = self._get_db_service()
         config_inconsistent = _config_inconsistencies(data.ws)
         matches = run_lookup(
             data.fp,
@@ -420,6 +446,19 @@ class ModelProvenanceScanner:
         """Extract all features for a single model, with caching."""
         model_id = model_id.strip()
         cached = self._cache.get(model_id)
+        params = self._settings.extraction_params()
+        if (
+            cached is not None
+            and cached.extraction_params is not None
+            and cached.extraction_params != params
+        ):
+            log.info(
+                "cache_entry_params_changed",
+                model_id=model_id,
+                cached_params=cached.extraction_params,
+                params=params,
+            )
+            cached = None
 
         mfi_cache_hit = cached is not None and cached.mfi is not None
         tfv_cache_hit = cached is not None and cached.tfv is not None
@@ -435,9 +474,9 @@ class ModelProvenanceScanner:
             log.info("cache_hit_ws", model_id=model_id)
             ws = WeightSignalFeatures.from_cache_dict(cached.ws)
         else:
-            ws = self._extract_weight_signals(model_id, tokenizer)
+            ws, loader = self._extract_weight_signals(model_id, tokenizer)
             if ws is not None:
-                self._persist_ws(model_id, ws)
+                self._persist_ws(model_id, ws, loader)
         ws_elapsed = time.monotonic() - t_ws
 
         log.info(
@@ -511,9 +550,11 @@ class ModelProvenanceScanner:
 
         entry = CachedEntry(
             model_id=model_id,
+            extraction_params=self._settings.extraction_params(),
             mfi=fp.model_dump(),
             tfv=tfv.model_dump(),
             ws=cached.ws if cached is not None else None,
+            ws_loader=cached.ws_loader if cached is not None else None,
         )
         self._cache.put(model_id, entry)
         return fp, tfv, tokenizer
@@ -536,12 +577,19 @@ class ModelProvenanceScanner:
             )
             return None
 
-    def _persist_ws(self, model_id: str, ws: WeightSignalFeatures) -> None:
+    def _persist_ws(
+        self,
+        model_id: str,
+        ws: WeightSignalFeatures,
+        loader: dict[str, str | None] | None = None,
+    ) -> None:
         """Merge weight-signal features into the existing cache entry."""
         cached = self._cache.get(model_id)
         if cached is None:
             cached = CachedEntry(model_id=model_id)
+        cached.extraction_params = self._settings.extraction_params()
         cached.ws = ws.to_cache_dict()
+        cached.ws_loader = loader
         self._cache.put(model_id, cached)
         log.info("cache_stored_ws", model_id=model_id)
 
@@ -556,12 +604,13 @@ class ModelProvenanceScanner:
 
     def _extract_weight_signals(
         self, model_id: str, tokenizer: Any
-    ) -> WeightSignalFeatures | None:
+    ) -> tuple[WeightSignalFeatures | None, dict[str, str | None] | None]:
         """Extract weight-level signals, choosing full vs streaming.
 
-        Returns ``None`` when the model cannot be loaded or signals
+        Returns ``(None, …)`` when the model cannot be loaded or signals
         cannot be extracted — the comparison continues without weight
-        signals in that case.
+        signals in that case.  The second element records how the
+        weights were read (``None`` when loading failed).
         """
         log.info("weight_load_start", model_id=model_id)
         t_load = time.monotonic()
@@ -569,14 +618,16 @@ class ModelProvenanceScanner:
             result = load_state_dict(model_id, settings=self._settings)
         except ModelLoadError as exc:
             log.warning("model_load_failed", model_id=model_id, error=str(exc))
-            return None
+            return None, None
         load_elapsed = time.monotonic() - t_load
+        loader = _loader_info(result)
 
         log.info(
             "weight_load_done",
             model_id=model_id,
             strategy=result.strategy,
             source=result.source,
+            dtype=loader["dtype"],
             elapsed=f"{load_elapsed:.1f}s",
         )
 
@@ -598,7 +649,7 @@ class ModelProvenanceScanner:
                     model_id=model_id,
                     elapsed=f"{time.monotonic() - t_weight_compute:.1f}s",
                 )
-                return ws
+                return ws, loader
 
             if result.strategy == LoadStrategy.streaming:
                 log.info("weight_signals_start", model_id=model_id, mode="streaming")
@@ -613,14 +664,14 @@ class ModelProvenanceScanner:
                     model_id=model_id,
                     elapsed=f"{time.monotonic() - t_weight_compute:.1f}s",
                 )
-                return ws
+                return ws, loader
         except ExtractionError as exc:
             log.warning("signal_extraction_failed", model_id=model_id, error=str(exc))
-            return None
+            return None, loader
 
         log.warning(
             "no_weight_signals_available",
             model_id=model_id,
             source=result.source,
         )
-        return None
+        return None, loader

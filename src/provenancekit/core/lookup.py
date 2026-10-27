@@ -35,6 +35,7 @@ from dataclasses import dataclass
 
 import structlog
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.config.settings import Settings
 from provenancekit.core.scoring import (
     VERIFICATION_UNVERIFIED,
@@ -145,6 +146,18 @@ def stage1_param_filter(
                 asset_id=asset.asset_id,
                 path=asset.feature_path,
                 error=str(exc),
+            )
+            skipped += 1
+            continue
+        if (
+            bundle.extractor_version is not None
+            and bundle.extractor_version != EXTRACTOR_VERSION
+        ):
+            log.warning(
+                "stage1_bundle_version_mismatch",
+                asset_id=asset.asset_id,
+                bundle_version=bundle.extractor_version,
+                extractor_version=EXTRACTOR_VERSION,
             )
             skipped += 1
             continue

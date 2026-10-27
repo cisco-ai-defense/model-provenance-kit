@@ -24,9 +24,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from provenancekit.core.lookup import _LookupCandidate, stage3_similarity
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.core.lookup import (
+    _LookupCandidate,
+    stage1_param_filter,
+    stage3_similarity,
+)
 from provenancekit.core.scoring import decide
 from provenancekit.models.signals import MFISimilarity
+from provenancekit.models.storage import FeatureBundle
 
 _LOOKUP = "provenancekit.core.lookup"
 _SIGNALS = ("eas", "nlf", "lep", "end", "wvc")
@@ -132,3 +138,21 @@ class TestRanking:
         assert [m.asset_id for m in matches] == ["db/verified", "db/unverified"]
         assert matches[0].scores.pipeline_score == 0.8
         assert matches[1].scores.pipeline_score == 1.0
+
+
+class TestStage1BundleVersion:
+    @pytest.mark.parametrize(
+        ("version", "kept"), [(None, True), (EXTRACTOR_VERSION, True), ("1", False)]
+    )
+    def test_bundle_from_other_version_skipped(
+        self, version: str | None, kept: bool
+    ) -> None:
+        asset = SimpleNamespace(
+            asset_id="db/a", param_bucket="<=1B", feature_path="features/a.json"
+        )
+        catalog = SimpleNamespace(assets={"db/a": asset})
+        db = _db_service()
+        db.load_feature_bundle.return_value = FeatureBundle(extractor_version=version)
+        with patch(f"{_LOOKUP}.compute_param_bucket", return_value="<=1B"):
+            candidates = stage1_param_filter(MagicMock(), catalog, db)  # type: ignore[arg-type]
+        assert bool(candidates) is kept

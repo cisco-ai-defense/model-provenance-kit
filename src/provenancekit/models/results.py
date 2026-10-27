@@ -34,6 +34,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.models.signals import ConfigInconsistency
 
 # ── Model loading result ──────────────────────────────────────────
@@ -154,12 +155,21 @@ class CachedEntry(BaseModel):
     convert with ``MFIFingerprint.model_validate(entry.mfi)`` or
     ``WeightSignalFeatures.from_cache_dict(entry.ws)`` when they need
     typed objects.
+
+    ``extractor_version`` defaults to the running version for new
+    entries; files on disk without it are treated as stale.
+    ``extraction_params`` holds the settings used for extraction and
+    ``ws_loader`` records how the weights were read (strategy, source,
+    dtype).
     """
 
     model_id: str
+    extractor_version: str = EXTRACTOR_VERSION
+    extraction_params: dict[str, int] | None = None
     mfi: dict[str, Any] | None = None
     tfv: dict[str, Any] | None = None
     ws: dict[str, Any] | None = None
+    ws_loader: dict[str, str | None] | None = None
     vocab: list[str] | None = None
 
 

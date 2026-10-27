@@ -31,3 +31,25 @@ filtering.
 
 Large arrays should be externalized via artifact refs rather than always kept
 inline in `features.json`.
+
+Extractor version:
+
+- `catalog/manifest.json` must record how every bundle and parquet was
+  extracted:
+
+  ```json
+  "extractor_version": "2",
+  "extraction_params": {"anchor_k": 64, "wvc_subsample": 4096}
+  ```
+
+  `extractor_version` is `EXTRACTOR_VERSION` in `config/constants.py`, and
+  `extraction_params` is `Settings().extraction_params()` at build time.
+- Each `features.json` should carry the same `extractor_version`.
+- `scan` refuses a database whose manifest is missing these fields or does
+  not match the running release, so a database built by an older
+  extractor is never compared with new features.
+- The deep-signals zip is published as `deep-signals-v<extractor_version>.zip`,
+  and its SHA-256 is pinned in `Settings.hf_deep_signals_sha256`. An installed
+  download whose recorded SHA-256 differs is rejected until it is updated.
+- Bump `EXTRACTOR_VERSION` whenever a change alters stored feature values;
+  user caches then re-extract automatically.

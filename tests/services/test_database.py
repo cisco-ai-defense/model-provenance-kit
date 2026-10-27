@@ -22,6 +22,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.config.settings import Settings
 from provenancekit.services.database import DatabaseError, DatabaseService
 
 
@@ -132,6 +134,81 @@ class TestCatalogLoading:
         cat1 = svc.load_catalog()
         cat2 = svc.load_catalog()
         assert cat1 is cat2
+
+
+def _stamp_manifest(root: Path, **fields: object) -> None:
+    path = root / "catalog" / "manifest.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data.update(fields)
+    _write_json(path, data)
+
+
+def _current_stamp() -> dict[str, object]:
+    return {
+        "extractor_version": EXTRACTOR_VERSION,
+        "extraction_params": Settings().extraction_params(),
+    }
+
+
+def _write_marker(root: Path, sha256: str) -> None:
+    marker = root / "features" / "deep-signals" / ".deep-signals-installed"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text(
+        f"installed_from=https://example.com/x.zip\nsha256={sha256}\n",
+        encoding="utf-8",
+    )
+
+
+class TestCompatibility:
+    def test_current_database_passes(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, **_current_stamp())
+        DatabaseService(db_root).check_compatibility(Settings())
+
+    def test_unversioned_database_rejected(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        with pytest.raises(DatabaseError, match="pre-versioning"):
+            DatabaseService(db_root).check_compatibility(Settings())
+
+    def test_other_version_rejected(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, **{**_current_stamp(), "extractor_version": "1"})
+        with pytest.raises(DatabaseError, match="extractor version 1"):
+            DatabaseService(db_root).check_compatibility(Settings())
+
+    def test_changed_settings_rejected(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, **_current_stamp())
+        monkeypatch.setenv("PROVENANCEKIT_WVC_SUBSAMPLE", "1024")
+        with pytest.raises(DatabaseError, match="PROVENANCEKIT_WVC_SUBSAMPLE"):
+            DatabaseService(db_root).check_compatibility(Settings())
+
+    def test_matching_deep_signals_marker_passes(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, **_current_stamp())
+        settings = Settings()
+        _write_marker(db_root, settings.hf_deep_signals_sha256)
+        DatabaseService(db_root).check_compatibility(settings)
+
+    def test_old_deep_signals_download_rejected(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, **_current_stamp())
+        _write_marker(db_root, "0" * 64)
+        with pytest.raises(DatabaseError, match="--update"):
+            DatabaseService(db_root).check_compatibility(Settings())
+
+    def test_catalog_loads_without_version(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        assert len(DatabaseService(db_root).load_catalog().assets) == 1
 
 
 class TestFeatureBundle:

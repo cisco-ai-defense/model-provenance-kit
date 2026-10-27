@@ -31,6 +31,8 @@ import numpy as np
 import pandas as pd
 import structlog
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.config.settings import Settings
 from provenancekit.exceptions import ProvenanceError
 from provenancekit.models.signals import WeightSignalFeatures
 from provenancekit.models.storage import (
@@ -46,6 +48,19 @@ log = structlog.get_logger()
 
 class DatabaseError(ProvenanceError):
     """Raised when the provenance database cannot be read or is corrupt."""
+
+
+def _marker_value(marker: Path, key: str) -> str | None:
+    """Return ``key=value`` from the deep-signals install marker."""
+    try:
+        lines = marker.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        name, sep, value = line.partition("=")
+        if sep and name.strip() == key:
+            return value.strip()
+    return None
 
 
 class Catalog:
@@ -73,10 +88,85 @@ class DatabaseService:
 
     def __init__(self, db_root: Path) -> None:  # noqa: D107
         self._root = db_root
+        self._manifest: CatalogManifest | None = None
         self._catalog: Catalog | None = None
         self._family_names: dict[str, str] = {}
 
     # ── catalog ───────────────────────────────────────────────────
+
+    def load_manifest(self) -> CatalogManifest:
+        """Load ``catalog/manifest.json``.
+
+        Raises:
+            DatabaseError: When the manifest is missing or invalid.
+        """
+        if self._manifest is not None:
+            return self._manifest
+        manifest_path = self._root / "catalog" / "manifest.json"
+        if not manifest_path.exists():
+            raise DatabaseError(
+                f"Catalog manifest not found: {manifest_path}",
+                details={"path": str(manifest_path)},
+            )
+        self._manifest = CatalogManifest.model_validate(
+            self._read_json(manifest_path),
+        )
+        return self._manifest
+
+    def check_compatibility(self, settings: Settings) -> None:
+        """Ensure stored fingerprints were extracted like the query model.
+
+        Features from a different extractor version or with different
+        extraction settings are not comparable, and scores computed
+        from them are wrong rather than merely less accurate.
+
+        Raises:
+            DatabaseError: When the database or the installed
+                deep-signal fingerprints do not match this release.
+        """
+        manifest = self.load_manifest()
+        if manifest.extractor_version != EXTRACTOR_VERSION:
+            raise DatabaseError(
+                "Fingerprint database was built with extractor version "
+                f"{manifest.extractor_version or 'unknown (pre-versioning)'}, "
+                f"but this release extracts features with version "
+                f"{EXTRACTOR_VERSION}. Install the database that ships with "
+                "this release.",
+                details={
+                    "db_root": str(self._root),
+                    "db_extractor_version": manifest.extractor_version,
+                    "extractor_version": EXTRACTOR_VERSION,
+                },
+            )
+
+        expected = settings.extraction_params()
+        if manifest.extraction_params != expected:
+            raise DatabaseError(
+                "Fingerprint database was extracted with settings "
+                f"{manifest.extraction_params}, but the current settings are "
+                f"{expected}. Unset PROVENANCEKIT_ANCHOR_K / "
+                "PROVENANCEKIT_WVC_SUBSAMPLE to scan against this database.",
+                details={
+                    "db_extraction_params": manifest.extraction_params,
+                    "extraction_params": expected,
+                },
+            )
+
+        marker = self._root / "features" / "deep-signals" / ".deep-signals-installed"
+        if not marker.exists():
+            return
+        installed_sha = _marker_value(marker, "sha256")
+        if installed_sha != settings.hf_deep_signals_sha256:
+            raise DatabaseError(
+                "Installed deep-signal fingerprints are from a different "
+                "release. Run: provenancekit download-deepsignals-fingerprint "
+                "--update",
+                details={
+                    "marker": str(marker),
+                    "installed_sha256": installed_sha,
+                    "expected_sha256": settings.hf_deep_signals_sha256,
+                },
+            )
 
     def load_catalog(self) -> Catalog:
         """Load the full catalog from the sharded manifest.
@@ -91,16 +181,7 @@ class DatabaseService:
             return self._catalog
 
         t0 = time.perf_counter()
-        manifest_path = self._root / "catalog" / "manifest.json"
-        if not manifest_path.exists():
-            raise DatabaseError(
-                f"Catalog manifest not found: {manifest_path}",
-                details={"path": str(manifest_path)},
-            )
-
-        manifest = CatalogManifest.model_validate(
-            self._read_json(manifest_path),
-        )
+        manifest = self.load_manifest()
 
         families: dict[str, FamilyRecord] = {}
         assets: dict[str, AssetRecord] = {}

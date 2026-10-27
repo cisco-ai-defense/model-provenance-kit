@@ -16,12 +16,16 @@
 
 """Tests for provenancekit.core.scanner — orchestrator unit + integration."""
 
+from contextlib import ExitStack
 from typing import Any
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
+import torch
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.config.settings import Settings
 from provenancekit.core.results.formatters import format_plain
 from provenancekit.core.scanner import ModelProvenanceScanner
 from provenancekit.exceptions import ExtractionError, ModelLoadError
@@ -41,6 +45,7 @@ from provenancekit.models.signals import (
     WeightSignalFeatures,
 )
 from provenancekit.services.cache import CacheService
+from provenancekit.services.database import DatabaseError
 
 # ── Fixtures ──────────────────────────────────────────────────────
 
@@ -381,6 +386,11 @@ class TestCompareWeightFailure:
 
 
 class TestScanIntegration:
+    @pytest.mark.xfail(
+        raises=DatabaseError,
+        strict=True,
+        reason="bundled database not yet rebuilt for the current extractor version",
+    )
     def test_scan_returns_scan_result(self, tmp_path: Any) -> None:
         scanner = ModelProvenanceScanner(cache=CacheService(cache_dir=tmp_path))
         result = scanner.scan("gpt2", top_k=1, threshold=0.5)
@@ -630,6 +640,105 @@ class TestPartialCache:
             result = scanner.compare("gpt2", "gpt2")
             assert mock_extract_fp.call_count == 1
             assert isinstance(result, CompareResult)
+
+
+# ── Extractor version and extraction settings ────────────────────
+
+
+def _patch_extraction(stack: ExitStack, fp: MFIFingerprint) -> MagicMock:
+    mock_extract_fp = MagicMock(return_value=(fp, MagicMock()))
+    stack.enter_context(patch(f"{_PATCH_BASE}.extract_fingerprint", mock_extract_fp))
+    stack.enter_context(
+        patch(f"{_PATCH_BASE}.extract_tokenizer_features", return_value=_fake_tfv())
+    )
+    stack.enter_context(
+        patch(
+            f"{_PATCH_BASE}.load_state_dict",
+            return_value=LoadResult(
+                state_dict={"w": torch.zeros(2, dtype=torch.bfloat16)},
+                config=None,
+                strategy=LoadStrategy.full,
+                source="safetensors_single",
+            ),
+        )
+    )
+    stack.enter_context(
+        patch(f"{_PATCH_BASE}.extract_signals", return_value=_fake_ws())
+    )
+    stack.enter_context(patch(f"{_PATCH_BASE}.AutoTokenizer", MagicMock()))
+    return mock_extract_fp
+
+
+class TestExtractionStamp:
+    def test_new_entry_records_params_and_loader(self, tmp_path: Any) -> None:
+        cache = CacheService(cache_dir=tmp_path)
+        with ExitStack() as stack:
+            _patch_extraction(stack, _fake_fp())
+            ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        entry = CacheService(cache_dir=tmp_path).get("gpt2")
+        assert entry is not None
+        assert entry.extractor_version == EXTRACTOR_VERSION
+        assert entry.extraction_params == Settings().extraction_params()
+        assert entry.ws_loader == {
+            "strategy": "full",
+            "source": "safetensors_single",
+            "dtype": "torch.bfloat16",
+        }
+
+    def test_changed_settings_force_re_extraction(self, tmp_path: Any) -> None:
+        fp = _fake_fp()
+        cache = CacheService(cache_dir=tmp_path)
+        cache.put(
+            "gpt2",
+            CachedEntry(
+                model_id="gpt2",
+                extraction_params={"anchor_k": 32, "wvc_subsample": 4096},
+                mfi=fp.model_dump(),
+                tfv=_fake_tfv().model_dump(),
+                ws=_fake_ws().to_cache_dict(),
+            ),
+        )
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, fp)
+            data = ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        assert mock_extract_fp.call_count == 1
+        assert not data.ws_cache_hit
+        entry = cache.get("gpt2")
+        assert entry is not None
+        assert entry.extraction_params == Settings().extraction_params()
+
+    def test_matching_settings_use_cache(self, tmp_path: Any) -> None:
+        fp = _fake_fp()
+        cache = CacheService(cache_dir=tmp_path)
+        cache.put(
+            "gpt2",
+            CachedEntry(
+                model_id="gpt2",
+                extraction_params=Settings().extraction_params(),
+                mfi=fp.model_dump(),
+                tfv=_fake_tfv().model_dump(),
+                ws=_fake_ws().to_cache_dict(),
+            ),
+        )
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, fp)
+            data = ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        assert mock_extract_fp.call_count == 0
+        assert data.ws_cache_hit
+
+    def test_scan_rejects_stale_database_before_extraction(self, tmp_path: Any) -> None:
+        scanner = ModelProvenanceScanner(cache=CacheService(cache_dir=tmp_path))
+        db = MagicMock()
+        db.check_compatibility.side_effect = DatabaseError("stale")
+        scanner._db_service = db
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, _fake_fp())
+            with pytest.raises(DatabaseError, match="stale"):
+                scanner.scan("gpt2")
+        assert mock_extract_fp.call_count == 0
 
 
 # ── Online integration tests ──────────────────────────────────────
