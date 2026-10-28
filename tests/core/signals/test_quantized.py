@@ -155,6 +155,11 @@ class TestUnsupportedQuantization:
         )
         assert unsupported_quantization_format(config) == "fp8"
 
+    def test_legacy_mlx_quantization_key(self) -> None:
+        config = SimpleNamespace(quantization={"group_size": 64, "bits": 4})
+        assert unsupported_quantization_format(config) == "mlx"
+        assert unsupported_quantization_format(vars(config)) == "mlx"
+
     @pytest.mark.parametrize(
         "quantization_config",
         [

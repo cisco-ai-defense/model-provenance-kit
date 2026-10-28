@@ -21,6 +21,7 @@ weight-processing code. It has **no domain imports** — only stdlib, numpy,
 and typing — so it can never create circular dependencies.
 """
 
+import itertools
 import re
 from collections.abc import Mapping
 from typing import Any, Protocol
@@ -131,10 +132,14 @@ def unsupported_quantization_format(config: Any) -> str | None:
     to metadata/tokenizer-only (unverified) results until scale-aware
     dequantization is implemented.
     """
-    for candidate in (config, getattr(config, "text_config", None)):
-        raw = getattr(candidate, "quantization_config", None)
+    for candidate, key in itertools.product(
+        (config, getattr(config, "text_config", None)),
+        # Older mlx-lm exports declare only "quantization".
+        ("quantization_config", "quantization"),
+    ):
+        raw = getattr(candidate, key, None)
         if raw is None and isinstance(candidate, Mapping):
-            raw = candidate.get("quantization_config")
+            raw = candidate.get(key)
         if not isinstance(raw, Mapping):
             continue
 
