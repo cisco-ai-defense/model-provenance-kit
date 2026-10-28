@@ -139,6 +139,34 @@ class TestRanking:
         assert matches[0].scores.pipeline_score == 0.8
         assert matches[1].scores.pipeline_score == 1.0
 
+    def test_shallow_query_ranks_by_score(
+        self, scoring_patches: dict[str, Any]
+    ) -> None:
+        """A quantized query has no LEP/WVC against any candidate."""
+        from provenancekit.core import lookup
+
+        candidates = [_candidate("db/other"), _candidate("db/base")]
+        scoring_patches["mfi"].side_effect = [
+            MFISimilarity(score=0.6, tier=3, match_type="none"),
+            MFISimilarity(score=1.0, tier=1, match_type="exact"),
+        ]
+        scoring_patches["lep"].return_value = float("nan")
+        scoring_patches["wvc"].return_value = float("nan")
+        for name in ("eas", "nlf", "end"):
+            scoring_patches[name].side_effect = [0.6, 1.0]
+        db = _db_service()
+        db.load_catalog.return_value = MagicMock()
+        with (
+            patch(f"{_LOOKUP}.stage1_param_filter", return_value=candidates),
+            patch(f"{_LOOKUP}.stage2_hash_check", return_value=candidates),
+        ):
+            matches = lookup.run_lookup(
+                MagicMock(), MagicMock(), MagicMock(), db, top_k=5, threshold=0.5
+            )
+        assert [m.asset_id for m in matches] == ["db/base", "db/other"]
+        assert matches[0].scores.verification == "weights_shallow"
+        assert matches[1].scores.verification == "weights_only"
+
 
 class TestStage1BundleVersion:
     @pytest.mark.parametrize(

@@ -39,7 +39,6 @@ from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.config.settings import Settings
 from provenancekit.core.scoring import (
     VERIFICATION_UNVERIFIED,
-    VERIFICATION_WEIGHTS_SHALLOW,
     compute_identity_score,
     compute_tokenizer_score,
     decide,
@@ -450,13 +449,18 @@ def run_lookup(
         metadata_trusted=metadata_trusted,
     )
 
-    # Rank (weight-backed, then shallow, then unverified), threshold, trim
-    evidence_rank = {VERIFICATION_UNVERIFIED: 0, VERIFICATION_WEIGHTS_SHALLOW: 1}
+    # Rank (weight-backed, then shallow, then unverified), threshold, trim.
+    # Shallow is judged from the signals, not the label: low-identity
+    # shallow candidates are labelled weights_only by decide().
+    def _evidence_rank(m: ScanMatch) -> int:
+        if m.scores.verification == VERIFICATION_UNVERIFIED:
+            return 0
+        if m.scores.lep is None and m.scores.wvc is None:
+            return 1
+        return 2
+
     matches.sort(
-        key=lambda m: (
-            evidence_rank.get(m.scores.verification, 2),
-            m.scores.pipeline_score or 0,
-        ),
+        key=lambda m: (_evidence_rank(m), m.scores.pipeline_score or 0),
         reverse=True,
     )
 
