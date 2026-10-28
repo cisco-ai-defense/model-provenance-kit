@@ -174,6 +174,10 @@ def _weight_files(root_files: list[str]) -> tuple[list[str], str]:
         if f.endswith(".safetensors") or f == "model.safetensors.index.json"
     ]
     if any(f.endswith(".safetensors") for f in safetensors):
+        # Mistral repos also ship a native-format copy the loader ignores.
+        hf_format = [f for f in safetensors if not f.startswith("consolidated")]
+        if any(f.endswith(".safetensors") for f in hf_format):
+            safetensors = hf_format
         return safetensors, "safetensors"
     bins = [
         f
