@@ -578,6 +578,13 @@ class TestSignalExtractionFailure:
             assert result.scores.identity_score is None
 
 
+class TestGetVocab:
+    def test_bytes_vocab_keys_are_decoded(self) -> None:
+        tok = MagicMock()
+        tok.get_vocab.return_value = {b"the": 0, "of": 1, b"\xe7\x9a\x84": 2}
+        assert ModelProvenanceScanner._get_vocab(tok) == ["the", "of", "\u7684"]
+
+
 # ── Partial cache (mfi set, tfv missing) ─────────────────────────
 
 

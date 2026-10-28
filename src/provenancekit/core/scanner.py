@@ -602,7 +602,10 @@ class ModelProvenanceScanner:
         if tokenizer is None:
             return None
         try:
-            return list(tokenizer.get_vocab().keys())
+            return [
+                k.decode("utf-8", errors="replace") if isinstance(k, bytes) else k
+                for k in tokenizer.get_vocab()
+            ]
         except Exception:  # noqa: BLE001
             return None
 
