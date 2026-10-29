@@ -1,10 +1,11 @@
 {
   "shard_id": "9086928f-4f7a-41e7-b3f9-f7fad934557c",
-  "updated_at": "2026-04-18T18:55:01.500276+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "family": {
     "family_id": "openbmb--minicpm",
     "display_name": "MiniCPM",
     "publisher": "openbmb",
+    "family_hash": "",
     "baseline_model_ids": [
       "MiniCPM4.1-8B"
     ]
@@ -13,11 +14,12 @@
     {
       "asset_id": "MiniCPM4.1-8B__hf-safetensors",
       "model_id": "MiniCPM4.1-8B",
+      "canonical_name": "MiniCPM4.1-8B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/openbmb--minicpm/MiniCPM4.1-8B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/openbmb/MiniCPM4.1-8B",
-      "canonical_name": "MiniCPM4.1-8B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/openbmb--minicpm/MiniCPM4.1-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     }
   ]
 }

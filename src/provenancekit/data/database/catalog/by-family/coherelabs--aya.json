@@ -1,10 +1,11 @@
 {
   "shard_id": "24c7fd08-8d37-4df9-88df-eb722ac2fd73",
-  "updated_at": "2026-04-20T19:38:56.658554+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "family": {
     "family_id": "coherelabs--aya",
     "display_name": "Cohere Aya",
     "publisher": "coherelabs",
+    "family_hash": "",
     "baseline_model_ids": [
       "aya-expanse-32b",
       "aya-101",
@@ -20,74 +21,82 @@
     {
       "asset_id": "aya-expanse-32b__hf-safetensors",
       "model_id": "aya-expanse-32b",
+      "canonical_name": "aya-expanse-32b",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/aya-expanse-32b__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/CohereLabs/aya-expanse-32b",
-      "canonical_name": "aya-expanse-32b"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/aya-expanse-32b__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "aya-101__hf-safetensors",
       "model_id": "aya-101",
+      "canonical_name": "aya-101",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/aya-101__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/aya-101",
-      "canonical_name": "aya-101"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/aya-101__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "aya-23-35B__hf-safetensors",
       "model_id": "aya-23-35B",
+      "canonical_name": "aya-23-35B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/aya-23-35B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/CohereLabs/aya-23-35B",
-      "canonical_name": "aya-23-35B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/aya-23-35B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "aya-23-8B__hf-safetensors",
       "model_id": "aya-23-8B",
+      "canonical_name": "aya-23-8B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/aya-23-8B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/aya-23-8B",
-      "canonical_name": "aya-23-8B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/aya-23-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "tiny-aya-base__hf-safetensors",
       "model_id": "tiny-aya-base",
+      "canonical_name": "tiny-aya-base",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-base__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/tiny-aya-base",
-      "canonical_name": "tiny-aya-base"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-base__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "tiny-aya-fire__hf-safetensors",
       "model_id": "tiny-aya-fire",
+      "canonical_name": "tiny-aya-fire",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-fire__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/tiny-aya-fire",
-      "canonical_name": "tiny-aya-fire"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-fire__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "tiny-aya-global__hf-safetensors",
       "model_id": "tiny-aya-global",
+      "canonical_name": "tiny-aya-global",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-global__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/tiny-aya-global",
-      "canonical_name": "tiny-aya-global"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-global__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "tiny-aya-water__hf-safetensors",
       "model_id": "tiny-aya-water",
+      "canonical_name": "tiny-aya-water",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-water__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/CohereLabs/tiny-aya-water",
-      "canonical_name": "tiny-aya-water"
+      "checksums": {},
+      "feature_path": "features/base/by-family/coherelabs--aya/tiny-aya-water__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     }
   ]
 }

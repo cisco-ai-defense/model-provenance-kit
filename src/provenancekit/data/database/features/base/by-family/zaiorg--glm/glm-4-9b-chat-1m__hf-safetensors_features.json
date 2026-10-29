@@ -1,11 +1,18 @@
 {
-  "bundle_id": "7f5ec20a-9b31-4964-9635-311142297a2c",
+  "bundle_id": "98d9767a-e148-4212-97e2-fcaaebc9ad7f",
   "model_id": "glm-4-9b-chat-1m",
   "asset_id": "glm-4-9b-chat-1m__hf-safetensors",
   "family_id": "zaiorg--glm",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-18T01:11:12.430526+00:00",
+  "updated_at": "2026-10-28T23:59:34.047352+00:00",
+  "extractor_version": "2",
+  "source_revision": "f8579ac096986e44ba24a5060d2fb79bedb56ef3",
+  "ws_loader": {
+    "strategy": "full",
+    "source": "safetensors_sharded",
+    "dtype": "torch.bfloat16"
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "chatglm",
@@ -48,6 +55,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 151329,
       "unk": null,
@@ -100,7 +108,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:39a944cd3f016aed6f1fa2681cfc9a23f70a765cd98a9cdfbd39fedc5e723beb",
+      "checksum": "sha256:200208b3ed1ba3c12dd01f440e0553f8c214de9a5c3e99a4a1f99fcf625ef3da",
       "availability": "local"
     }
   ]

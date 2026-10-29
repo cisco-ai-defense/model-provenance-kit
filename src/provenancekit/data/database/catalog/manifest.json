@@ -1,6 +1,11 @@
 {
-  "updated_at": "2026-07-31T23:52:52.131996+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "shard_strategy": "by_family",
+  "extractor_version": "2",
+  "extraction_params": {
+    "anchor_k": 64,
+    "wvc_subsample": 4096
+  },
   "shards": [
     {
       "family_id": "01ai--yi",
@@ -100,7 +105,7 @@
     {
       "family_id": "metallama--llama",
       "shard_path": "catalog/by-family/metallama--llama.json",
-      "asset_count": 9
+      "asset_count": 6
     },
     {
       "family_id": "microsoft--nextcoder",
@@ -135,7 +140,7 @@
     {
       "family_id": "nvidia--nemotron",
       "shard_path": "catalog/by-family/nvidia--nemotron.json",
-      "asset_count": 37
+      "asset_count": 34
     },
     {
       "family_id": "openaicommunity--gpt",
@@ -150,7 +155,7 @@
     {
       "family_id": "qwen--qwen",
       "shard_path": "catalog/by-family/qwen--qwen.json",
-      "asset_count": 22
+      "asset_count": 21
     },
     {
       "family_id": "stabilityai--stablelm",

@@ -1,11 +1,18 @@
 {
-  "bundle_id": "3cea7209-f7fd-4b3a-8498-14a4e8c00480",
+  "bundle_id": "a4afd842-b5df-45c3-8477-7d1e9bea59ef",
   "model_id": "aya-101",
   "asset_id": "aya-101__hf-safetensors",
   "family_id": "coherelabs--aya",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-18T03:32:53.196817+00:00",
+  "updated_at": "2026-10-28T17:02:58.747328+00:00",
+  "extractor_version": "2",
+  "source_revision": "e7dad472b9de8a30a00cf08a05c19003bf59028d",
+  "ws_loader": {
+    "strategy": "streaming",
+    "source": "too_large_for_full_load",
+    "dtype": null
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "t5",
@@ -48,6 +55,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 0,
       "unk": 2,
@@ -100,7 +108,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:0b33566a51dd2c4f1c49e0791da0fdf20996521a0b65314ef3e5e4a67deff244",
+      "checksum": "sha256:3e565f7f5aa7e5284aaa2cdbaba4f88a00264f4eee4f942801f712a0bc8e6ef5",
       "availability": "local"
     }
   ]

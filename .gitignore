@@ -164,3 +164,4 @@ Desktop.ini
 .tmp-cache/
 .tmp-stress-cache/
 stress_*.json
+src/provenancekit/data/database/features/deep-signals/

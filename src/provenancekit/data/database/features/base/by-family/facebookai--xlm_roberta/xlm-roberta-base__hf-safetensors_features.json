@@ -1,11 +1,18 @@
 {
-  "bundle_id": "90684cb8-b013-4ac7-ac02-e035383ad7df",
+  "bundle_id": "2fda5e4f-ccd5-4cfa-a029-c72ff64cf4d5",
   "model_id": "xlm-roberta-base",
   "asset_id": "xlm-roberta-base__hf-safetensors",
   "family_id": "facebookai--xlm_roberta",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-16T02:14:18.556084+00:00",
+  "updated_at": "2026-10-27T23:29:06.563384+00:00",
+  "extractor_version": "2",
+  "source_revision": "e73636d4f797dec63c3081bb6ed5c7b0bb3f2089",
+  "ws_loader": {
+    "strategy": "full",
+    "source": "safetensors",
+    "dtype": "torch.float32"
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "xlm-roberta",
@@ -48,6 +55,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 1,
       "unk": 3,
@@ -100,7 +108,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:1d4545fd723d2ec7dd44a2780198a30096dfdf27d2ab4f2edc6513ef7c512db0",
+      "checksum": "sha256:aad032ab19dfa22f0cbfb98434852ee551e43e1513ef4a9c1bfba652b8c5dcf2",
       "availability": "local"
     }
   ]

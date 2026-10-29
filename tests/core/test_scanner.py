@@ -386,11 +386,6 @@ class TestCompareWeightFailure:
 
 
 class TestScanIntegration:
-    @pytest.mark.xfail(
-        raises=DatabaseError,
-        strict=True,
-        reason="bundled database not yet rebuilt for the current extractor version",
-    )
     def test_scan_returns_scan_result(self, tmp_path: Any) -> None:
         scanner = ModelProvenanceScanner(cache=CacheService(cache_dir=tmp_path))
         result = scanner.scan("gpt2", top_k=1, threshold=0.5)
