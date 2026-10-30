@@ -25,7 +25,7 @@ Model Provenance Kit is a Python toolkit and CLI for detecting model provenance.
 
 ## Reference Database
 
-The bundled reference database contains fingerprints for **~150 base models** spanning **45+ model families** from **20+ publishers**, ranging from 135M to 70B+ parameters. Covered publishers include:
+The bundled reference database contains fingerprints for **~175 base models** spanning **45+ model families** from **20+ publishers**, ranging from 135M to 70B+ parameters. Covered publishers include:
 
 Meta, Google, Alibaba, Microsoft, Mistral AI, DeepSeek, TII, Zhipu AI, NVIDIA, IBM, BigScience, OpenAI, Allen AI, Facebook AI, Stability AI, Hugging Face, Cohere, Databricks, Tencent, Moonshot AI, MiniMax, and more.
 
@@ -160,6 +160,7 @@ provenancekit [--verbose] compare MODEL_A MODEL_B [options]
 | `--cache-dir PATH` | Override the default cache directory |
 | `--no-cache` | Disable feature caching entirely |
 | `--timing` | Show high-level phase timings |
+| `--trust-remote-code` | Allow model-hosted Python code (config/tokenizer); use only with models you trust |
 
 **Examples:**
 
@@ -194,6 +195,7 @@ provenancekit [--verbose] scan MODEL_ID [options]
 | `--cache-dir PATH` | `~/.provenancekit/cache` | Override the default cache directory |
 | `--no-cache` | | Disable feature caching |
 | `--timing` | | Show phase-level timing breakdown |
+| `--trust-remote-code` | | Allow model-hosted Python code (config/tokenizer); use only with models you trust |
 
 **Examples:**
 
@@ -235,7 +237,7 @@ provenancekit download-deepsignals-fingerprint [options]
 
 **What it does:**
 
-1. Downloads `deep-signals.zip` from HuggingFace Hub (HTTPS only).
+1. Downloads `deep-signals-v2.zip` from HuggingFace Hub (HTTPS only).
 2. Verifies SHA-256 integrity (unless `--no-verify`).
 3. Extracts parquet files with safety checks (size limits, path traversal protection, symlink rejection).
 4. Performs an atomic swap of the `by-family/` directory.
@@ -306,7 +308,13 @@ Model ProvenanceKit combines three categories of evidence into a single pipeline
 | 3 | I ≤ 0.65 | Not Matched |
 | any | NaN | Metadata Match (unverified) / Not Matched (unverified) |
 
-Every result includes a `verification` field: `weights_agree`, `weights_weak`, `weights_conflict`, `weights_only` or `unverified`.
+Two rules adjust this table:
+- **Unrelated weights**: when WVC is computed and below 0.01, the score is capped at 0.65 (Not Matched). Separately trained models of the same family share architecture and tokenizer, which can lift the other signals above the match bands.
+- **Shallow evidence** (no LEP and WVC, e.g. bitsandbytes, AWQ, GPTQ): a match needs MFI Tier 1/2 and matching tokenizers; otherwise the score is capped at 0.75, Weak Match (unverified).
+
+A model whose `config.json` contradicts its own tensor shapes gets no MFI Tier 1/2; the fields are listed in `config_inconsistent`.
+
+Every result includes a `verification` field: `weights_agree`, `weights_weak`, `weights_conflict`, `weights_only`, `weights_shallow` or `unverified`.
 
 ## Caching
 
@@ -451,6 +459,14 @@ provenancekit download-deepsignals-fingerprint
 
 This enables the full weight-signal matching pipeline. Without deep signals, scan results rely on metadata and tokenizer signals only.
 
+### Scan refuses the database after an upgrade
+
+Fingerprints are stamped with the extractor version that produced them, and `scan` will not compare features from different versions. If `scan` reports that the installed deep-signal fingerprints are from a different release:
+
+```bash
+provenancekit download-deepsignals-fingerprint --update
+```
+
 ### Scan returns few or no matches
 
 - Try lowering the threshold: `--threshold 0.30`
@@ -463,6 +479,9 @@ This enables the full weight-signal matching pipeline. Without deep signals, sca
 - The `scan` command uses a bundled seed database. For custom deployments, use `--db-root` or `PROVENANCEKIT_DB_ROOT` to point to your own database directory.
 - Results provide strong evidence of provenance but are not absolute proof.
 - Weight signals require loading model weights into memory (or streaming for large models). First-run performance depends on network speed and model size.
+- FP8 and MLX checkpoints return no weight evidence yet, so their verdicts are unverified.
+- A match requires shared weights. Knowledge transfer without shared weights (e.g. phi-1.5 to phi-2) and distillation that changes dimensions are not detected.
+- See [Known Limitations](docs/scoring-and-model-loading.md#known-limitations) for more.
 
 ## Contributing
 

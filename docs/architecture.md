@@ -112,7 +112,9 @@ Similarity scores are combined into composite scores and a final verdict:
      dimensions) → metadata match.
    - Tier 3 (soft match or demoted) → no metadata match.
 
-   Metadata alone never produces a match verdict; the weights decide.
+   Metadata alone never produces a match verdict; the weights decide. A
+   model whose `config.json` contradicts its own tensor shapes gets no
+   Tier 1/2.
 
 2. **Identity score** (NaN-aware weighted average of 5 weight signals):
 
@@ -142,8 +144,14 @@ Similarity scores are combined into composite scores and a final verdict:
    | 3 | I ≤ 0.65 | Not Matched |
    | any | NaN | Metadata Match (unverified) / Not Matched (unverified) |
 
+   When WVC is computed and below 0.01 (unrelated weights), the score is
+   capped at 0.65, so the verdict is Not Matched. Without LEP and WVC (e.g.
+   quantized checkpoints), a match needs Tier 1/2 and matching tokenizers,
+   and is otherwise capped at Weak Match (unverified).
+
    Each result also carries a `verification` field (`weights_agree`,
-   `weights_weak`, `weights_conflict`, `weights_only`, `unverified`).
+   `weights_weak`, `weights_conflict`, `weights_only`, `weights_shallow`,
+   `unverified`).
 
 See [Scoring and Model Loading](scoring-and-model-loading.md) for detailed
 formulas, worked examples, and large model support.
