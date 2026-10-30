@@ -93,6 +93,11 @@ _SCORE_WEAK_MATCH = 0.65
 # Such a match only stands when metadata and the tokenizers also agree.
 _SHALLOW_TFV_MIN = 0.9
 
+# Unrelated weights give WVC around 0.003 even when architecture and
+# tokenizer are shared and lift the other signals; related models
+# (including distillation and continued pretraining) stay above 0.1.
+_WVC_UNRELATED_MAX = 0.01
+
 
 def interpret_score(score: float) -> ScoreInterpretation:
     """Return a human-readable verdict and colour for a pipeline score."""
@@ -149,6 +154,7 @@ def decide(
     *,
     deep_signals: bool = True,
     tfv: float = float("nan"),
+    wvc: float = float("nan"),
 ) -> Verdict:
     """Combine MFI and weight identity into a provenance verdict.
 
@@ -161,6 +167,9 @@ def decide(
     when MFI is Tier 1/2 and ``tfv`` shows tokenizer agreement.  Otherwise
     it is capped at the top of the Weak Match band; the raw identity remains
     available separately in ``identity_score``.
+
+    A ``wvc`` below ``_WVC_UNRELATED_MAX`` caps the score at the Weak Match
+    boundary, so the verdict is Not Matched whatever the other signals say.
     """
     if math.isnan(identity):
         metadata_match = mfi_tier <= 2 or mfi_score > _SCORE_WEAK_MATCH
@@ -174,6 +183,9 @@ def decide(
             verification=VERIFICATION_UNVERIFIED,
             interpretation=_UNVERIFIED_INTERPRETATION,
         )
+
+    if wvc < _WVC_UNRELATED_MAX:
+        identity = min(identity, _SCORE_WEAK_MATCH)
 
     if not deep_signals and identity > _SCORE_WEAK_MATCH:
         shallow_agreement = (

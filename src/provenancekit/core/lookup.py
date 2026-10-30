@@ -330,6 +330,7 @@ def stage3_similarity(
             identity,
             deep_signals=not (math.isnan(lep_s) and math.isnan(wvc_s)),
             tfv=tfv_s,
+            wvc=wvc_s,
         )
         pipeline_score = verdict.pipeline_score
         decision = verdict.decision

@@ -247,3 +247,35 @@ class TestDecideWithoutDeepSignals:
     def test_deep_signals_present_unaffected(self) -> None:
         v = decide(0.4, 3, 0.80, deep_signals=True, tfv=0.2)
         assert v.decision == "High-Confidence Match"
+
+
+class TestDecideUnrelatedWeights:
+    """WVC near zero: shared architecture and tokenizer, unrelated weights."""
+
+    def test_same_family_tier3_not_matched(self) -> None:
+        # D30: Llama-2-7b vs Llama-2-13b
+        v = decide(0.4, 3, 0.745, wvc=0.0025)
+        assert v.decision == "Not Matched"
+        assert v.verification == "weights_only"
+        assert v.pipeline_score == 0.65
+
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_is_conflict(self, tier: int) -> None:
+        v = decide(1.0, tier, 0.90, wvc=0.005)
+        assert v.decision == "Not Matched (metadata/weight conflict)"
+        assert v.verification == "weights_conflict"
+
+    def test_low_identity_kept(self) -> None:
+        assert decide(0.4, 3, 0.40, wvc=0.002).pipeline_score == 0.40
+
+    def test_boundary(self) -> None:
+        assert decide(0.4, 3, 0.80, wvc=0.01).decision == "High-Confidence Match"
+        assert decide(0.4, 3, 0.80, wvc=0.0099).decision == "Not Matched"
+
+    def test_low_but_related_wvc_unaffected(self) -> None:
+        # S43: gpt2 vs distilgpt2
+        assert decide(0.4, 3, 0.766, wvc=0.1638).decision == "High-Confidence Match"
+
+    def test_missing_wvc_unaffected(self) -> None:
+        v = decide(1.0, 1, 0.95, deep_signals=False, tfv=1.0)
+        assert v.decision == "Confirmed Match"
