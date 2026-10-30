@@ -27,7 +27,7 @@ or Not Matched.
 - JSON output has a new `verification` value, `weights_shallow`, and a new
   `config_inconsistent` list.
 
-### Security and integrity fixes
+### Scoring and verification fixes
 
 Reported through coordinated disclosure by Huan Bui
 ([@huuhuannt1998](https://github.com/huuhuannt1998), hbui11@charlotte.edu).
