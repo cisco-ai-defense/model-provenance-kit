@@ -33,7 +33,7 @@ or Not Matched.
   installed transformers minor version differs from the one the database was
   built with.
 
-### Security and integrity fixes
+### Scoring and verification fixes
 
 Reported through coordinated disclosure by Huan Bui
 ([@huuhuannt1998](https://github.com/huuhuannt1998), hbui11@charlotte.edu).
