@@ -56,6 +56,12 @@ tokenizer_score = weighted_average(TFV, VOA)
 VOA (vocabulary overlap) carries the larger weight because it is the most
 discriminative tokenizer signal.
 
+In `scan`, VOA is not computed: the database stores only each model's
+vocabulary size, not its tokens. The scan's `tokenizer_score` is therefore
+partial (0.25 × TFV, at most 0.25) and is not comparable with `compare`'s.
+Use the `tfv` field for tokenizer similarity in scan results, or run
+`compare` for the full score.
+
 **Why exclude tokenizer from the pipeline decision?** Provenance is about
 weight initialization, not tokenizer identity. Two independently trained
 models can share a tokenizer (e.g., StableLM and Pythia both use GPT-NeoX

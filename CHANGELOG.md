@@ -97,6 +97,9 @@ Reported through coordinated disclosure by Huan Bui
   of similar shape they can reach Weak Match (unverified).
 - Repos that ship only a SentencePiece `tokenizer.model` can lose EAS anchor
   alignment and score lower against their parent.
+- In `scan`, vocabulary overlap (VOA) is not computed, so `tokenizer_score` is
+  partial (0.25 × TFV, at most 0.25). The scan table now says so; use the `tfv`
+  field or `compare` for tokenizer similarity.
 
 ## 1.0.0
 

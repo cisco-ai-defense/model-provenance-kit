@@ -290,7 +290,7 @@ Model ProvenanceKit combines three categories of evidence into a single pipeline
 
 **Identity score**: NaN-aware weighted average of the 5 weight signals (EAS, NLF, LEP, END, WVC). Signal weights are calibrated via Cohen's d on a 111-pair benchmark. When a signal returns NaN, it is excluded and remaining weights are proportionally rescaled.
 
-**Tokenizer score**: supplementary context, 25% TFV + 75% VOA. Reported alongside identity but not used in the pipeline decision.
+**Tokenizer score**: supplementary context, 25% TFV + 75% VOA. Reported alongside identity but not used in the pipeline decision. In `scan`, VOA is not computed, so the score is partial (at most 0.25); use the `tfv` field or `compare` for tokenizer similarity.
 
 **Pipeline score**: final decision score. Weights decide, metadata supports:
 - Weight evidence available: pipeline score = identity score

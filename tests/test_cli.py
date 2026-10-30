@@ -271,7 +271,8 @@ class TestScanCommand:
         assert "Pipeline Score" in stdout
         assert "MFI Score" in stdout
         assert "Weight Score" in stdout
-        assert "Tokenizer Score" in stdout
+        assert "Tokenizer Score (partial)" in stdout
+        assert "TFV=0.91" in stdout
 
     def test_plain_flag(self) -> None:
         mock_scanner = MagicMock()

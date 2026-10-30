@@ -319,7 +319,11 @@ def format_scan_table(
                 f" LEP={_fmt(s.lep, 2)} END={_fmt(s.end, 2)}"
                 f" WVC={_fmt(s.wvc, 2)})",
             )
-            table.add_row("  Tokenizer Score (TFV only)", _fmt(s.tokenizer_score))
+            table.add_row(
+                "  Tokenizer Score (partial)",
+                f"{_fmt(s.tokenizer_score)}  (TFV={_fmt(s.tfv, 2)}; "
+                "VOA not computed in scan, max 0.25)",
+            )
 
     # ── Metadata-only hint ──
     has_mfi_only = any(m.match_type == "mfi_only" for m in result.matches)
