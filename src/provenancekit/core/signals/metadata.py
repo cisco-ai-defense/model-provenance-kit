@@ -55,7 +55,9 @@ def has_known_architectures(architectures: list[str] | None) -> bool:
     match, otherwise two configs both lacking the key would match on
     a shared absent value.
     """
-    return bool(architectures) and tuple(architectures) != UNKNOWN_ARCHITECTURES
+    if not architectures:
+        return False
+    return tuple(architectures) != UNKNOWN_ARCHITECTURES
 
 
 # ── Config field resolution ────────────────────────────────────────

@@ -896,7 +896,8 @@ def _wvc_sample(tensor: Any, wvc_subsample: int) -> np.ndarray:
     idx = _wvc_sample_indices(flat.numel(), wvc_subsample)
     if idx is not None:
         flat = flat[torch.from_numpy(idx)]
-    return flat.cpu().numpy()
+    sample: np.ndarray = flat.cpu().numpy()
+    return sample
 
 
 def _wvc_sample_from_slice(
@@ -913,7 +914,8 @@ def _wvc_sample_from_slice(
         row_len *= int(s)
     idx = _wvc_sample_indices(total_rows * row_len, wvc_subsample)
     if idx is None:
-        return sl[:].float().flatten().cpu().numpy()
+        full: np.ndarray = sl[:].float().flatten().cpu().numpy()
+        return full
 
     rows, cols = np.divmod(idx, row_len)
     pieces: list[torch.Tensor] = []

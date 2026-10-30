@@ -339,4 +339,4 @@ def _first_declared(cfg: Any, fields: Sequence[str]) -> tuple[str, int | None]:
 def _positive_int(value: Any) -> int | None:
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         return None
-    return value
+    return int(value)

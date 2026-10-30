@@ -615,11 +615,12 @@ def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
     try:
         if is_local_hf_snapshot(model_name):
             base_dir = model_name
-            index_path: str | None = os.path.join(  # noqa: PTH118
+            index_file = os.path.join(  # noqa: PTH118
                 base_dir, "pytorch_model.bin.index.json"
             )
-            if not os.path.isfile(index_path):  # noqa: PTH113
-                index_path = None
+            index_path: str | None = (
+                index_file if os.path.isfile(index_file) else None  # noqa: PTH113
+            )
             single_path: str | None = os.path.join(  # noqa: PTH118
                 base_dir, "pytorch_model.bin"
             )
