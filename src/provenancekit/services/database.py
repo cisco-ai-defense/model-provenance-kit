@@ -168,6 +168,21 @@ class DatabaseService:
                 },
             )
 
+    def transformers_mismatch(self, installed: str) -> str | None:
+        """Return the build's transformers version if its minor differs.
+
+        Tokenizer hashes and class names change between transformers minor
+        releases, so Tier 2 matches can be missed on a different one.
+        Returns ``None`` when the versions agree or the build did not record
+        its version.
+        """
+        built = self.load_manifest().transformers_version
+        if not built:
+            return None
+        if built.split(".")[:2] == installed.split(".")[:2]:
+            return None
+        return built
+
     def load_catalog(self) -> Catalog:
         """Load the full catalog from the sharded manifest.
 

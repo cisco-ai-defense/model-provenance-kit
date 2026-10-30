@@ -26,6 +26,12 @@ or Not Matched.
 - Cached features from 1.0.0 are re-extracted automatically on first use.
 - JSON output has a new `verification` value, `weights_shallow`, and a new
   `config_inconsistent` list.
+- **transformers is now pinned to 5.5.x** (`>=5.5,<5.6`). The database's
+  tokenizer hashes, tokenizer class names, and special-token counts were
+  computed with transformers 5.5 and change in later releases (5.6 onwards),
+  which can cause missed Tier 2 matches. `scan` prints a hint when the
+  installed transformers minor version differs from the one the database was
+  built with.
 
 ### Security and integrity fixes
 
@@ -88,6 +94,8 @@ Reported through coordinated disclosure by Huan Bui
   Llama-3.1-Nemotron-Nano-VL-8B-V1.
 - New `scripts/build_database.py` rebuilds the database and the
   deep-signals archive from an existing catalog.
+- The catalog manifest records the transformers version used for the build
+  (`transformers_version`).
 
 ### Known limitations
 

@@ -20,6 +20,7 @@ Verifies that trust_remote_code defaults to False for security and can be
 explicitly enabled via CLI flags, environment variables, or Settings.
 """
 
+from collections.abc import Iterator
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -173,6 +174,14 @@ def _run_cli(argv: list[str]) -> tuple[str, str, int]:
 
 
 class TestCliTrustRemoteCode:
+    @pytest.fixture(autouse=True)
+    def _no_transformers_mismatch(self) -> Iterator[None]:
+        with patch(
+            "provenancekit.services.database.DatabaseService.transformers_mismatch",
+            return_value=None,
+        ):
+            yield
+
     def test_compare_without_flag_defaults_false(self) -> None:
         mock_scanner = MagicMock()
         mock_settings_cls = MagicMock()

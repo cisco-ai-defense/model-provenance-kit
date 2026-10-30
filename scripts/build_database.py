@@ -59,6 +59,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import structlog
+import transformers
 from huggingface_hub import HfApi, scan_cache_dir, snapshot_download
 
 from provenancekit.config.constants import EXTRACTOR_VERSION
@@ -463,6 +464,7 @@ def _write_catalog(out: Path, jobs: list[_Job], settings: Settings) -> int:
         updated_at=now,
         extractor_version=EXTRACTOR_VERSION,
         extraction_params=settings.extraction_params(),
+        transformers_version=transformers.__version__,
         shards=refs,
     )
     (out / "catalog" / "manifest.json").write_text(

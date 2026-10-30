@@ -211,6 +211,29 @@ class TestCompatibility:
         assert len(DatabaseService(db_root).load_catalog().assets) == 1
 
 
+class TestTransformersMismatch:
+    def test_same_minor_is_not_a_mismatch(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, transformers_version="5.5.0")
+        assert DatabaseService(db_root).transformers_mismatch("5.5.4") is None
+
+    def test_other_minor_returns_build_version(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        _stamp_manifest(db_root, transformers_version="5.5.0")
+        assert DatabaseService(db_root).transformers_mismatch("5.6.2") == "5.5.0"
+
+    def test_unrecorded_version_is_not_a_mismatch(self, tmp_path: Path) -> None:
+        db_root = tmp_path / "db"
+        _build_mini_db(db_root)
+        assert DatabaseService(db_root).transformers_mismatch("5.22.1") is None
+
+    def test_bundled_database_records_version(self) -> None:
+        built = DatabaseService(Settings().db_root).load_manifest().transformers_version
+        assert built == "5.5.0"
+
+
 class TestFeatureBundle:
     def test_load_feature_bundle(self, tmp_path: Path) -> None:
         db_root = tmp_path / "db"
