@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-29T17:18:33.595035+00:00",
+  "updated_at": "2026-10-30T17:55:47.171695+00:00",
   "shard_strategy": "by_family",
   "extractor_version": "2",
   "extraction_params": {
@@ -105,7 +105,7 @@
     {
       "family_id": "metallama--llama",
       "shard_path": "catalog/by-family/metallama--llama.json",
-      "asset_count": 6
+      "asset_count": 8
     },
     {
       "family_id": "microsoft--nextcoder",

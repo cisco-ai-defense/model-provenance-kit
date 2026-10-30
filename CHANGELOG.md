@@ -80,12 +80,11 @@ Reported through coordinated disclosure by Huan Bui
 
 ### Database
 
-- Rebuilt with the fixed extractor: 177 models, each pinned to a Hugging Face
+- Rebuilt with the fixed extractor: 179 models, each pinned to a Hugging Face
   commit (`source_revision`), including the NVIDIA Nemotron fingerprints
   added since 1.0.0.
 - Not yet rebuilt and therefore not scanned against in this release:
-  Llama-3.1-8B, Llama-3.1-8B-Instruct, Llama-3.1-70B-Instruct,
-  Qwen2.5-72B-Instruct, Nemotron-Flash-1B, Nemotron-Flash-3B-Instruct, and
+  Llama-3.1-70B-Instruct, Qwen2.5-72B-Instruct, Nemotron-Flash-1B, Nemotron-Flash-3B-Instruct, and
   Llama-3.1-Nemotron-Nano-VL-8B-V1.
 - New `scripts/build_database.py` rebuilds the database and the
   deep-signals archive from an existing catalog.
