@@ -28,17 +28,23 @@ from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.core.lookup import (
     _LookupCandidate,
     stage1_param_filter,
+    stage2_hash_check,
     stage3_similarity,
 )
 from provenancekit.core.scoring import decide
-from provenancekit.models.signals import MFISimilarity
+from provenancekit.models.signals import ConfigInconsistency, MFISimilarity
 from provenancekit.models.storage import FeatureBundle
 
 _LOOKUP = "provenancekit.core.lookup"
 _SIGNALS = ("eas", "nlf", "lep", "end", "wvc")
 
 
-def _candidate(asset_id: str, *, deep_signals: bool = True) -> _LookupCandidate:
+def _candidate(
+    asset_id: str,
+    *,
+    deep_signals: bool = True,
+    config_inconsistencies: list[ConfigInconsistency] | None = None,
+) -> _LookupCandidate:
     refs = [SimpleNamespace(type="deep_signals", path="p")] if deep_signals else []
     return _LookupCandidate(
         asset=SimpleNamespace(  # type: ignore[arg-type]
@@ -48,9 +54,19 @@ def _candidate(asset_id: str, *, deep_signals: bool = True) -> _LookupCandidate:
             param_bucket="<=1B",
         ),
         bundle=SimpleNamespace(  # type: ignore[arg-type]
-            mfi={}, tfv={}, artifact_refs=refs, model_id=asset_id, family_id="fam"
+            mfi={},
+            tfv={},
+            artifact_refs=refs,
+            model_id=asset_id,
+            family_id="fam",
+            config_inconsistencies=config_inconsistencies or [],
         ),
     )
+
+
+_VOCAB_MISMATCH = ConfigInconsistency(
+    field="vocab_size", declared=32000, observed=[151936]
+)
 
 
 @pytest.fixture
@@ -109,6 +125,54 @@ class TestStage3Verdict:
         assert match.provenance_decision == "Metadata Match (unverified)"
         assert match.scores.verification == "unverified"
         assert match.scores.pipeline_score == 1.0
+
+    @pytest.mark.parametrize(
+        ("query_trusted", "reference_issues", "trusted"),
+        [
+            (True, [], True),
+            (False, [], False),
+            (True, [_VOCAB_MISMATCH], False),
+        ],
+    )
+    def test_metadata_trusted_needs_query_and_reference(
+        self,
+        scoring_patches: dict[str, Any],
+        query_trusted: bool,
+        reference_issues: list[ConfigInconsistency],
+        trusted: bool,
+    ) -> None:
+        scoring_patches["mfi"].return_value = MFISimilarity(
+            score=0.5, tier=3, match_type="none"
+        )
+        stage3_similarity(
+            MagicMock(),
+            MagicMock(),
+            MagicMock(),
+            [_candidate("db/a", config_inconsistencies=reference_issues)],
+            _db_service(),
+            metadata_trusted=query_trusted,
+        )
+        kwargs = scoring_patches["mfi"].call_args.kwargs
+        assert kwargs["metadata_trusted"] is trusted
+
+
+class TestStage2UntrustedReference:
+    def test_no_hash_label_for_inconsistent_reference(self) -> None:
+        test_fp = SimpleNamespace(
+            arch_hash="a", family_hash="f", architectures=["LlamaForCausalLM"]
+        )
+        mfi = {
+            "arch_hash": "a",
+            "family_hash": "f",
+            "architectures": ["LlamaForCausalLM"],
+        }
+        clean = _candidate("db/clean")
+        flagged = _candidate("db/flagged", config_inconsistencies=[_VOCAB_MISMATCH])
+        clean.bundle.mfi = mfi
+        flagged.bundle.mfi = mfi
+        stage2_hash_check(test_fp, [clean, flagged])  # type: ignore[arg-type]
+        assert clean.hash_match == "exact_arch"
+        assert flagged.hash_match is None
 
 
 class TestRanking:
@@ -183,4 +247,25 @@ class TestStage1BundleVersion:
         db.load_feature_bundle.return_value = FeatureBundle(extractor_version=version)
         with patch(f"{_LOOKUP}.compute_param_bucket", return_value="<=1B"):
             candidates = stage1_param_filter(MagicMock(), catalog, db)  # type: ignore[arg-type]
+        assert bool(candidates) is kept
+
+
+class TestStage1UntrustedConfig:
+    @pytest.mark.parametrize(("trusted", "kept"), [(True, False), (False, True)])
+    def test_bucket_filter_skipped_for_untrusted_config(
+        self, trusted: bool, kept: bool
+    ) -> None:
+        asset = SimpleNamespace(
+            asset_id="db/a", param_bucket="40B+", feature_path="features/a.json"
+        )
+        catalog = SimpleNamespace(assets={"db/a": asset})
+        db = _db_service()
+        db.load_feature_bundle.return_value = FeatureBundle()
+        with patch(f"{_LOOKUP}.compute_param_bucket", return_value="<=1B"):
+            candidates = stage1_param_filter(
+                MagicMock(),
+                catalog,  # type: ignore[arg-type]
+                db,
+                metadata_trusted=trusted,
+            )
         assert bool(candidates) is kept

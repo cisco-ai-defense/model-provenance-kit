@@ -28,7 +28,7 @@ Six public similarity functions compute NaN-aware pairwise scores from
 import gc
 import os
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any
 
 import numpy as np
@@ -281,6 +281,14 @@ def _extract_signals_streaming_impl(
         path = _get_shard_path(shard_file)
         with streamer.open_shard(path) as handle:
             return streamer.get_tensor(handle, tensor_name)
+
+    if _has_float8_tensor(streamer, weight_map, _get_shard_path):
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            model_id=model_name,
+            format="fp8",
+        )
+        return None
 
     # ── EAS + END ──
     log.info("streaming_eas_end_start", model_id=model_name)
@@ -866,6 +874,40 @@ def _process_tensor_sliced(
             )
 
         del tensor
+
+
+def _has_float8_tensor(
+    streamer: Any,
+    weight_map: dict[str, str],
+    shard_path: Callable[[str], str],
+) -> bool:
+    """Whether any tensor is stored as FP8, as checked on full loads.
+
+    Safetensors dtypes come from the shard header, so no weights are read.
+    Unreadable shards and tensors are skipped, as in the extraction loop.
+    """
+    by_shard: dict[str, list[str]] = defaultdict(list)
+    for name, shard in weight_map.items():
+        by_shard[shard].append(name)
+    for shard, names in sorted(by_shard.items()):
+        try:
+            with streamer.open_shard(shard_path(shard)) as handle:
+                for name in names:
+                    try:
+                        if streamer.supports_slicing:
+                            dtype = streamer.get_slice(handle, name).get_dtype()
+                        else:
+                            dtype = streamer.get_tensor(handle, name).dtype
+                    except Exception as exc:  # noqa: BLE001
+                        log.debug(
+                            "fp8_check_tensor_failed", tensor=name, error=str(exc)
+                        )
+                        continue
+                    if is_float8_dtype(dtype):
+                        return True
+        except Exception as exc:  # noqa: BLE001
+            log.debug("fp8_check_shard_failed", shard=shard, error=str(exc))
+    return False
 
 
 def _is_signal_tensor(name: str, is_floating: bool) -> bool:

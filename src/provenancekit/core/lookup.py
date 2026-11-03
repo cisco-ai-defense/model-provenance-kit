@@ -103,11 +103,16 @@ def stage1_param_filter(
     test_fp: MFIFingerprint,
     catalog: Catalog,
     db_service: DatabaseService,
+    *,
+    metadata_trusted: bool = True,
 ) -> list[_LookupCandidate]:
     """Filter DB assets by param-bucket proximity.
 
     Allows the test model's bucket plus one adjacent bucket on each
     side.  For each surviving asset, loads its ``FeatureBundle``.
+
+    The bucket is estimated from ``config.json``, so no bucket filter is
+    applied when ``metadata_trusted`` is False.
 
     Returns:
         Candidates with their feature bundles loaded, ready for
@@ -125,13 +130,14 @@ def stage1_param_filter(
         "stage1_start",
         test_bucket=test_bucket,
         allowed_buckets=sorted(allowed),
+        metadata_trusted=metadata_trusted,
     )
 
     candidates: list[_LookupCandidate] = []
     skipped = 0
 
     for asset in catalog.assets.values():
-        if asset.param_bucket not in allowed:
+        if metadata_trusted and asset.param_bucket not in allowed:
             skipped += 1
             continue
         if not asset.feature_path:
@@ -187,7 +193,8 @@ def stage2_hash_check(
     avoids false negatives when config variations (e.g. ``rope_scaling``)
     change the hash despite the model being a clear derivative.
 
-    No hash labels are assigned when ``metadata_trusted`` is False.
+    No hash labels are assigned when ``metadata_trusted`` is False, or
+    to references whose own config contradicts their tensors.
     """
     t0 = time.perf_counter()
     log.info(
@@ -202,6 +209,8 @@ def stage2_hash_check(
     hash_match_count = 0
     test_arch_known = has_known_architectures(test_fp.architectures)
     for cand in candidates:
+        if cand.bundle.config_inconsistencies:
+            continue
         db_mfi = cand.bundle.mfi
         arch_match = (
             test_arch_known
@@ -277,7 +286,11 @@ def stage3_similarity(
 
         # -- MFI similarity --
         db_fp = MFIFingerprint.model_validate(bundle.mfi)
-        mfi_sim = mfi_similarity(test_fp, db_fp, metadata_trusted=metadata_trusted)
+        mfi_sim = mfi_similarity(
+            test_fp,
+            db_fp,
+            metadata_trusted=metadata_trusted and not bundle.config_inconsistencies,
+        )
 
         # -- TFV similarity --
         tfv_s = float("nan")
@@ -417,8 +430,8 @@ def run_lookup(
         top_k: Maximum number of matches to return.
         threshold: Minimum ``pipeline_score`` for inclusion.
         metadata_trusted: ``False`` when the query model's config
-            contradicts its stored tensors; MFI Tier 1/2 and hash
-            labels are then not applied.
+            contradicts its stored tensors; the param-bucket filter,
+            MFI Tier 1/2 and hash labels are then not applied.
 
     Returns:
         Up to *top_k* :class:`ScanMatch` objects sorted by descending
@@ -430,7 +443,9 @@ def run_lookup(
     catalog = db_service.load_catalog()
 
     # Stage 1 — param bucket filter
-    candidates = stage1_param_filter(test_fp, catalog, db_service)
+    candidates = stage1_param_filter(
+        test_fp, catalog, db_service, metadata_trusted=metadata_trusted
+    )
     if not candidates:
         log.warning("lookup_no_candidates_after_stage1")
         return []

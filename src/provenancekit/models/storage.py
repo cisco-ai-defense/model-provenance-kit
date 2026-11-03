@@ -35,6 +35,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from provenancekit.models.signals import ConfigInconsistency
+
 # ── Catalog entities ─────────────────────────────────────────────
 
 
@@ -169,9 +171,11 @@ class FeatureBundle(BaseModel):
     status: str = "ok"
     updated_at: str = ""
     extractor_version: str | None = None
+    extraction_params: dict[str, int] | None = None
     source_revision: str | None = None
     ws_loader: dict[str, str | None] | None = None
     missing_signals: list[str] = Field(default_factory=list)
+    config_inconsistencies: list[ConfigInconsistency] = Field(default_factory=list)
     mfi: dict[str, Any] = Field(default_factory=dict)
     tfv: dict[str, Any] = Field(default_factory=dict)
     vocab: dict[str, Any] = Field(default_factory=dict)

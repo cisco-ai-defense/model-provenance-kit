@@ -185,6 +185,42 @@ class TestUnsupportedQuantization:
         }
         assert extract_signals(state, config=None) is None
 
+    @pytest.mark.parametrize("threshold", [20e9, 0], ids=["streaming", "sliced"])
+    def test_streaming_float8_dtype_fails_safe_without_config(
+        self, threshold: float, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        if not hasattr(torch, "float8_e4m3fn"):
+            pytest.skip("torch build has no FP8 dtype")
+        from provenancekit.core.signals import weight_signals
+
+        state = _llama_state()
+        state = {
+            name: t.to(torch.float8_e4m3fn) if "proj" in name else t
+            for name, t in state.items()
+        }
+        _write_config(tmp_path)
+        save_file(
+            {n: t.contiguous() for n, t in state.items()},
+            str(tmp_path / "model.safetensors"),
+        )
+        monkeypatch.setattr(weight_signals, "_SLICE_DISK_THRESHOLD_BYTES", threshold)
+        assert extract_signals_streaming(str(tmp_path)) is None
+
+    def test_float8_check_skips_unreadable_entries(self, tmp_path: Path) -> None:
+        from provenancekit.core.signals import streamers, weight_signals
+
+        save_file({"a.weight": torch.zeros(4, 4)}, str(tmp_path / "ok.safetensors"))
+        streamer = streamers.SafetensorsStreamer(
+            {
+                "a.weight": "ok.safetensors",
+                "listed_but_absent.weight": "ok.safetensors",
+                "b.weight": "missing.safetensors",
+            }
+        )
+        assert not weight_signals._has_float8_tensor(
+            streamer, streamer.weight_map, lambda shard: str(tmp_path / shard)
+        )
+
     def test_streaming_returns_before_reading_shards(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:

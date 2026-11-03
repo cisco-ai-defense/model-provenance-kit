@@ -24,7 +24,8 @@ existing database, re-extracts every model with the same code path that
 
 Each model is downloaded at a pinned commit (recorded as
 ``source_revision``) and extracted from that local snapshot.  Finished
-models are skipped on re-runs, so an interrupted build can be resumed.
+models are skipped on re-runs, so an interrupted build can be resumed;
+models built with a different extractor version or settings are rebuilt.
 
 Usage::
 
@@ -348,6 +349,7 @@ def _build_one(
             _delete_download(revision)
 
     ws = data.ws
+    inconsistent = (ws.config_inconsistencies or []) if ws else []
     available = _available(ws)
     missing = [s for s in _SIGNALS if s not in available]
     artifact_refs: list[ArtifactRef] = []
@@ -374,9 +376,11 @@ def _build_one(
         status="ok" if not missing else "partial",
         updated_at=datetime.now(UTC).isoformat(),
         extractor_version=EXTRACTOR_VERSION,
+        extraction_params=settings.extraction_params(),
         source_revision=revision,
         ws_loader=data.ws_loader,
         missing_signals=missing,
+        config_inconsistencies=inconsistent,
         mfi=data.fp.model_dump(),
         tfv=data.tfv.model_dump(),
         vocab={"size": data.tfv.vocab_size},
@@ -392,9 +396,6 @@ def _build_one(
     tmp.write_text(bundle.model_dump_json(indent=2), encoding="utf-8")
     tmp.replace(bundle_path)
 
-    inconsistent = (
-        [c.model_dump() for c in (ws.config_inconsistencies or [])] if ws else []
-    )
     return {
         "repo": job.repo_id,
         "asset_id": job.asset.asset_id,
@@ -404,12 +405,12 @@ def _build_one(
         "status": bundle.status,
         "missing_signals": missing,
         "loader": data.ws_loader,
-        "config_inconsistencies": inconsistent,
+        "config_inconsistencies": [c.model_dump() for c in inconsistent],
         "seconds": round(time.monotonic() - t0, 1),
     }
 
 
-def _is_built(out: Path, job: _Job) -> bool:
+def _is_built(out: Path, job: _Job, settings: Settings) -> bool:
     path = out / job.bundle_rel()
     if not path.exists():
         return False
@@ -417,7 +418,10 @@ def _is_built(out: Path, job: _Job) -> bool:
         bundle = FeatureBundle.model_validate_json(path.read_text(encoding="utf-8"))
     except ValueError:
         return False
-    return bundle.extractor_version == EXTRACTOR_VERSION
+    return (
+        bundle.extractor_version == EXTRACTOR_VERSION
+        and bundle.extraction_params == settings.extraction_params()
+    )
 
 
 # ?? Catalog and archive ???????????????????????????????????????????
@@ -428,7 +432,7 @@ def _write_catalog(out: Path, jobs: list[_Job], settings: Settings) -> int:
     now = datetime.now(UTC).isoformat()
     by_family: dict[str, list[_Job]] = {}
     for job in jobs:
-        if _is_built(out, job):
+        if _is_built(out, job, settings):
             by_family.setdefault(job.family_id, []).append(job)
 
     refs: list[ShardRef] = []
@@ -535,7 +539,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     failures = 0
     for i, job in enumerate(selected, 1):
-        if not args.force and _is_built(args.out, job):
+        if not args.force and _is_built(args.out, job, settings):
             print(f"[{i}/{len(selected)}] {job.repo_id}: already built")
             continue
         print(f"[{i}/{len(selected)}] {job.repo_id} ...", flush=True)
