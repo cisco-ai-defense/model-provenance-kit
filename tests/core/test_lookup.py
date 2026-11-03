@@ -184,3 +184,24 @@ class TestStage1BundleVersion:
         with patch(f"{_LOOKUP}.compute_param_bucket", return_value="<=1B"):
             candidates = stage1_param_filter(MagicMock(), catalog, db)  # type: ignore[arg-type]
         assert bool(candidates) is kept
+
+
+class TestStage1UntrustedConfig:
+    @pytest.mark.parametrize(("trusted", "kept"), [(True, False), (False, True)])
+    def test_bucket_filter_skipped_for_untrusted_config(
+        self, trusted: bool, kept: bool
+    ) -> None:
+        asset = SimpleNamespace(
+            asset_id="db/a", param_bucket="40B+", feature_path="features/a.json"
+        )
+        catalog = SimpleNamespace(assets={"db/a": asset})
+        db = _db_service()
+        db.load_feature_bundle.return_value = FeatureBundle()
+        with patch(f"{_LOOKUP}.compute_param_bucket", return_value="<=1B"):
+            candidates = stage1_param_filter(
+                MagicMock(),
+                catalog,  # type: ignore[arg-type]
+                db,
+                metadata_trusted=trusted,
+            )
+        assert bool(candidates) is kept

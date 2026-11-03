@@ -103,11 +103,16 @@ def stage1_param_filter(
     test_fp: MFIFingerprint,
     catalog: Catalog,
     db_service: DatabaseService,
+    *,
+    metadata_trusted: bool = True,
 ) -> list[_LookupCandidate]:
     """Filter DB assets by param-bucket proximity.
 
     Allows the test model's bucket plus one adjacent bucket on each
     side.  For each surviving asset, loads its ``FeatureBundle``.
+
+    The bucket is estimated from ``config.json``, so no bucket filter is
+    applied when ``metadata_trusted`` is False.
 
     Returns:
         Candidates with their feature bundles loaded, ready for
@@ -125,13 +130,14 @@ def stage1_param_filter(
         "stage1_start",
         test_bucket=test_bucket,
         allowed_buckets=sorted(allowed),
+        metadata_trusted=metadata_trusted,
     )
 
     candidates: list[_LookupCandidate] = []
     skipped = 0
 
     for asset in catalog.assets.values():
-        if asset.param_bucket not in allowed:
+        if metadata_trusted and asset.param_bucket not in allowed:
             skipped += 1
             continue
         if not asset.feature_path:
@@ -417,8 +423,8 @@ def run_lookup(
         top_k: Maximum number of matches to return.
         threshold: Minimum ``pipeline_score`` for inclusion.
         metadata_trusted: ``False`` when the query model's config
-            contradicts its stored tensors; MFI Tier 1/2 and hash
-            labels are then not applied.
+            contradicts its stored tensors; the param-bucket filter,
+            MFI Tier 1/2 and hash labels are then not applied.
 
     Returns:
         Up to *top_k* :class:`ScanMatch` objects sorted by descending
@@ -430,7 +436,9 @@ def run_lookup(
     catalog = db_service.load_catalog()
 
     # Stage 1 — param bucket filter
-    candidates = stage1_param_filter(test_fp, catalog, db_service)
+    candidates = stage1_param_filter(
+        test_fp, catalog, db_service, metadata_trusted=metadata_trusted
+    )
     if not candidates:
         log.warning("lookup_no_candidates_after_stage1")
         return []
