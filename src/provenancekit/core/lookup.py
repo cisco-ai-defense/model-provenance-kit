@@ -193,7 +193,8 @@ def stage2_hash_check(
     avoids false negatives when config variations (e.g. ``rope_scaling``)
     change the hash despite the model being a clear derivative.
 
-    No hash labels are assigned when ``metadata_trusted`` is False.
+    No hash labels are assigned when ``metadata_trusted`` is False, or
+    to references whose own config contradicts their tensors.
     """
     t0 = time.perf_counter()
     log.info(
@@ -208,6 +209,8 @@ def stage2_hash_check(
     hash_match_count = 0
     test_arch_known = has_known_architectures(test_fp.architectures)
     for cand in candidates:
+        if cand.bundle.config_inconsistencies:
+            continue
         db_mfi = cand.bundle.mfi
         arch_match = (
             test_arch_known
@@ -283,7 +286,11 @@ def stage3_similarity(
 
         # -- MFI similarity --
         db_fp = MFIFingerprint.model_validate(bundle.mfi)
-        mfi_sim = mfi_similarity(test_fp, db_fp, metadata_trusted=metadata_trusted)
+        mfi_sim = mfi_similarity(
+            test_fp,
+            db_fp,
+            metadata_trusted=metadata_trusted and not bundle.config_inconsistencies,
+        )
 
         # -- TFV similarity --
         tfv_s = float("nan")

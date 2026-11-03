@@ -32,6 +32,7 @@ from provenancekit.core.signals.metadata import (
 )
 from provenancekit.exceptions import ExtractionError
 from provenancekit.models.signals import MFIFingerprint, MFISimilarity
+from provenancekit.models.storage import FeatureBundle
 
 # ── Reusable fixture builders ──────────────────────────────────────
 
@@ -428,7 +429,7 @@ class TestStage2HashCheckUnknownArchitectures:
     def _candidate(**mfi: Any) -> _LookupCandidate:
         return _LookupCandidate(
             asset=SimpleNamespace(asset_id="db/model"),  # type: ignore[arg-type]
-            bundle=SimpleNamespace(mfi=mfi),  # type: ignore[arg-type]
+            bundle=FeatureBundle(mfi=mfi),
         )
 
     def test_unknown_vs_unknown_not_exact_arch(self) -> None:

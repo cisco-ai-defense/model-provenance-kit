@@ -347,6 +347,7 @@ def _build_one(
             _delete_download(revision)
 
     ws = data.ws
+    inconsistent = (ws.config_inconsistencies or []) if ws else []
     available = _available(ws)
     missing = [s for s in _SIGNALS if s not in available]
     artifact_refs: list[ArtifactRef] = []
@@ -376,6 +377,7 @@ def _build_one(
         source_revision=revision,
         ws_loader=data.ws_loader,
         missing_signals=missing,
+        config_inconsistencies=inconsistent,
         mfi=data.fp.model_dump(),
         tfv=data.tfv.model_dump(),
         vocab={"size": data.tfv.vocab_size},
@@ -391,9 +393,6 @@ def _build_one(
     tmp.write_text(bundle.model_dump_json(indent=2), encoding="utf-8")
     tmp.replace(bundle_path)
 
-    inconsistent = (
-        [c.model_dump() for c in (ws.config_inconsistencies or [])] if ws else []
-    )
     return {
         "repo": job.repo_id,
         "asset_id": job.asset.asset_id,
@@ -403,7 +402,7 @@ def _build_one(
         "status": bundle.status,
         "missing_signals": missing,
         "loader": data.ws_loader,
-        "config_inconsistencies": inconsistent,
+        "config_inconsistencies": [c.model_dump() for c in inconsistent],
         "seconds": round(time.monotonic() - t0, 1),
     }
 
