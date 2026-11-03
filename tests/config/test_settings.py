@@ -16,6 +16,7 @@
 
 from pathlib import Path
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.config.settings import Settings
 
 
@@ -27,8 +28,13 @@ def test_defaults():
     assert isinstance(s.cache_dir, Path)
     assert s.hf_dataset_repo
     assert s.hf_dataset_repo in s.hf_deep_signals_url
-    assert "deep-signals.zip" in s.hf_deep_signals_url
+    assert s.hf_deep_signals_url.endswith(f"deep-signals-v{EXTRACTOR_VERSION}.zip")
     assert len(s.hf_deep_signals_sha256) == 64
+
+
+def test_extraction_params(monkeypatch):
+    monkeypatch.setenv("PROVENANCEKIT_WVC_SUBSAMPLE", "1024")
+    assert Settings().extraction_params() == {"anchor_k": 64, "wvc_subsample": 1024}
 
 
 def test_env_override(monkeypatch):

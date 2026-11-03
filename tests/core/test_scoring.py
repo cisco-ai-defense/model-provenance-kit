@@ -18,9 +18,12 @@
 
 import math
 
+import pytest
+
 from provenancekit.core.scoring import (
     compute_identity_score,
     compute_tokenizer_score,
+    decide,
     interpret_score,
 )
 from provenancekit.models.results import ScoreInterpretation
@@ -123,3 +126,156 @@ class TestInterpretScore:
             result = interpret_score(s)
             assert result.colour.startswith("#")
             assert len(result.colour) == 7
+
+
+# ── decide ────────────────────────────────────────────────────────
+
+
+class TestDecide:
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_weights_agree(self, tier: int) -> None:
+        v = decide(1.0, tier, 0.90)
+        assert v.pipeline_score == 0.90
+        assert v.decision == "Confirmed Match"
+        assert v.verification == "weights_agree"
+
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_weights_weak(self, tier: int) -> None:
+        v = decide(0.9, tier, 0.70)
+        assert v.pipeline_score == 0.70
+        assert v.decision == "Weak Match (metadata match, weak weight evidence)"
+        assert v.verification == "weights_weak"
+
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_weights_conflict(self, tier: int) -> None:
+        v = decide(1.0, tier, 0.5248)
+        assert v.pipeline_score == 0.5248
+        assert v.decision == "Not Matched (metadata/weight conflict)"
+        assert v.verification == "weights_conflict"
+
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_no_weights_unverified(self, tier: int) -> None:
+        v = decide(1.0, tier, NAN)
+        assert v.pipeline_score == 1.0
+        assert v.decision == "Metadata Match (unverified)"
+        assert v.verification == "unverified"
+        assert v.interpretation.colour == "#999999"
+
+    def test_tier3_with_weights_uses_score_bands(self) -> None:
+        assert decide(0.4, 3, 0.80).decision == "High-Confidence Match"
+        assert decide(0.4, 3, 0.70).decision == "Weak Match"
+        v = decide(0.4, 3, 0.30)
+        assert v.decision == "Not Matched"
+        assert v.verification == "weights_only"
+        assert v.pipeline_score == 0.30
+
+    def test_tier3_no_weights_high_soft_score_unverified(self) -> None:
+        v = decide(0.85, 3, NAN)
+        assert v.pipeline_score == 0.85
+        assert v.decision == "Metadata Match (unverified)"
+        assert v.verification == "unverified"
+
+    def test_tier3_no_weights_low_soft_score_not_matched(self) -> None:
+        v = decide(0.40, 3, NAN)
+        assert v.decision == "Not Matched (unverified)"
+        assert v.verification == "unverified"
+
+    def test_boundaries(self) -> None:
+        assert decide(1.0, 1, 0.75).verification == "weights_weak"
+        assert decide(1.0, 1, 0.65).verification == "weights_conflict"
+
+    def test_metadata_alone_never_confirms(self) -> None:
+        for tier in (1, 2, 3):
+            assert "Confirmed" not in decide(1.0, tier, NAN).decision
+
+
+class TestDecideWithoutDeepSignals:
+    """LEP and WVC both missing, e.g. packed quantized weights."""
+
+    def test_quantized_vs_unrelated_capped(self) -> None:
+        # D05: Huihui-HY-MT1.5-1.8B vs phi-4-AWQ
+        v = decide(0.4511, 3, 0.7721, deep_signals=False, tfv=0.4329)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+        assert v.verification == "weights_shallow"
+        assert v.interpretation.label == "Weak Match (unverified)"
+        assert v.pipeline_score == 0.75
+
+    @pytest.mark.parametrize(("tier", "identity"), [(1, 1.0), (2, 0.9981)])
+    def test_quantized_vs_base_with_same_tokenizer_confirmed(
+        self, tier: int, identity: float
+    ) -> None:
+        # S40 (bnb-4bit) and S26 (AWQ) vs their base models
+        v = decide(1.0, tier, identity, deep_signals=False, tfv=1.0)
+        assert v.decision == "Confirmed Match"
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == identity
+        assert v.interpretation.colour == "#f39c12"
+
+    def test_tier3_with_same_tokenizer_is_still_capped(self) -> None:
+        # Q06: same-family siblings can share a tokenizer without lineage.
+        v = decide(0.4, 3, 0.80, deep_signals=False, tfv=0.95)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+        assert v.pipeline_score == 0.75
+
+    def test_tier1_capped_when_tokenizers_disagree(self) -> None:
+        v = decide(1.0, 1, 0.95, deep_signals=False, tfv=0.5)
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == 0.75
+
+    def test_missing_tfv_counts_as_disagreement(self) -> None:
+        v = decide(0.4, 3, 0.85, deep_signals=False)
+        assert v.verification == "weights_shallow"
+        assert v.pipeline_score == 0.75
+
+    def test_tfv_boundary(self) -> None:
+        assert decide(1.0, 1, 0.85, deep_signals=False, tfv=0.9).decision == (
+            "Confirmed Match"
+        )
+        assert decide(1.0, 1, 0.85, deep_signals=False, tfv=0.8999).decision == (
+            "Weak Match (unverified, no deep weight signals)"
+        )
+
+    def test_high_confidence_boundary_is_not_confirmed(self) -> None:
+        v = decide(1.0, 1, 0.75, deep_signals=False, tfv=1.0)
+        assert v.decision == "Weak Match (unverified, no deep weight signals)"
+
+    def test_low_identity_not_matched_unchanged(self) -> None:
+        v = decide(0.4, 3, 0.50, deep_signals=False, tfv=0.2)
+        assert v.decision == "Not Matched"
+        assert v.verification == "weights_only"
+
+    def test_deep_signals_present_unaffected(self) -> None:
+        v = decide(0.4, 3, 0.80, deep_signals=True, tfv=0.2)
+        assert v.decision == "High-Confidence Match"
+
+
+class TestDecideUnrelatedWeights:
+    """WVC near zero: shared architecture and tokenizer, unrelated weights."""
+
+    def test_same_family_tier3_not_matched(self) -> None:
+        # D30: Llama-2-7b vs Llama-2-13b
+        v = decide(0.4, 3, 0.745, wvc=0.0025)
+        assert v.decision == "Not Matched"
+        assert v.verification == "weights_only"
+        assert v.pipeline_score == 0.65
+
+    @pytest.mark.parametrize("tier", [1, 2])
+    def test_metadata_match_is_conflict(self, tier: int) -> None:
+        v = decide(1.0, tier, 0.90, wvc=0.005)
+        assert v.decision == "Not Matched (metadata/weight conflict)"
+        assert v.verification == "weights_conflict"
+
+    def test_low_identity_kept(self) -> None:
+        assert decide(0.4, 3, 0.40, wvc=0.002).pipeline_score == 0.40
+
+    def test_boundary(self) -> None:
+        assert decide(0.4, 3, 0.80, wvc=0.01).decision == "High-Confidence Match"
+        assert decide(0.4, 3, 0.80, wvc=0.0099).decision == "Not Matched"
+
+    def test_low_but_related_wvc_unaffected(self) -> None:
+        # S43: gpt2 vs distilgpt2
+        assert decide(0.4, 3, 0.766, wvc=0.1638).decision == "High-Confidence Match"
+
+    def test_missing_wvc_unaffected(self) -> None:
+        v = decide(1.0, 1, 0.95, deep_signals=False, tfv=1.0)
+        assert v.decision == "Confirmed Match"

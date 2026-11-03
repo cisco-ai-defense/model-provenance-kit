@@ -18,14 +18,14 @@ Model Provenance Kit is a Python toolkit and CLI for detecting model provenance.
 - **Database scan**: scan a model against a reference database of known base-model fingerprints.
 - **Deep-signal fingerprints**: download pre-computed weight fingerprints for weight-level matching.
 - **Multi-signal pipeline**: combines metadata (MFI), tokenizer (TFV, VOA), and weight signals (EAS, NLF, LEP, END, WVC) into a single pipeline score.
-- **MFI gate**: architecture metadata acts as a fast structural gate before expensive weight analysis.
+- **Weights decide**: architecture metadata (MFI) supports the verdict but never confirms a match without weight evidence.
 - **Two-layer caching**: in-memory + disk JSON cache for fast repeat runs.
 - **Multiple output formats**: Rich terminal table (default), JSON, or plain text.
 - **Streaming support**: models over 20 GB are loaded via streaming to limit memory usage.
 
 ## Reference Database
 
-The bundled reference database contains fingerprints for **~150 base models** spanning **45+ model families** from **20+ publishers**, ranging from 135M to 70B+ parameters. Covered publishers include:
+The bundled reference database contains fingerprints for **~175 base models** spanning **45+ model families** from **20+ publishers**, ranging from 135M to 70B+ parameters. Covered publishers include:
 
 Meta, Google, Alibaba, Microsoft, Mistral AI, DeepSeek, TII, Zhipu AI, NVIDIA, IBM, BigScience, OpenAI, Allen AI, Facebook AI, Stability AI, Hugging Face, Cohere, Databricks, Tencent, Moonshot AI, MiniMax, and more.
 
@@ -39,7 +39,7 @@ For deeper technical details, see the guides in [`docs/`](docs/):
 |-------|-------------|
 | [Pipeline Architecture](docs/architecture.md) | End-to-end data flow, compare vs scan modes, phase breakdown |
 | [Signal Reference](docs/signals.md) | Extraction, similarity, and behaviour of all 8 provenance signals |
-| [Scoring and Model Loading](docs/scoring-and-model-loading.md) | Identity/tokenizer scores, MFI gate, NaN handling, large-model streaming |
+| [Scoring and Model Loading](docs/scoring-and-model-loading.md) | Identity/tokenizer scores, verdict rules, NaN handling, large-model streaming |
 | [Database and Caching](docs/database-and-caching.md) | Seed database layout, deep-signal download, two-layer cache, HMAC integrity |
 
 For the formal definition of model provenance — what counts as a provenance relationship and what does not — see the [Model Provenance Constitution](docs/constitution/model_provenance_constitution.md).
@@ -160,6 +160,7 @@ provenancekit [--verbose] compare MODEL_A MODEL_B [options]
 | `--cache-dir PATH` | Override the default cache directory |
 | `--no-cache` | Disable feature caching entirely |
 | `--timing` | Show high-level phase timings |
+| `--trust-remote-code` | Allow model-hosted Python code (config/tokenizer); use only with models you trust |
 
 **Examples:**
 
@@ -194,6 +195,7 @@ provenancekit [--verbose] scan MODEL_ID [options]
 | `--cache-dir PATH` | `~/.provenancekit/cache` | Override the default cache directory |
 | `--no-cache` | | Disable feature caching |
 | `--timing` | | Show phase-level timing breakdown |
+| `--trust-remote-code` | | Allow model-hosted Python code (config/tokenizer); use only with models you trust |
 
 **Examples:**
 
@@ -217,7 +219,7 @@ provenancekit scan gpt2 --db-root /path/to/my/database
 2. Run a 3-stage lookup against the provenance database:
    - **Stage 1 (Param Filter)**: size-bucket filtering (±1 adjacent bucket).
    - **Stage 2 (Hash Check)**: annotate candidates with exact/family/none match.
-   - **Stage 3 (Similarity)**: full scoring per candidate with MFI gate.
+   - **Stage 3 (Similarity)**: full scoring per candidate (MFI tier + weight identity).
 3. Return ranked matches with scores, decision labels, and signal breakdowns.
 
 ### `provenancekit download-deepsignals-fingerprint`
@@ -235,7 +237,7 @@ provenancekit download-deepsignals-fingerprint [options]
 
 **What it does:**
 
-1. Downloads `deep-signals.zip` from HuggingFace Hub (HTTPS only).
+1. Downloads `deep-signals-v2.zip` from HuggingFace Hub (HTTPS only).
 2. Verifies SHA-256 integrity (unless `--no-verify`).
 3. Extracts parquet files with safety checks (size limits, path traversal protection, symlink rejection).
 4. Performs an atomic swap of the `by-family/` directory.
@@ -288,20 +290,31 @@ Model ProvenanceKit combines three categories of evidence into a single pipeline
 
 **Identity score**: NaN-aware weighted average of the 5 weight signals (EAS, NLF, LEP, END, WVC). Signal weights are calibrated via Cohen's d on a 111-pair benchmark. When a signal returns NaN, it is excluded and remaining weights are proportionally rescaled.
 
-**Tokenizer score**: supplementary context, 25% TFV + 75% VOA. Reported alongside identity but not used in the pipeline decision.
+**Tokenizer score**: supplementary context, 25% TFV + 75% VOA. Reported alongside identity but not used in the pipeline decision. In `scan`, VOA is not computed, so the score is partial (at most 0.25); use the `tfv` field or `compare` for tokenizer similarity.
 
-**Pipeline score**: final decision score using the MFI gate:
-- MFI Tier 1-2 (structural match): pipeline score = MFI score
-- MFI Tier 3 (no structural match): pipeline score = identity score
+**Pipeline score**: final decision score. Weights decide, metadata supports:
+- Weight evidence available: pipeline score = identity score
+- No weight evidence: pipeline score = MFI score, and the decision is marked unverified
 
 ### Score Interpretation
 
-| Pipeline Score | Verdict |
-|----------------|---------|
-| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
-| S > 0.75 | High-Confidence Match |
-| 0.65 < S ≤ 0.75 | Weak Match |
-| S ≤ 0.65 | Not Matched |
+| MFI Tier | Identity Score (I) | Verdict |
+|----------|--------------------|---------|
+| 1–2 | I > 0.75 | Confirmed Match |
+| 1–2 | 0.65 < I ≤ 0.75 | Weak Match (metadata match, weak weight evidence) |
+| 1–2 | I ≤ 0.65 | Not Matched (metadata/weight conflict) |
+| 3 | I > 0.75 | High-Confidence Match |
+| 3 | 0.65 < I ≤ 0.75 | Weak Match |
+| 3 | I ≤ 0.65 | Not Matched |
+| any | NaN | Metadata Match (unverified) / Not Matched (unverified) |
+
+Two rules adjust this table:
+- **Unrelated weights**: when WVC is computed and below 0.01, the score is capped at 0.65 (Not Matched). Separately trained models of the same family share architecture and tokenizer, which can lift the other signals above the match bands.
+- **Shallow evidence** (no LEP and WVC, e.g. bitsandbytes, AWQ, GPTQ): a match needs MFI Tier 1/2 and matching tokenizers; otherwise the score is capped at 0.75, Weak Match (unverified).
+
+A model whose `config.json` contradicts its own tensor shapes gets no MFI Tier 1/2; the fields are listed in `config_inconsistent`.
+
+Every result includes a `verification` field: `weights_agree`, `weights_weak`, `weights_conflict`, `weights_only`, `weights_shallow` or `unverified`.
 
 ## Caching
 
@@ -446,6 +459,14 @@ provenancekit download-deepsignals-fingerprint
 
 This enables the full weight-signal matching pipeline. Without deep signals, scan results rely on metadata and tokenizer signals only.
 
+### Scan refuses the database after an upgrade
+
+Fingerprints are stamped with the extractor version that produced them, and `scan` will not compare features from different versions. If `scan` reports that the installed deep-signal fingerprints are from a different release:
+
+```bash
+provenancekit download-deepsignals-fingerprint --update
+```
+
 ### Scan returns few or no matches
 
 - Try lowering the threshold: `--threshold 0.30`
@@ -458,6 +479,9 @@ This enables the full weight-signal matching pipeline. Without deep signals, sca
 - The `scan` command uses a bundled seed database. For custom deployments, use `--db-root` or `PROVENANCEKIT_DB_ROOT` to point to your own database directory.
 - Results provide strong evidence of provenance but are not absolute proof.
 - Weight signals require loading model weights into memory (or streaming for large models). First-run performance depends on network speed and model size.
+- FP8 and MLX checkpoints return no weight evidence yet, so their verdicts are unverified.
+- A match requires shared weights. Knowledge transfer without shared weights (e.g. phi-1.5 to phi-2) and distillation that changes dimensions are not detected.
+- See [Known Limitations](docs/scoring-and-model-loading.md#known-limitations) for more.
 
 ## Contributing
 

@@ -1,11 +1,18 @@
 {
-  "bundle_id": "13f18850-362f-4d90-920f-5afbff8ac315",
+  "bundle_id": "3321acef-6ed0-46ff-8465-1b09ef1d1eb8",
   "model_id": "chatglm3-6b",
   "asset_id": "chatglm3-6b__hf-safetensors",
   "family_id": "thudm--glm",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-18T01:12:57.428524+00:00",
+  "updated_at": "2026-10-28T23:44:26.733918+00:00",
+  "extractor_version": "2",
+  "source_revision": "e9e0406d062cdb887444fe5bd546833920abd4ac",
+  "ws_loader": {
+    "strategy": "full",
+    "source": "safetensors_sharded",
+    "dtype": "torch.float16"
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "chatglm",
@@ -48,6 +55,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 0,
       "unk": 0,
@@ -100,7 +108,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:225292f316872d145143222322e7c6d0864f7ea2205f6ca60685cae4a98e5668",
+      "checksum": "sha256:1b260a637f3ee94ec0325241d3966387a2f24ec799fe94b513e60740fb549692",
       "availability": "local"
     }
   ]

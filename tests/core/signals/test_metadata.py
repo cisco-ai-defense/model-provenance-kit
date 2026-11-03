@@ -14,18 +14,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from transformers import BertConfig
 
+from provenancekit.core.lookup import _LookupCandidate, stage2_hash_check
 from provenancekit.core.signals.metadata import (
     _resolve_intermediate_size,
     _resolve_text_backbone,
     _tier3_soft_score,
     classify,
+    extract_fingerprint,
+    has_known_architectures,
     similarity,
 )
+from provenancekit.exceptions import ExtractionError
 from provenancekit.models.signals import MFIFingerprint, MFISimilarity
+from provenancekit.models.storage import FeatureBundle
 
 # ── Reusable fixture builders ──────────────────────────────────────
 
@@ -329,6 +336,129 @@ class TestTier3SoftScore:
         score_diff = _tier3_soft_score(fp_a, fp_b)
 
         assert score_same > score_diff
+
+
+# ── Missing architectures ──────────────────────────────────────────
+
+
+def _mock_tokenizer() -> SimpleNamespace:
+    return SimpleNamespace(
+        bos_token_id=101,
+        eos_token_id=102,
+        backend_tokenizer=SimpleNamespace(to_str=lambda: "mock-tokenizer"),
+    )
+
+
+class TestMissingArchitectures:
+    @pytest.mark.parametrize("value", [None, []])
+    def test_null_or_empty_normalizes_to_unknown(self, value: Any) -> None:
+        config = BertConfig()
+        config.architectures = value
+        fp, _ = extract_fingerprint(
+            "local/bert", config=config, tokenizer=_mock_tokenizer()
+        )
+        assert fp.architectures == ["unknown"]
+
+    def test_absent_attribute_normalizes_to_unknown(self) -> None:
+        config = _MockConfig(model_type="bert", hidden_size=768, num_hidden_layers=12)
+        fp, _ = extract_fingerprint(
+            "local/bert", config=config, tokenizer=_mock_tokenizer()
+        )
+        assert fp.architectures == ["unknown"]
+
+    def test_real_architectures_preserved(self) -> None:
+        config = BertConfig(architectures=["BertForMaskedLM"])
+        fp, _ = extract_fingerprint(
+            "local/bert", config=config, tokenizer=_mock_tokenizer()
+        )
+        assert fp.architectures == ["BertForMaskedLM"]
+
+    def test_invalid_field_raises_extraction_error_naming_field(self) -> None:
+        config = _MockConfig(
+            model_type="bert",
+            architectures=["BertModel"],
+            hidden_size="not-a-number",
+        )
+        with pytest.raises(ExtractionError) as exc_info:
+            extract_fingerprint("local/bad", config=config, tokenizer=_mock_tokenizer())
+        assert exc_info.value.details["fields"] == ["hidden_size"]
+        assert exc_info.value.details["model_id"] == "local/bad"
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            (["BertModel"], True),
+            (["unknown"], False),
+            ([], False),
+            (None, False),
+        ],
+    )
+    def test_has_known_architectures(self, value: Any, expected: bool) -> None:
+        assert has_known_architectures(value) is expected
+
+    def test_both_unknown_skips_tier1_falls_to_tier2(self) -> None:
+        fp_a = _make_fp(architectures=["unknown"], arch_hash="same", family_hash="fam")
+        fp_b = _make_fp(architectures=["unknown"], arch_hash="same", family_hash="fam")
+        result = similarity(fp_a, fp_b)
+        assert result.tier == 2
+
+    def test_one_side_unknown_skips_tier1(self) -> None:
+        fp_a = _make_fp(architectures=["unknown"], arch_hash="same", family_hash="fam")
+        fp_b = _make_fp(arch_hash="same", family_hash="fam")
+        result = similarity(fp_a, fp_b)
+        assert result.tier == 2
+
+    def test_both_unknown_different_family_is_tier3(self) -> None:
+        fp_a = _make_fp(
+            architectures=["unknown"], arch_hash="same", family_hash="fam_a"
+        )
+        fp_b = _make_fp(
+            architectures=["unknown"], arch_hash="same", family_hash="fam_b"
+        )
+        result = similarity(fp_a, fp_b)
+        assert result.tier == 3
+
+    def test_known_architectures_still_tier1(self) -> None:
+        fp_a = _make_fp(arch_hash="same", family_hash="fam")
+        fp_b = _make_fp(arch_hash="same", family_hash="fam")
+        assert similarity(fp_a, fp_b).tier == 1
+
+
+class TestStage2HashCheckUnknownArchitectures:
+    @staticmethod
+    def _candidate(**mfi: Any) -> _LookupCandidate:
+        return _LookupCandidate(
+            asset=SimpleNamespace(asset_id="db/model"),  # type: ignore[arg-type]
+            bundle=FeatureBundle(mfi=mfi),
+        )
+
+    def test_unknown_vs_unknown_not_exact_arch(self) -> None:
+        test_fp = _make_fp(
+            architectures=["unknown"], arch_hash="same", family_hash="fam"
+        )
+        cand = self._candidate(
+            architectures=["unknown"], arch_hash="same", family_hash="fam"
+        )
+        stage2_hash_check(test_fp, [cand])
+        assert cand.hash_match == "family_hash"
+
+    def test_unknown_query_vs_known_db_not_exact_arch(self) -> None:
+        test_fp = _make_fp(
+            architectures=["unknown"], arch_hash="same", family_hash="other"
+        )
+        cand = self._candidate(
+            architectures=["BertModel"], arch_hash="same", family_hash="fam"
+        )
+        stage2_hash_check(test_fp, [cand])
+        assert cand.hash_match is None
+
+    def test_known_vs_known_exact_arch(self) -> None:
+        test_fp = _make_fp(arch_hash="same", family_hash="fam")
+        cand = self._candidate(
+            architectures=["LlamaForCausalLM"], arch_hash="same", family_hash="fam"
+        )
+        stage2_hash_check(test_fp, [cand])
+        assert cand.hash_match == "exact_arch"
 
 
 # ── extract_fingerprint (online, slow) ─────────────────────────────

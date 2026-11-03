@@ -15,7 +15,7 @@ roles:
 
 | Role | Signals | What They Measure | Usage |
 |------|---------|-------------------|-------|
-| **Gate** (metadata) | MFI | Architecture config match (structural hashes) | Short-circuits Tier 1–2 pairs without weight loading |
+| **Support** (metadata) | MFI | Architecture config match (structural hashes) | Labels metadata agreement or conflict; never a verdict on its own |
 | **Identity** (primary) | EAS, NLF, LEP, END, WVC | Weight-level training fingerprints and direct numerical comparison | Determines the Pipeline Score |
 | **Tokenizer** (reporting) | TFV, VOA | Tokenizer structure and vocabulary overlap | Reported separately; does **not** influence the Pipeline Score |
 
@@ -107,11 +107,14 @@ scores (one per signal), each in the range 0–1.
 
 Similarity scores are combined into composite scores and a final verdict:
 
-1. **MFI gate** checks structural match first:
-   - Tier 1 (exact `arch_hash` match) → pipeline score = 1.0, done.
-   - Tier 2 (`family_hash` match + same dimensions) → pipeline score = 0.9,
-     done.
-   - Tier 3 (soft match or demoted) → continue to identity scoring.
+1. **MFI tier** records whether the declared configs match:
+   - Tier 1 (exact `arch_hash` match) or Tier 2 (`family_hash` match + same
+     dimensions) → metadata match.
+   - Tier 3 (soft match or demoted) → no metadata match.
+
+   Metadata alone never produces a match verdict; the weights decide. A
+   model whose `config.json` contradicts its own tensor shapes gets no
+   Tier 1/2.
 
 2. **Identity score** (NaN-aware weighted average of 5 weight signals):
 
@@ -128,14 +131,27 @@ Similarity scores are combined into composite scores and a final verdict:
    tokenizer_score = 0.25×TFV + 0.75×VOA
    ```
 
-4. **Verdict** is derived from the pipeline score:
+4. **Verdict**: `pipeline_score` is the identity score whenever weight
+   evidence exists (otherwise the MFI score, marked unverified):
 
-   | Pipeline Score | Verdict |
-   |----------------|---------|
-   | S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
-   | S > 0.75 | High-Confidence Match |
-   | 0.65 < S ≤ 0.75 | Weak Match |
-   | S ≤ 0.65 | Not Matched |
+   | MFI Tier | Identity Score (I) | Verdict |
+   |----------|--------------------|---------|
+   | 1–2 | I > 0.75 | Confirmed Match |
+   | 1–2 | 0.65 < I ≤ 0.75 | Weak Match (metadata match, weak weight evidence) |
+   | 1–2 | I ≤ 0.65 | Not Matched (metadata/weight conflict) |
+   | 3 | I > 0.75 | High-Confidence Match |
+   | 3 | 0.65 < I ≤ 0.75 | Weak Match |
+   | 3 | I ≤ 0.65 | Not Matched |
+   | any | NaN | Metadata Match (unverified) / Not Matched (unverified) |
+
+   When WVC is computed and below 0.01 (unrelated weights), the score is
+   capped at 0.65, so the verdict is Not Matched. Without LEP and WVC (e.g.
+   quantized checkpoints), a match needs Tier 1/2 and matching tokenizers,
+   and is otherwise capped at Weak Match (unverified).
+
+   Each result also carries a `verification` field (`weights_agree`,
+   `weights_weak`, `weights_conflict`, `weights_only`, `weights_shallow`,
+   `unverified`).
 
 See [Scoring and Model Loading](scoring-and-model-loading.md) for detailed
 formulas, worked examples, and large model support.
@@ -182,12 +198,12 @@ of known base-model fingerprints through a 3-stage narrowing process:
 │                         │                                        │
 │                         ▼                                        │
 │  Stage 3 — Full Similarity                                       │
-│    Run scoring pipeline per candidate (MFI gate + identity score)│
+│    Run scoring pipeline per candidate (MFI tier + identity score)│
 └──────────────────────────┬───────────────────────────────────────┘
                            │
                            ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│  Rank by pipeline score → return top-k above threshold           │
+│  Rank (weight-backed first, then pipeline score) → top-k         │
 └──────────────────────────────────────────────────────────────────┘
 ```
 

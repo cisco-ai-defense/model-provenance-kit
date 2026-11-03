@@ -36,6 +36,7 @@ from pathlib import Path
 
 import structlog
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.config.settings import Settings
 from provenancekit.exceptions import CacheError
 from provenancekit.models.results import CachedEntry
@@ -165,8 +166,9 @@ class CacheService:
     def _load_disk(self, model_id: str) -> CachedEntry | None:
         """Read a cached entry from disk and verify its HMAC.
 
-        Entries without a valid ``_hmac`` field are treated as missing
-        (returns ``None``) so the pipeline re-extracts gracefully.
+        Entries without a valid ``_hmac`` field, or written by a different
+        extractor version, are treated as missing (returns ``None``) so
+        the pipeline re-extracts gracefully.
 
         Raises:
             CacheError: On corrupt or unreadable cache files.
@@ -183,6 +185,14 @@ class CacheService:
             payload = json.dumps(raw, default=str, sort_keys=True).encode("utf-8")
             if not hmac.compare_digest(stored_hmac, self._compute_hmac(payload)):
                 log.warning("cache_hmac_mismatch", path=str(path))
+                return None
+            if raw.get("extractor_version") != EXTRACTOR_VERSION:
+                log.info(
+                    "cache_entry_stale",
+                    path=str(path),
+                    entry_version=raw.get("extractor_version"),
+                    current_version=EXTRACTOR_VERSION,
+                )
                 return None
             return CachedEntry.model_validate(raw)
         except (json.JSONDecodeError, ValueError) as exc:

@@ -56,6 +56,12 @@ tokenizer_score = weighted_average(TFV, VOA)
 VOA (vocabulary overlap) carries the larger weight because it is the most
 discriminative tokenizer signal.
 
+In `scan`, VOA is not computed: the database stores only each model's
+vocabulary size, not its tokens. The scan's `tokenizer_score` is therefore
+partial (0.25 × TFV, at most 0.25) and is not comparable with `compare`'s.
+Use the `tfv` field for tokenizer similarity in scan results, or run
+`compare` for the full score.
+
 **Why exclude tokenizer from the pipeline decision?** Provenance is about
 weight initialization, not tokenizer identity. Two independently trained
 models can share a tokenizer (e.g., StableLM and Pythia both use GPT-NeoX
@@ -63,29 +69,106 @@ tokenizer, tokenizer score ~1.0, but they have no weight lineage). Conversely,
 a model can be derived from a base model and have its tokenizer rebuilt during
 continued pretraining.
 
-### MFI Gate
+### Weights Decide, Metadata Supports
 
-The MFI gate short-circuits scoring for structurally matched pairs:
+MFI tiers come from `config.json` alone, which is trivially edited, so a
+metadata match can never produce a match verdict on its own. Whenever
+sufficient weight evidence exists, `pipeline_score = identity_score`; the MFI
+score is reported separately in `mfi_score` / `mfi_tier`. The quantized-model
+exception is described below.
 
 ```
-Tier 1 (arch_hash match)           → pipeline_score = 1.0
-Tier 2 (family_hash + same dims)   → pipeline_score = 0.9
-Tier 3 (soft match / demoted)      → pipeline_score = identity_score
+Tier 1 (arch_hash match)           → metadata match
+Tier 2 (family_hash + same dims)   → metadata match
+Tier 3 (soft match / demoted)      → no metadata match
 ```
 
-Tier 1 and Tier 2 pairs are overwhelmingly likely to share provenance based
-on metadata alone — expensive weight analysis is skipped. Tier 3 pairs
-(including same-family/different-size demotions) require the full identity
-score.
+When there is no weight evidence (identity is NaN, e.g. no deep-signal
+fingerprint or the weights could not be loaded), `pipeline_score` falls back
+to the MFI score so results can still be ranked, and the decision is marked
+**unverified**.
+
+`config.json` is also checked against the stored tensor shapes
+(`vocab_size`, `hidden_size`, `num_hidden_layers`, `intermediate_size`).
+If a model's config contradicts its own weights, MFI Tier 1/2 and the scan's
+hash labels are skipped for that model, and the fields are listed in
+`config_inconsistent` in the output.
 
 ### Score Interpretation
 
-| Pipeline Score | Verdict |
-|----------------|---------|
-| S = 1.0 or MFI Tier ≤ 2 | Confirmed Match |
-| S > 0.75 | High-Confidence Match |
-| 0.65 < S ≤ 0.75 | Weak Match |
-| S ≤ 0.65 | Not Matched |
+| MFI Tier | Identity Score (I) | Verdict | `verification` |
+|----------|--------------------|---------|----------------|
+| 1–2 | I > 0.75 | Confirmed Match | `weights_agree` |
+| 1–2 | 0.65 < I ≤ 0.75 | Weak Match (metadata match, weak weight evidence) | `weights_weak` |
+| 1–2 | I ≤ 0.65 | Not Matched (metadata/weight conflict) | `weights_conflict` |
+| 3 | I > 0.75 | High-Confidence Match | `weights_only` |
+| 3 | 0.65 < I ≤ 0.75 | Weak Match | `weights_only` |
+| 3 | I ≤ 0.65 | Not Matched | `weights_only` |
+| 1–2, or 3 with MFI > 0.65 | NaN | Metadata Match (unverified) | `unverified` |
+| 3 with MFI ≤ 0.65 | NaN | Not Matched (unverified) | `unverified` |
+
+Two rules adjust this table: the unrelated-weights floor and the
+shallow-evidence guard, both described below.
+
+In scan mode, weight-backed matches are ranked ahead of unverified ones.
+
+### Unrelated-Weights Floor
+
+Models of the same family that were trained separately (for example
+Llama-2-7B and Llama-2-13B, or two Pythia sizes) share architecture and
+tokenizer. That lifts EAS, NLF, LEP, and END, so the identity score can
+exceed 0.65 even though no weights are shared. WVC still separates them:
+unrelated weights give WVC around 0.003, while fine-tunes, distillations,
+and continued pretraining stay above 0.1.
+
+When WVC is computed and is below 0.01, `pipeline_score` is capped at 0.65,
+so the verdict is **Not Matched** (Tier 3) or **Not Matched
+(metadata/weight conflict)** (Tier 1/2). The raw `identity_score` is still
+reported. When WVC is missing (NaN), the floor does not apply.
+
+### Quantized Checkpoints and Shallow Evidence
+
+For bitsandbytes, AWQ, and GPTQ checkpoints, packed integer weights and
+quantizer side tensors are not comparable to the original floating-point
+weights. MPK excludes them from LEP and WVC while retaining comparable
+floating-point embeddings, norms, and output heads for EAS, NLF, and END.
+
+When both LEP and WVC are unavailable, a full match requires all of:
+
+- MFI Tier 1 or 2;
+- identity score above 0.75; and
+- tokenizer feature similarity (TFV) of at least 0.9.
+
+Such a result is marked `weights_shallow`, rather than `weights_agree`, because
+it lacks deep projection-weight evidence. If the guard does not pass, the raw
+`identity_score` is preserved but `pipeline_score` is capped at 0.75 and the
+verdict is **Weak Match (unverified, no deep weight signals)**.
+
+FP8 and MLX checkpoints currently return no weight evidence and therefore an
+unverified metadata verdict. Their packed/scaled tensors require
+format-specific dequantization before MPK can compare them reliably.
+
+Known limitation: two quantized sibling checkpoints with the same architecture
+and tokenizer may pass the shallow-evidence guard even when neither is the
+direct parent of the other. The result establishes strong shared-family/base
+evidence, not lineage direction. LEP/WVC recovery through scale-aware
+dequantization is required to reduce this ambiguity.
+
+### Known Limitations
+
+- **Knowledge transfer without shared weights is not detected.** phi-2 was
+  trained from phi-1.5's knowledge but not from its weights (WVC 0.003), so
+  the pair is Not Matched.
+- **Matches without LEP and WVC can still be Weak.** A quantized model or
+  ALBERT (one layer shared across depth) has no LEP/WVC, so neither the
+  floor nor deep evidence applies. Against an unrelated model of similar
+  shape these can reach Weak Match (unverified) at 0.68–0.75.
+- **Distillation that changes dimensions** (e.g. TinyBERT) is not matched
+  to its teacher.
+- **SentencePiece-only tokenizers.** A repo that ships only
+  `tokenizer.model` (no `tokenizer.json`) can be converted without the
+  leading-space marker, so EAS anchors do not line up with the parent and
+  the verdict can drop to Weak.
 
 ### Worked Examples
 
@@ -94,6 +177,13 @@ score.
 All weight signals score in the high 0.90s. The identity score is ~0.97.
 Tokenizer score is ~1.00 (same tokenizer). Pipeline verdict: "High-Confidence
 Match."
+
+**Same family, separate training** (Llama-2-7B vs Llama-2-13B):
+
+EAS, NLF, LEP, and END are high because architecture and tokenizer are
+shared, giving an identity score of ~0.75. WVC is ~0.003, so the
+unrelated-weights floor caps the score at 0.65. Pipeline verdict: "Not
+Matched."
 
 **Shared tokenizer, independent training** (StableLM-3B vs Pythia-2.8B):
 

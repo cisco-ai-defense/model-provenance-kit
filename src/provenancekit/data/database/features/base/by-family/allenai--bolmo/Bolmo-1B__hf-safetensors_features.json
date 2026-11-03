@@ -1,11 +1,18 @@
 {
-  "bundle_id": "401a4854-5d5a-48cb-8c9f-5218f19cc254",
+  "bundle_id": "1864151e-0119-4623-af68-e6b3c0b66193",
   "model_id": "Bolmo-1B",
   "asset_id": "Bolmo-1B__hf-safetensors",
   "family_id": "allenai--bolmo",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-16T19:10:31.479642+00:00",
+  "updated_at": "2026-10-28T23:31:18.321726+00:00",
+  "extractor_version": "2",
+  "source_revision": "452690a8cfab1dd1ec27b74f2667632f17a21b46",
+  "ws_loader": {
+    "strategy": "full",
+    "source": "safetensors_sharded",
+    "dtype": "torch.float32"
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "bolmo",
@@ -18,10 +25,13 @@
     "num_key_value_heads": 16,
     "intermediate_size": 8192,
     "vocab_size": 520,
-    "max_position_embeddings": 65536,
+    "max_position_embeddings": 4096,
     "hidden_act": "silu",
     "rope_theta": 500000.0,
-    "rope_scaling": null,
+    "rope_scaling": {
+      "rope_type": "default",
+      "rope_theta": 500000
+    },
     "tie_word_embeddings": false,
     "bos_token_id": 1,
     "eos_token_id": 1,
@@ -31,11 +41,11 @@
     "attention_bias": false,
     "qk_norm": false,
     "pos_encoding": "RoPE",
-    "head_dim": null,
+    "head_dim": 128,
     "tokenizer_hash": "a5bfdceef8937ffa979649f4165799ed567d03a19e48de02be794ac1c42cdef7",
     "token_id_signature": "bos=1|eos=1",
-    "arch_hash": "310676ad76e901929846b5a072faff82720dad773fbfd265d905a5271b06f838",
-    "family_hash": "ac941f4ae296e2d69247ad5825ad684a901ef5d76dd134ad60a9f19079ba2772"
+    "arch_hash": "2d2680cbe166b126213d95cb0e1b447eccba183e38a30b834917eca42047c29a",
+    "family_hash": "9a018717b76982db5345704ee1dcb250ee975a8847bde74a777c99b6e62a0892"
   },
   "tfv": {
     "vocab_size": 520,
@@ -48,6 +58,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 0,
       "unk": null,
@@ -96,7 +107,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:52619df7787337eb90446e6b09555b06c4d9eb1e628baadf593f2c87f5261a9b",
+      "checksum": "sha256:4328536768e617a5b42101856a60c39f948c4e49dc7d928db02661a95c00a1f1",
       "availability": "local"
     }
   ]

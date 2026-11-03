@@ -73,7 +73,8 @@ provenancekit download-deepsignals-fingerprint
 
 ### Deep-Signal Download Process
 
-1. Downloads `deep-signals.zip` from HuggingFace Hub over HTTPS only (non-HTTPS
+1. Downloads `deep-signals-v<extractor_version>.zip` (currently
+   `deep-signals-v2.zip`) from HuggingFace Hub over HTTPS only (non-HTTPS
    redirects are blocked).
 2. Verifies SHA-256 integrity of the downloaded archive (unless `--no-verify`
    is used, which requires dev mode).
@@ -86,6 +87,30 @@ provenancekit download-deepsignals-fingerprint
    state.
 5. Writes an installation marker (`.deep-signals-installed`) for status
    checks.
+
+### Extractor Version
+
+Every stored fingerprint records the extractor version that produced it
+(`extractor_version` in `catalog/manifest.json` and in each feature file).
+`scan` refuses a database built by a different extractor version or with
+different extraction settings (`PROVENANCEKIT_ANCHOR_K`,
+`PROVENANCEKIT_WVC_SUBSAMPLE`), and deep-signal fingerprints from a
+different release, so fingerprints from older releases are never compared
+with new ones. After upgrading, run:
+
+```bash
+provenancekit download-deepsignals-fingerprint --update
+```
+
+Cached features from an older extractor are re-extracted automatically.
+
+### Rebuilding the Database
+
+`scripts/build_database.py` re-extracts every model in an existing catalog
+with the current extractor. Each model is downloaded at a pinned Hugging Face
+commit, recorded as `source_revision`. Repos with custom modelling code are
+loaded only when listed in `--trust-remote-code-for`. See the script's
+docstring for options.
 
 Check installation status or update at any time:
 

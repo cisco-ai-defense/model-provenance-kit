@@ -1,10 +1,11 @@
 {
   "shard_id": "97fa5343-a0e4-4951-a47a-278811aba6b7",
-  "updated_at": "2026-04-18T18:55:01.500072+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "family": {
     "family_id": "01ai--yi",
     "display_name": "Yi",
     "publisher": "01-ai",
+    "family_hash": "",
     "baseline_model_ids": [
       "Yi-1.5-6B",
       "Yi-1.5-9B-Chat",
@@ -17,47 +18,52 @@
     {
       "asset_id": "Yi-1.5-6B__hf-safetensors",
       "model_id": "Yi-1.5-6B",
+      "canonical_name": "Yi-1.5-6B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/01ai--yi/Yi-1.5-6B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/01-ai/Yi-1.5-6B",
-      "canonical_name": "Yi-1.5-6B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/01ai--yi/Yi-1.5-6B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Yi-1.5-9B-Chat__hf-safetensors",
       "model_id": "Yi-1.5-9B-Chat",
+      "canonical_name": "Yi-1.5-9B-Chat",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/01ai--yi/Yi-1.5-9B-Chat__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/01-ai/Yi-1.5-9B-Chat",
-      "canonical_name": "Yi-1.5-9B-Chat"
+      "checksums": {},
+      "feature_path": "features/base/by-family/01ai--yi/Yi-1.5-9B-Chat__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Yi-Coder-1.5B__hf-safetensors",
       "model_id": "Yi-Coder-1.5B",
+      "canonical_name": "Yi-Coder-1.5B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-1.5B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/01-ai/Yi-Coder-1.5B",
-      "canonical_name": "Yi-Coder-1.5B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-1.5B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Yi-Coder-9B-Chat__hf-safetensors",
       "model_id": "Yi-Coder-9B-Chat",
+      "canonical_name": "Yi-Coder-9B-Chat",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-9B-Chat__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/01-ai/Yi-Coder-9B-Chat",
-      "canonical_name": "Yi-Coder-9B-Chat"
+      "checksums": {},
+      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-9B-Chat__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Yi-Coder-9B__hf-safetensors",
       "model_id": "Yi-Coder-9B",
+      "canonical_name": "Yi-Coder-9B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-9B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/01-ai/Yi-Coder-9B",
-      "canonical_name": "Yi-Coder-9B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/01ai--yi/Yi-Coder-9B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     }
   ]
 }

@@ -35,12 +35,15 @@ from dataclasses import dataclass
 
 import structlog
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.config.settings import Settings
 from provenancekit.core.scoring import (
+    VERIFICATION_UNVERIFIED,
     compute_identity_score,
     compute_tokenizer_score,
-    interpret_score,
+    decide,
 )
+from provenancekit.core.signals.metadata import has_known_architectures
 from provenancekit.core.signals.metadata import similarity as mfi_similarity
 from provenancekit.core.signals.tokenizer import tfv_similarity
 from provenancekit.core.signals.weight_signals import (
@@ -100,11 +103,16 @@ def stage1_param_filter(
     test_fp: MFIFingerprint,
     catalog: Catalog,
     db_service: DatabaseService,
+    *,
+    metadata_trusted: bool = True,
 ) -> list[_LookupCandidate]:
     """Filter DB assets by param-bucket proximity.
 
     Allows the test model's bucket plus one adjacent bucket on each
     side.  For each surviving asset, loads its ``FeatureBundle``.
+
+    The bucket is estimated from ``config.json``, so no bucket filter is
+    applied when ``metadata_trusted`` is False.
 
     Returns:
         Candidates with their feature bundles loaded, ready for
@@ -122,13 +130,14 @@ def stage1_param_filter(
         "stage1_start",
         test_bucket=test_bucket,
         allowed_buckets=sorted(allowed),
+        metadata_trusted=metadata_trusted,
     )
 
     candidates: list[_LookupCandidate] = []
     skipped = 0
 
     for asset in catalog.assets.values():
-        if asset.param_bucket not in allowed:
+        if metadata_trusted and asset.param_bucket not in allowed:
             skipped += 1
             continue
         if not asset.feature_path:
@@ -142,6 +151,18 @@ def stage1_param_filter(
                 asset_id=asset.asset_id,
                 path=asset.feature_path,
                 error=str(exc),
+            )
+            skipped += 1
+            continue
+        if (
+            bundle.extractor_version is not None
+            and bundle.extractor_version != EXTRACTOR_VERSION
+        ):
+            log.warning(
+                "stage1_bundle_version_mismatch",
+                asset_id=asset.asset_id,
+                bundle_version=bundle.extractor_version,
+                extractor_version=EXTRACTOR_VERSION,
             )
             skipped += 1
             continue
@@ -162,6 +183,8 @@ def stage1_param_filter(
 def stage2_hash_check(
     test_fp: MFIFingerprint,
     candidates: list[_LookupCandidate],
+    *,
+    metadata_trusted: bool = True,
 ) -> list[_LookupCandidate]:
     """Annotate candidates with arch_hash / family_hash match info.
 
@@ -169,18 +192,31 @@ def stage2_hash_check(
     is carried forward for logging and result annotation only.  This
     avoids false negatives when config variations (e.g. ``rope_scaling``)
     change the hash despite the model being a clear derivative.
+
+    No hash labels are assigned when ``metadata_trusted`` is False, or
+    to references whose own config contradicts their tensors.
     """
     t0 = time.perf_counter()
     log.info(
         "stage2_start",
         test_arch_hash=test_fp.arch_hash,
         test_family_hash=test_fp.family_hash,
+        metadata_trusted=metadata_trusted,
     )
+    if not metadata_trusted:
+        return candidates
 
     hash_match_count = 0
+    test_arch_known = has_known_architectures(test_fp.architectures)
     for cand in candidates:
+        if cand.bundle.config_inconsistencies:
+            continue
         db_mfi = cand.bundle.mfi
-        arch_match = db_mfi.get("arch_hash") == test_fp.arch_hash
+        arch_match = (
+            test_arch_known
+            and has_known_architectures(db_mfi.get("architectures"))
+            and db_mfi.get("arch_hash") == test_fp.arch_hash
+        )
         family_match = db_mfi.get("family_hash") == test_fp.family_hash
 
         if arch_match:
@@ -217,6 +253,8 @@ def stage3_similarity(
     test_ws: WeightSignalFeatures | None,
     candidates: list[_LookupCandidate],
     db_service: DatabaseService,
+    *,
+    metadata_trusted: bool = True,
 ) -> list[ScanMatch]:
     """Score every candidate using MFI, tokenizer, and weight signals.
 
@@ -226,7 +264,8 @@ def stage3_similarity(
     3. If the test model has weight signals and the DB model has a
        deep-signals parquet, load it, reconstruct
        ``WeightSignalFeatures``, and compute EAS/NLF/LEP/END/WVC.
-    4. Derive ``pipeline_score`` via the MFI gate and ``decision``.
+    4. Derive ``pipeline_score``, ``decision`` and ``verification`` via
+       :func:`~provenancekit.core.scoring.decide`.
 
     .. note::
        VOA (Vocabulary Overlap Analysis) is **not** computed here.
@@ -247,7 +286,11 @@ def stage3_similarity(
 
         # -- MFI similarity --
         db_fp = MFIFingerprint.model_validate(bundle.mfi)
-        mfi_sim = mfi_similarity(test_fp, db_fp)
+        mfi_sim = mfi_similarity(
+            test_fp,
+            db_fp,
+            metadata_trusted=metadata_trusted and not bundle.config_inconsistencies,
+        )
 
         # -- TFV similarity --
         tfv_s = float("nan")
@@ -294,18 +337,16 @@ def stage3_similarity(
             0.0,
         )
 
-        # -- MFI gate: decide pipeline_score and decision label --
-        if mfi_sim.tier <= 2:
-            pipeline_score = mfi_sim.score
-            decision = "Confirmed Match"
-        elif not math.isnan(identity):
-            pipeline_score = identity
-            decision = interpret_score(pipeline_score).label
-        else:
-            # No weight signals available — fall back to MFI soft score
-            # so Tier 3 candidates still surface rather than being dropped.
-            pipeline_score = mfi_sim.score
-            decision = interpret_score(pipeline_score).label + " (metadata only)"
+        verdict = decide(
+            mfi_sim.score,
+            mfi_sim.tier,
+            identity,
+            deep_signals=not (math.isnan(lep_s) and math.isnan(wvc_s)),
+            tfv=tfv_s,
+            wvc=wvc_s,
+        )
+        pipeline_score = verdict.pipeline_score
+        decision = verdict.decision
 
         # -- Derive match_type from hash annotation or MFI tier --
         if cand.hash_match:
@@ -355,6 +396,7 @@ def stage3_similarity(
                     end=nan_safe(end_s),
                     wvc=nan_safe(wvc_s),
                     tfv=nan_safe(tfv_s),
+                    verification=verdict.verification,
                 ),
                 provenance_decision=decision,
                 elapsed_ms=elapsed,
@@ -376,6 +418,7 @@ def run_lookup(
     *,
     top_k: int = DEFAULT_TOP_K,
     threshold: float = DEFAULT_THRESHOLD,
+    metadata_trusted: bool = True,
 ) -> list[ScanMatch]:
     """Run the full 3-stage lookup and return ranked matches.
 
@@ -386,6 +429,9 @@ def run_lookup(
         db_service: Initialised database service.
         top_k: Maximum number of matches to return.
         threshold: Minimum ``pipeline_score`` for inclusion.
+        metadata_trusted: ``False`` when the query model's config
+            contradicts its stored tensors; the param-bucket filter,
+            MFI Tier 1/2 and hash labels are then not applied.
 
     Returns:
         Up to *top_k* :class:`ScanMatch` objects sorted by descending
@@ -397,20 +443,40 @@ def run_lookup(
     catalog = db_service.load_catalog()
 
     # Stage 1 — param bucket filter
-    candidates = stage1_param_filter(test_fp, catalog, db_service)
+    candidates = stage1_param_filter(
+        test_fp, catalog, db_service, metadata_trusted=metadata_trusted
+    )
     if not candidates:
         log.warning("lookup_no_candidates_after_stage1")
         return []
 
     # Stage 2 — hash check (annotate only)
-    candidates = stage2_hash_check(test_fp, candidates)
+    candidates = stage2_hash_check(
+        test_fp, candidates, metadata_trusted=metadata_trusted
+    )
 
     # Stage 3 — full similarity
-    matches = stage3_similarity(test_fp, test_tfv, test_ws, candidates, db_service)
+    matches = stage3_similarity(
+        test_fp,
+        test_tfv,
+        test_ws,
+        candidates,
+        db_service,
+        metadata_trusted=metadata_trusted,
+    )
 
-    # Rank, threshold, and trim
+    # Rank (weight-backed, then shallow, then unverified), threshold, trim.
+    # Shallow is judged from the signals, not the label: low-identity
+    # shallow candidates are labelled weights_only by decide().
+    def _evidence_rank(m: ScanMatch) -> int:
+        if m.scores.verification == VERIFICATION_UNVERIFIED:
+            return 0
+        if m.scores.lep is None and m.scores.wvc is None:
+            return 1
+        return 2
+
     matches.sort(
-        key=lambda m: m.scores.pipeline_score or 0,
+        key=lambda m: (_evidence_rank(m), m.scores.pipeline_score or 0),
         reverse=True,
     )
 

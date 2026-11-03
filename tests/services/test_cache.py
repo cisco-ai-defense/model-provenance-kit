@@ -19,6 +19,9 @@
 import json
 from pathlib import Path
 
+import pytest
+
+from provenancekit.config.constants import EXTRACTOR_VERSION
 from provenancekit.models.results import CachedEntry
 from provenancekit.services.cache import CacheService
 
@@ -127,6 +130,37 @@ class TestCacheDisk:
         loaded = svc.get("org/test-model")
         assert loaded is not None
         assert loaded.mfi == {"model_type": "llama", "arch_hash": "def456"}
+        assert loaded.vocab is None
+
+    @pytest.mark.parametrize("version", [None, "1"])
+    def test_entry_from_other_extractor_version_is_stale(
+        self, tmp_path: Path, version: str | None
+    ) -> None:
+        svc = CacheService(cache_dir=tmp_path)
+        raw = _sample_entry().model_dump()
+        if version is None:
+            del raw["extractor_version"]
+        else:
+            raw["extractor_version"] = version
+        payload = json.dumps(raw, default=str, sort_keys=True).encode("utf-8")
+        raw["_hmac"] = svc._compute_hmac(payload)
+        svc._cache_path("org/test-model").write_text(json.dumps(raw), encoding="utf-8")
+
+        assert svc.get("org/test-model") is None
+
+    def test_stale_entry_vocab_not_merged(self, tmp_path: Path) -> None:
+        svc = CacheService(cache_dir=tmp_path)
+        raw = _sample_entry().model_dump()
+        raw["extractor_version"] = "1"
+        payload = json.dumps(raw, default=str, sort_keys=True).encode("utf-8")
+        raw["_hmac"] = svc._compute_hmac(payload)
+        svc._cache_path("org/test-model").write_text(json.dumps(raw), encoding="utf-8")
+
+        svc.put("org/test-model", CachedEntry(model_id="org/test-model"))
+        svc.clear()
+        loaded = svc.get("org/test-model")
+        assert loaded is not None
+        assert loaded.extractor_version == EXTRACTOR_VERSION
         assert loaded.vocab is None
 
     def test_creates_cache_dir(self, tmp_path: Path) -> None:

@@ -1,10 +1,11 @@
 {
   "shard_id": "9035be50-c35f-48df-89ef-5181c64a43fd",
-  "updated_at": "2026-07-31T23:52:52.131996+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "family": {
     "family_id": "nvidia--nemotron",
     "display_name": "Nemotron",
     "publisher": "nvidia",
+    "family_hash": "",
     "baseline_model_ids": [
       "AceMath-RL-Nemotron-7B",
       "AceReason-Nemotron-1.1-7B",
@@ -49,335 +50,342 @@
     {
       "asset_id": "AceMath-RL-Nemotron-7B__hf-safetensors",
       "model_id": "AceMath-RL-Nemotron-7B",
+      "canonical_name": "AceMath-RL-Nemotron-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/AceMath-RL-Nemotron-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/AceMath-RL-Nemotron-7B",
-      "canonical_name": "AceMath-RL-Nemotron-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceMath-RL-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "AceReason-Nemotron-1.1-7B__hf-safetensors",
       "model_id": "AceReason-Nemotron-1.1-7B",
+      "canonical_name": "AceReason-Nemotron-1.1-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-1.1-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/AceReason-Nemotron-1.1-7B",
-      "canonical_name": "AceReason-Nemotron-1.1-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-1.1-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "AceReason-Nemotron-14B__hf-safetensors",
       "model_id": "AceReason-Nemotron-14B",
+      "canonical_name": "AceReason-Nemotron-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/AceReason-Nemotron-14B",
-      "canonical_name": "AceReason-Nemotron-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "AceReason-Nemotron-7B__hf-safetensors",
       "model_id": "AceReason-Nemotron-7B",
+      "canonical_name": "AceReason-Nemotron-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/AceReason-Nemotron-7B",
-      "canonical_name": "AceReason-Nemotron-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/AceReason-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct__hf-safetensors",
       "model_id": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
+      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct",
-      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-1M-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct__hf-safetensors",
       "model_id": "Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct",
+      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct",
-      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-2M-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct__hf-safetensors",
       "model_id": "Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct",
+      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct",
-      "canonical_name": "Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-8B-UltraLong-4M-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Llama-3.1-Nemotron-Nano-4B-v1.1__hf-safetensors",
       "model_id": "Llama-3.1-Nemotron-Nano-4B-v1.1",
+      "canonical_name": "Llama-3.1-Nemotron-Nano-4B-v1.1",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-4B-v1.1__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-4B-v1.1",
-      "canonical_name": "Llama-3.1-Nemotron-Nano-4B-v1.1"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-4B-v1.1__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Llama-3.1-Nemotron-Nano-8B-v1__hf-safetensors",
       "model_id": "Llama-3.1-Nemotron-Nano-8B-v1",
+      "canonical_name": "Llama-3.1-Nemotron-Nano-8B-v1",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-8B-v1__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
-      "canonical_name": "Llama-3.1-Nemotron-Nano-8B-v1"
-    },
-    {
-      "asset_id": "Llama-3.1-Nemotron-Nano-VL-8B-V1__hf-safetensors",
-      "model_id": "Llama-3.1-Nemotron-Nano-VL-8B-V1",
-      "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-VL-8B-V1__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
-      "source_uri": "https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-VL-8B-V1",
-      "canonical_name": "Llama-3.1-Nemotron-Nano-VL-8B-V1"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Llama-3.1-Nemotron-Nano-8B-v1__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors",
       "model_id": "NVIDIA-Nemotron-Nano-12B-v2-Base",
+      "canonical_name": "NVIDIA-Nemotron-Nano-12B-v2-Base",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-12B-v2-Base",
-      "canonical_name": "NVIDIA-Nemotron-Nano-12B-v2-Base"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2-Base__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "NVIDIA-Nemotron-Nano-12B-v2__hf-safetensors",
       "model_id": "NVIDIA-Nemotron-Nano-12B-v2",
+      "canonical_name": "NVIDIA-Nemotron-Nano-12B-v2",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-12B-v2",
-      "canonical_name": "NVIDIA-Nemotron-Nano-12B-v2"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-12B-v2__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "NVIDIA-Nemotron-Nano-9B-v2-Base__hf-safetensors",
       "model_id": "NVIDIA-Nemotron-Nano-9B-v2-Base",
+      "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2-Base",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2-Base__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2-Base",
-      "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2-Base"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2-Base__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "NVIDIA-Nemotron-Nano-9B-v2__hf-safetensors",
       "model_id": "NVIDIA-Nemotron-Nano-9B-v2",
+      "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2",
-      "canonical_name": "NVIDIA-Nemotron-Nano-9B-v2"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/NVIDIA-Nemotron-Nano-9B-v2__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "Nemotron-4-Mini-Hindi-4B-Base__hf-safetensors",
       "model_id": "Nemotron-4-Mini-Hindi-4B-Base",
+      "canonical_name": "Nemotron-4-Mini-Hindi-4B-Base",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-4-Mini-Hindi-4B-Base__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-4-Mini-Hindi-4B-Base",
-      "canonical_name": "Nemotron-4-Mini-Hindi-4B-Base"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-4-Mini-Hindi-4B-Base__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-4-Mini-Hindi-4B-Instruct__hf-safetensors",
       "model_id": "Nemotron-4-Mini-Hindi-4B-Instruct",
+      "canonical_name": "Nemotron-4-Mini-Hindi-4B-Instruct",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-4-Mini-Hindi-4B-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-4-Mini-Hindi-4B-Instruct",
-      "canonical_name": "Nemotron-4-Mini-Hindi-4B-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-4-Mini-Hindi-4B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Cascade-14B-Thinking__hf-safetensors",
       "model_id": "Nemotron-Cascade-14B-Thinking",
+      "canonical_name": "Nemotron-Cascade-14B-Thinking",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-14B-Thinking__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Cascade-14B-Thinking",
-      "canonical_name": "Nemotron-Cascade-14B-Thinking"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-14B-Thinking__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "Nemotron-Cascade-8B-Thinking__hf-safetensors",
       "model_id": "Nemotron-Cascade-8B-Thinking",
+      "canonical_name": "Nemotron-Cascade-8B-Thinking",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-8B-Thinking__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Cascade-8B-Thinking",
-      "canonical_name": "Nemotron-Cascade-8B-Thinking"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-8B-Thinking__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Cascade-8B__hf-safetensors",
       "model_id": "Nemotron-Cascade-8B",
+      "canonical_name": "Nemotron-Cascade-8B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-8B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Cascade-8B",
-      "canonical_name": "Nemotron-Cascade-8B"
-    },
-    {
-      "asset_id": "Nemotron-Flash-1B__hf-safetensors",
-      "model_id": "Nemotron-Flash-1B",
-      "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Flash-1B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
-      "source_uri": "https://huggingface.co/nvidia/Nemotron-Flash-1B",
-      "canonical_name": "Nemotron-Flash-1B"
-    },
-    {
-      "asset_id": "Nemotron-Flash-3B-Instruct__hf-safetensors",
-      "model_id": "Nemotron-Flash-3B-Instruct",
-      "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Flash-3B-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
-      "source_uri": "https://huggingface.co/nvidia/Nemotron-Flash-3B-Instruct",
-      "canonical_name": "Nemotron-Flash-3B-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Cascade-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Mini-4B-Instruct__hf-safetensors",
       "model_id": "Nemotron-Mini-4B-Instruct",
+      "canonical_name": "Nemotron-Mini-4B-Instruct",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Mini-4B-Instruct__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Mini-4B-Instruct",
-      "canonical_name": "Nemotron-Mini-4B-Instruct"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Mini-4B-Instruct__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Orchestrator-8B__hf-safetensors",
       "model_id": "Nemotron-Orchestrator-8B",
+      "canonical_name": "Nemotron-Orchestrator-8B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Orchestrator-8B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Orchestrator-8B",
-      "canonical_name": "Nemotron-Orchestrator-8B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Orchestrator-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Research-Reasoning-Qwen-1.5B__hf-safetensors",
       "model_id": "Nemotron-Research-Reasoning-Qwen-1.5B",
+      "canonical_name": "Nemotron-Research-Reasoning-Qwen-1.5B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Research-Reasoning-Qwen-1.5B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Research-Reasoning-Qwen-1.5B",
-      "canonical_name": "Nemotron-Research-Reasoning-Qwen-1.5B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Research-Reasoning-Qwen-1.5B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "Nemotron-Terminal-14B__hf-safetensors",
       "model_id": "Nemotron-Terminal-14B",
+      "canonical_name": "Nemotron-Terminal-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Terminal-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Terminal-14B",
-      "canonical_name": "Nemotron-Terminal-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Terminal-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "Nemotron-Terminal-8B__hf-safetensors",
       "model_id": "Nemotron-Terminal-8B",
+      "canonical_name": "Nemotron-Terminal-8B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Terminal-8B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/Nemotron-Terminal-8B",
-      "canonical_name": "Nemotron-Terminal-8B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/Nemotron-Terminal-8B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenCodeReasoning-Nemotron-1.1-14B__hf-safetensors",
       "model_id": "OpenCodeReasoning-Nemotron-1.1-14B",
+      "canonical_name": "OpenCodeReasoning-Nemotron-1.1-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-1.1-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/OpenCodeReasoning-Nemotron-1.1-14B",
-      "canonical_name": "OpenCodeReasoning-Nemotron-1.1-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-1.1-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "OpenCodeReasoning-Nemotron-1.1-7B__hf-safetensors",
       "model_id": "OpenCodeReasoning-Nemotron-1.1-7B",
+      "canonical_name": "OpenCodeReasoning-Nemotron-1.1-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-1.1-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenCodeReasoning-Nemotron-1.1-7B",
-      "canonical_name": "OpenCodeReasoning-Nemotron-1.1-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-1.1-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenCodeReasoning-Nemotron-14B__hf-safetensors",
       "model_id": "OpenCodeReasoning-Nemotron-14B",
+      "canonical_name": "OpenCodeReasoning-Nemotron-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/OpenCodeReasoning-Nemotron-14B",
-      "canonical_name": "OpenCodeReasoning-Nemotron-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "OpenCodeReasoning-Nemotron-7B__hf-safetensors",
       "model_id": "OpenCodeReasoning-Nemotron-7B",
+      "canonical_name": "OpenCodeReasoning-Nemotron-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenCodeReasoning-Nemotron-7B",
-      "canonical_name": "OpenCodeReasoning-Nemotron-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenCodeReasoning-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenMath-Nemotron-1.5B__hf-safetensors",
       "model_id": "OpenMath-Nemotron-1.5B",
+      "canonical_name": "OpenMath-Nemotron-1.5B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-1.5B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenMath-Nemotron-1.5B",
-      "canonical_name": "OpenMath-Nemotron-1.5B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-1.5B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenMath-Nemotron-14B-Kaggle__hf-safetensors",
       "model_id": "OpenMath-Nemotron-14B-Kaggle",
+      "canonical_name": "OpenMath-Nemotron-14B-Kaggle",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-14B-Kaggle__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/OpenMath-Nemotron-14B-Kaggle",
-      "canonical_name": "OpenMath-Nemotron-14B-Kaggle"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-14B-Kaggle__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "OpenMath-Nemotron-14B__hf-safetensors",
       "model_id": "OpenMath-Nemotron-14B",
+      "canonical_name": "OpenMath-Nemotron-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/OpenMath-Nemotron-14B",
-      "canonical_name": "OpenMath-Nemotron-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "OpenMath-Nemotron-7B__hf-safetensors",
       "model_id": "OpenMath-Nemotron-7B",
+      "canonical_name": "OpenMath-Nemotron-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenMath-Nemotron-7B",
-      "canonical_name": "OpenMath-Nemotron-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenMath-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenReasoning-Nemotron-1.5B__hf-safetensors",
       "model_id": "OpenReasoning-Nemotron-1.5B",
+      "canonical_name": "OpenReasoning-Nemotron-1.5B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-1.5B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenReasoning-Nemotron-1.5B",
-      "canonical_name": "OpenReasoning-Nemotron-1.5B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-1.5B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "OpenReasoning-Nemotron-14B__hf-safetensors",
       "model_id": "OpenReasoning-Nemotron-14B",
+      "canonical_name": "OpenReasoning-Nemotron-14B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-14B__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/nvidia/OpenReasoning-Nemotron-14B",
-      "canonical_name": "OpenReasoning-Nemotron-14B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-14B__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     },
     {
       "asset_id": "OpenReasoning-Nemotron-7B__hf-safetensors",
       "model_id": "OpenReasoning-Nemotron-7B",
+      "canonical_name": "OpenReasoning-Nemotron-7B",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-7B__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/nvidia/OpenReasoning-Nemotron-7B",
-      "canonical_name": "OpenReasoning-Nemotron-7B"
+      "checksums": {},
+      "feature_path": "features/base/by-family/nvidia--nemotron/OpenReasoning-Nemotron-7B__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     }
   ]
 }

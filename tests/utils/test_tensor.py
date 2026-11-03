@@ -67,6 +67,11 @@ class TestClassifyTensorName:
     def test_lm_head(self):
         assert classify_tensor_name("lm_head.weight") == "lm_head"
 
+    def test_gpt2_conv1d_names(self):
+        assert classify_tensor_name("h.0.attn.c_attn.weight") == "fused_proj"
+        assert classify_tensor_name("h.0.attn.c_proj.weight") == "fused_proj"
+        assert classify_tensor_name("h.0.mlp.c_fc.weight") == "fused_proj"
+
     def test_unknown_returns_other(self):
         assert classify_tensor_name("some.random.thing") == "other"
 

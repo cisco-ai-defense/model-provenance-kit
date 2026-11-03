@@ -1,11 +1,18 @@
 {
-  "bundle_id": "2e2d4212-6ce8-4fcc-8dd9-31a842aedad8",
+  "bundle_id": "45b3b56e-dffe-49bc-9163-a7bf51444811",
   "model_id": "bert-base-uncased",
   "asset_id": "bert-base-uncased__hf-safetensors",
   "family_id": "googlebert--bert",
-  "source_id": "add_models_to_db",
+  "source_id": "build_database",
   "status": "ok",
-  "updated_at": "2026-04-15T19:27:53.857225+00:00",
+  "updated_at": "2026-10-27T23:30:20.518446+00:00",
+  "extractor_version": "2",
+  "source_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+  "ws_loader": {
+    "strategy": "full",
+    "source": "safetensors",
+    "dtype": "torch.float32"
+  },
   "missing_signals": [],
   "mfi": {
     "model_type": "bert",
@@ -48,6 +55,7 @@
     "num_merges": 0,
     "first_5_merges": [],
     "merge_rule_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "all_merges_str": "",
     "special_token_ids": {
       "pad": 0,
       "unk": 100,
@@ -100,7 +108,7 @@
         "wsp_signature",
         "wvc_layer_sigs"
       ],
-      "checksum": "sha256:1d2187d10b60d202a0c9f478a68ffd27ddf1fdc84465087a8e7b608e318ac592",
+      "checksum": "sha256:019570a3dd4df92daa2b3386915562257680fe77b667bec094dc2c565b3d17e6",
       "availability": "local"
     }
   ]

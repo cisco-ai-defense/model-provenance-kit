@@ -1,10 +1,11 @@
 {
   "shard_id": "e119a001-f8c0-4177-b371-55faa6f840cc",
-  "updated_at": "2026-04-18T18:55:01.500228+00:00",
+  "updated_at": "2026-10-29T17:18:33.595035+00:00",
   "family": {
     "family_id": "internlm--internlm",
     "display_name": "InternLM",
     "publisher": "internlm",
+    "family_hash": "",
     "baseline_model_ids": [
       "internlm2_5-1_8b-chat",
       "internlm2_5-7b-chat",
@@ -15,29 +16,32 @@
     {
       "asset_id": "internlm2_5-1_8b-chat__hf-safetensors",
       "model_id": "internlm2_5-1_8b-chat",
+      "canonical_name": "internlm2_5-1_8b-chat",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-1_8b-chat__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/internlm/internlm2_5-1_8b-chat",
-      "canonical_name": "internlm2_5-1_8b-chat"
+      "checksums": {},
+      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-1_8b-chat__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "internlm2_5-7b-chat__hf-safetensors",
       "model_id": "internlm2_5-7b-chat",
+      "canonical_name": "internlm2_5-7b-chat",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-7b-chat__hf-safetensors_features.json",
-      "param_bucket": "1-10B",
       "source_uri": "https://huggingface.co/internlm/internlm2_5-7b-chat",
-      "canonical_name": "internlm2_5-7b-chat"
+      "checksums": {},
+      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-7b-chat__hf-safetensors_features.json",
+      "param_bucket": "1-10B"
     },
     {
       "asset_id": "internlm2_5-20b-chat__hf-safetensors",
       "model_id": "internlm2_5-20b-chat",
+      "canonical_name": "internlm2_5-20b-chat",
       "format": "safetensors",
-      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-20b-chat__hf-safetensors_features.json",
-      "param_bucket": "10-40B",
       "source_uri": "https://huggingface.co/internlm/internlm2_5-20b-chat",
-      "canonical_name": "internlm2_5-20b-chat"
+      "checksums": {},
+      "feature_path": "features/base/by-family/internlm--internlm/internlm2_5-20b-chat__hf-safetensors_features.json",
+      "param_bucket": "10-40B"
     }
   ]
 }

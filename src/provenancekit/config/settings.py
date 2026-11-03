@@ -20,6 +20,8 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
+
 _PACKAGE_DIR = Path(__file__).resolve().parents[1]
 
 
@@ -43,15 +45,21 @@ class Settings(BaseSettings):
     hf_dataset_repo: str = "cisco-ai/model-provenance-kit"
     hf_deep_signals_url: str = ""
     hf_deep_signals_sha256: str = (
-        "f37f689bc1d87544ddfe81072680e48582ac0f6429c9a1942138faf79c0cc872"
+        "8021d7e631fa6a1c04707ce29d9bfca6b75d5bddd44ec768919a18430ed39bb7"
     )
 
     def model_post_init(self, __context: object) -> None:
         """Derive the download URL from the repo name when not set explicitly."""
         if not self.hf_deep_signals_url:
+            # Versioned file name: earlier releases pin the SHA-256 of
+            # ``deep-signals.zip``, so that file must stay unchanged.
             self.hf_deep_signals_url = (
                 f"https://huggingface.co/datasets/{self.hf_dataset_repo}"
-                "/resolve/main/deep-signals.zip"
+                f"/resolve/main/deep-signals-v{EXTRACTOR_VERSION}.zip"
             )
+
+    def extraction_params(self) -> dict[str, int]:
+        """Settings that change extracted feature values."""
+        return {"anchor_k": self.anchor_k, "wvc_subsample": self.wvc_subsample}
 
     model_config = {"env_prefix": "PROVENANCEKIT_"}

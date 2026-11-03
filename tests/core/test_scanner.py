@@ -16,12 +16,17 @@
 
 """Tests for provenancekit.core.scanner — orchestrator unit + integration."""
 
+from contextlib import ExitStack
 from typing import Any
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
+import torch
 
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.config.settings import Settings
+from provenancekit.core.results.formatters import format_plain
 from provenancekit.core.scanner import ModelProvenanceScanner
 from provenancekit.exceptions import ExtractionError, ModelLoadError
 from provenancekit.models.results import (
@@ -32,6 +37,7 @@ from provenancekit.models.results import (
     SignalScores,
 )
 from provenancekit.models.signals import (
+    ConfigInconsistency,
     MFIFingerprint,
     MFISimilarity,
     TokenizerFeatures,
@@ -39,6 +45,7 @@ from provenancekit.models.signals import (
     WeightSignalFeatures,
 )
 from provenancekit.services.cache import CacheService
+from provenancekit.services.database import DatabaseError
 
 # ── Fixtures ──────────────────────────────────────────────────────
 
@@ -96,7 +103,9 @@ def _fake_tfv() -> TokenizerFeatures:
     )
 
 
-def _fake_ws() -> WeightSignalFeatures:
+def _fake_ws(
+    config_inconsistencies: list[ConfigInconsistency] | None = None,
+) -> WeightSignalFeatures:
     return WeightSignalFeatures(
         hidden_size=768,
         num_layers=12,
@@ -109,6 +118,7 @@ def _fake_ws() -> WeightSignalFeatures:
         end_histogram=np.ones(50, dtype=np.float64),
         wsp_signature=np.ones(12, dtype=np.float64),
         wvc_layer_sigs={i: np.ones(100, dtype=np.float64) for i in range(12)},
+        config_inconsistencies=config_inconsistencies,
     )
 
 
@@ -213,11 +223,33 @@ class TestCompareUnit:
         result = self._scanner.compare("gpt2", "gpt2")
         assert isinstance(result, CompareResult)
 
-    def test_mfi_tier1_uses_mfi_score(self) -> None:
+    def test_mfi_tier1_with_agreeing_weights_confirms(self) -> None:
         result = self._scanner.compare("gpt2", "gpt2")
-        assert result.scores.pipeline_score == 1.0
+        assert result.scores.pipeline_score == result.scores.identity_score == 1.0
         assert result.scores.provenance_decision == "Confirmed Match"
+        assert result.scores.verification == "weights_agree"
         assert result.scores.mfi_tier == 1
+
+    def test_mfi_tier1_with_conflicting_weights_not_matched(self) -> None:
+        for name in ("eas", "nlf", "lep", "end", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = 0.5
+        result = self._scanner.compare("bert", "biomedbert")
+        assert result.scores.mfi_tier == 1
+        assert result.scores.pipeline_score == 0.5
+        assert result.scores.provenance_decision == (
+            "Not Matched (metadata/weight conflict)"
+        )
+        assert result.scores.verification == "weights_conflict"
+
+    def test_mfi_tier1_without_weights_is_unverified(self) -> None:
+        self._mocks["extract_signals"].return_value = None
+        for name in ("eas", "nlf", "lep", "end", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = float("nan")
+        result = self._scanner.compare("bart", "distilbart")
+        assert result.scores.identity_score is None
+        assert result.scores.pipeline_score == 1.0
+        assert result.scores.provenance_decision == "Metadata Match (unverified)"
+        assert result.scores.verification == "unverified"
 
     def test_mfi_tier3_uses_identity_score(self) -> None:
         self._mocks["mfi_similarity"].return_value = MFISimilarity(
@@ -226,6 +258,25 @@ class TestCompareUnit:
         result = self._scanner.compare("model_a", "model_b")
         assert result.scores.mfi_tier == 3
         assert result.scores.pipeline_score == result.scores.identity_score
+
+    def test_shallow_guard_caps_pipeline_but_retains_identity(self) -> None:
+        self._mocks["mfi_similarity"].return_value = MFISimilarity(
+            score=0.3, tier=3, match_type="soft_match"
+        )
+        self._mocks["tfv_similarity"].return_value = 0.4
+        for name in ("eas", "nlf", "end"):
+            self._mocks[f"{name}_similarity"].return_value = 0.8
+        for name in ("lep", "wvc"):
+            self._mocks[f"{name}_similarity"].return_value = float("nan")
+
+        result = self._scanner.compare("model_a", "model_b")
+
+        assert result.scores.identity_score == 0.8
+        assert result.scores.pipeline_score == 0.75
+        assert result.scores.verification == "weights_shallow"
+        assert result.scores.provenance_decision == (
+            "Weak Match (unverified, no deep weight signals)"
+        )
 
     def test_assembles_all_signal_fields(self) -> None:
         result = self._scanner.compare("gpt2", "gpt2")
@@ -248,6 +299,31 @@ class TestCompareUnit:
         result = self._scanner.compare("gpt2", "gpt2")
         assert result.interpretation.label != ""
         assert result.interpretation.colour.startswith("#")
+
+    def test_consistent_configs_keep_metadata_tiers(self) -> None:
+        self._mocks["extract_signals"].return_value = _fake_ws(
+            config_inconsistencies=[]
+        )
+        result = self._scanner.compare("model_a", "model_b")
+        _, kwargs = self._mocks["mfi_similarity"].call_args
+        assert kwargs["metadata_trusted"] is True
+        assert result.config_inconsistent == []
+
+    def test_inconsistent_config_disables_metadata_tiers(self) -> None:
+        finding = ConfigInconsistency(
+            field="vocab_size", declared=28996, observed=[30522]
+        )
+        self._mocks["extract_signals"].return_value = _fake_ws(
+            config_inconsistencies=[finding]
+        )
+        result = self._scanner.compare("model_a", "model_b")
+        _, kwargs = self._mocks["mfi_similarity"].call_args
+        assert kwargs["metadata_trusted"] is False
+        assert [(c.model, c.field) for c in result.config_inconsistent] == [
+            ("model_a", "vocab_size"),
+            ("model_b", "vocab_size"),
+        ]
+        assert "config_inconsistent: model_a: vocab_size" in format_plain(result)
 
 
 class TestCompareWeightFailure:
@@ -497,6 +573,13 @@ class TestSignalExtractionFailure:
             assert result.scores.identity_score is None
 
 
+class TestGetVocab:
+    def test_bytes_vocab_keys_are_decoded(self) -> None:
+        tok = MagicMock()
+        tok.get_vocab.return_value = {b"the": 0, "of": 1, b"\xe7\x9a\x84": 2}
+        assert ModelProvenanceScanner._get_vocab(tok) == ["the", "of", "\u7684"]
+
+
 # ── Partial cache (mfi set, tfv missing) ─────────────────────────
 
 
@@ -559,6 +642,105 @@ class TestPartialCache:
             result = scanner.compare("gpt2", "gpt2")
             assert mock_extract_fp.call_count == 1
             assert isinstance(result, CompareResult)
+
+
+# ── Extractor version and extraction settings ────────────────────
+
+
+def _patch_extraction(stack: ExitStack, fp: MFIFingerprint) -> MagicMock:
+    mock_extract_fp = MagicMock(return_value=(fp, MagicMock()))
+    stack.enter_context(patch(f"{_PATCH_BASE}.extract_fingerprint", mock_extract_fp))
+    stack.enter_context(
+        patch(f"{_PATCH_BASE}.extract_tokenizer_features", return_value=_fake_tfv())
+    )
+    stack.enter_context(
+        patch(
+            f"{_PATCH_BASE}.load_state_dict",
+            return_value=LoadResult(
+                state_dict={"w": torch.zeros(2, dtype=torch.bfloat16)},
+                config=None,
+                strategy=LoadStrategy.full,
+                source="safetensors_single",
+            ),
+        )
+    )
+    stack.enter_context(
+        patch(f"{_PATCH_BASE}.extract_signals", return_value=_fake_ws())
+    )
+    stack.enter_context(patch(f"{_PATCH_BASE}.AutoTokenizer", MagicMock()))
+    return mock_extract_fp
+
+
+class TestExtractionStamp:
+    def test_new_entry_records_params_and_loader(self, tmp_path: Any) -> None:
+        cache = CacheService(cache_dir=tmp_path)
+        with ExitStack() as stack:
+            _patch_extraction(stack, _fake_fp())
+            ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        entry = CacheService(cache_dir=tmp_path).get("gpt2")
+        assert entry is not None
+        assert entry.extractor_version == EXTRACTOR_VERSION
+        assert entry.extraction_params == Settings().extraction_params()
+        assert entry.ws_loader == {
+            "strategy": "full",
+            "source": "safetensors_single",
+            "dtype": "torch.bfloat16",
+        }
+
+    def test_changed_settings_force_re_extraction(self, tmp_path: Any) -> None:
+        fp = _fake_fp()
+        cache = CacheService(cache_dir=tmp_path)
+        cache.put(
+            "gpt2",
+            CachedEntry(
+                model_id="gpt2",
+                extraction_params={"anchor_k": 32, "wvc_subsample": 4096},
+                mfi=fp.model_dump(),
+                tfv=_fake_tfv().model_dump(),
+                ws=_fake_ws().to_cache_dict(),
+            ),
+        )
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, fp)
+            data = ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        assert mock_extract_fp.call_count == 1
+        assert not data.ws_cache_hit
+        entry = cache.get("gpt2")
+        assert entry is not None
+        assert entry.extraction_params == Settings().extraction_params()
+
+    def test_matching_settings_use_cache(self, tmp_path: Any) -> None:
+        fp = _fake_fp()
+        cache = CacheService(cache_dir=tmp_path)
+        cache.put(
+            "gpt2",
+            CachedEntry(
+                model_id="gpt2",
+                extraction_params=Settings().extraction_params(),
+                mfi=fp.model_dump(),
+                tfv=_fake_tfv().model_dump(),
+                ws=_fake_ws().to_cache_dict(),
+            ),
+        )
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, fp)
+            data = ModelProvenanceScanner(cache=cache)._extract_model("gpt2")
+
+        assert mock_extract_fp.call_count == 0
+        assert data.ws_cache_hit
+
+    def test_scan_rejects_stale_database_before_extraction(self, tmp_path: Any) -> None:
+        scanner = ModelProvenanceScanner(cache=CacheService(cache_dir=tmp_path))
+        db = MagicMock()
+        db.check_compatibility.side_effect = DatabaseError("stale")
+        scanner._db_service = db
+        with ExitStack() as stack:
+            mock_extract_fp = _patch_extraction(stack, _fake_fp())
+            with pytest.raises(DatabaseError, match="stale"):
+                scanner.scan("gpt2")
+        assert mock_extract_fp.call_count == 0
 
 
 # ── Online integration tests ──────────────────────────────────────

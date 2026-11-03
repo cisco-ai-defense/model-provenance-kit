@@ -17,7 +17,7 @@
 """Model provenance scanner — the main orchestrator.
 
 Coordinates MFI fingerprinting, tokenizer analysis, weight signal
-extraction, scoring, and the MFI gate to produce:
+extraction and scoring to produce:
 
 *  A ``CompareResult`` for pairwise model comparison.
 *  A ``ScanResult`` for one-vs-many database lookup.
@@ -25,6 +25,7 @@ extraction, scoring, and the MFI gate to produce:
 
 import math
 import time
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -38,7 +39,7 @@ from provenancekit.core.lookup import run_lookup
 from provenancekit.core.scoring import (
     compute_identity_score,
     compute_tokenizer_score,
-    interpret_score,
+    decide,
 )
 from provenancekit.core.signals.metadata import (
     classify,
@@ -65,7 +66,9 @@ from provenancekit.exceptions import ExtractionError, ModelLoadError
 from provenancekit.models.results import (
     CachedEntry,
     CompareResult,
+    LoadResult,
     LoadStrategy,
+    ModelConfigInconsistency,
     PipelineScore,
     ScanModelInfo,
     ScanResult,
@@ -73,6 +76,7 @@ from provenancekit.models.results import (
     TimingBreakdown,
 )
 from provenancekit.models.signals import (
+    ConfigInconsistency,
     MFIFingerprint,
     TokenizerFeatures,
     WeightSignalFeatures,
@@ -84,6 +88,35 @@ from provenancekit.utils import nan_safe
 from provenancekit.utils.tensor import compute_param_bucket
 
 log = structlog.get_logger()
+
+
+def _config_inconsistencies(
+    ws: WeightSignalFeatures | None,
+) -> list[ConfigInconsistency]:
+    if ws is None or ws.config_inconsistencies is None:
+        return []
+    return ws.config_inconsistencies
+
+
+def _loader_info(result: LoadResult) -> dict[str, str | None]:
+    """Describe how weights were read: strategy, source and dtype.
+
+    The dtype is the most common floating dtype among loaded tensors;
+    for streaming loads it falls back to the config's ``torch_dtype``.
+    """
+    dtype: str | None = None
+    if result.state_dict:
+        counts = Counter(
+            str(t.dtype)
+            for t in result.state_dict.values()
+            if getattr(t, "is_floating_point", lambda: False)()
+        )
+        if counts:
+            dtype = counts.most_common(1)[0][0]
+    if dtype is None:
+        config_dtype = getattr(result.config, "torch_dtype", None)
+        dtype = str(config_dtype) if config_dtype is not None else None
+    return {"strategy": str(result.strategy), "source": result.source, "dtype": dtype}
 
 
 @dataclass
@@ -99,6 +132,7 @@ class _ModelData:
     mfi_cache_hit: bool
     tfv_cache_hit: bool
     ws_cache_hit: bool
+    ws_loader: dict[str, str | None] | None = None
 
 
 class ModelProvenanceScanner:
@@ -184,7 +218,14 @@ class ModelProvenanceScanner:
         _phase("computing similarity scores")
         t_score = time.monotonic()
         log.info("scoring_start")
-        mfi = mfi_similarity(data_a.fp, data_b.fp)
+        config_inconsistent = [
+            ModelConfigInconsistency(model=model_id, **c.model_dump())
+            for model_id, data in ((model_a, data_a), (model_b, data_b))
+            for c in _config_inconsistencies(data.ws)
+        ]
+        mfi = mfi_similarity(
+            data_a.fp, data_b.fp, metadata_trusted=not config_inconsistent
+        )
         family_a, _ = classify(data_a.fp)
         family_b, _ = classify(data_b.fp)
 
@@ -207,19 +248,16 @@ class ModelProvenanceScanner:
         identity = compute_identity_score(eas_s, nlf_s, lep_s, end_s, wvc_s)
         tokenizer = compute_tokenizer_score(tfv_s, voa_s)
 
-        if mfi.tier <= 2:
-            pipeline_score = mfi.score
-            decision = "Confirmed Match"
-        elif not math.isnan(identity):
-            pipeline_score = identity
-            decision = ""
-        else:
-            pipeline_score = mfi.score
-            decision = interpret_score(pipeline_score).label + " (metadata only)"
-
-        interpretation = interpret_score(pipeline_score)
-        if not decision:
-            decision = interpretation.label
+        verdict = decide(
+            mfi.score,
+            mfi.tier,
+            identity,
+            deep_signals=not (math.isnan(lep_s) and math.isnan(wvc_s)),
+            tfv=tfv_s,
+            wvc=wvc_s,
+        )
+        pipeline_score = verdict.pipeline_score
+        decision = verdict.decision
         scoring_elapsed = time.monotonic() - t_score
         metadata_extract_elapsed = data_a.base_elapsed + data_b.base_elapsed
         weight_feature_extract_elapsed = data_a.weight_elapsed + data_b.weight_elapsed
@@ -268,8 +306,9 @@ class ModelProvenanceScanner:
                 tokenizer_score=nan_safe(tokenizer),
                 pipeline_score=pipeline_score,
                 provenance_decision=decision,
+                verification=verdict.verification,
             ),
-            interpretation=interpretation,
+            interpretation=verdict.interpretation,
             time_seconds=round(elapsed, 3),
             timing=TimingBreakdown(
                 total_seconds=round(elapsed, 3),
@@ -277,6 +316,7 @@ class ModelProvenanceScanner:
                 weight_feature_extract_seconds=round(weight_feature_extract_elapsed, 3),
                 cache_hit=cache_hit,
             ),
+            config_inconsistent=config_inconsistent,
         )
 
     def scan(
@@ -321,6 +361,10 @@ class ModelProvenanceScanner:
             threshold=effective_threshold,
         )
 
+        # Fail before the (slow) extraction when the database is stale.
+        db_service = self._get_db_service()
+        db_service.check_compatibility(self._settings)
+
         # 1. Extract features from the query model (reuses compare's extraction)
         _phase("extracting features")
         t_extract = time.monotonic()
@@ -337,7 +381,7 @@ class ModelProvenanceScanner:
         # 2. Run 3-stage DB lookup
         _phase("matching against provenance database")
         t_lookup = time.monotonic()
-        db_service = self._get_db_service()
+        config_inconsistent = _config_inconsistencies(data.ws)
         matches = run_lookup(
             data.fp,
             data.tfv,
@@ -345,6 +389,7 @@ class ModelProvenanceScanner:
             db_service,
             top_k=effective_top_k,
             threshold=effective_threshold,
+            metadata_trusted=not config_inconsistent,
         )
         lookup_seconds = round(time.monotonic() - t_lookup, 3)
 
@@ -370,6 +415,7 @@ class ModelProvenanceScanner:
             family_hash=data.fp.family_hash,
             param_bucket=compute_param_bucket(data.fp),
             has_weight_signals=data.ws is not None,
+            config_inconsistent=config_inconsistent,
         )
 
         result = ScanResult(
@@ -402,6 +448,19 @@ class ModelProvenanceScanner:
         """Extract all features for a single model, with caching."""
         model_id = model_id.strip()
         cached = self._cache.get(model_id)
+        params = self._settings.extraction_params()
+        if (
+            cached is not None
+            and cached.extraction_params is not None
+            and cached.extraction_params != params
+        ):
+            log.info(
+                "cache_entry_params_changed",
+                model_id=model_id,
+                cached_params=cached.extraction_params,
+                params=params,
+            )
+            cached = None
 
         mfi_cache_hit = cached is not None and cached.mfi is not None
         tfv_cache_hit = cached is not None and cached.tfv is not None
@@ -413,13 +472,15 @@ class ModelProvenanceScanner:
 
         t_ws = time.monotonic()
         ws: WeightSignalFeatures | None
+        loader: dict[str, str | None] | None = None
         if ws_cache_hit and cached is not None and cached.ws is not None:
             log.info("cache_hit_ws", model_id=model_id)
             ws = WeightSignalFeatures.from_cache_dict(cached.ws)
+            loader = cached.ws_loader
         else:
-            ws = self._extract_weight_signals(model_id, tokenizer)
+            ws, loader = self._extract_weight_signals(model_id, tokenizer)
             if ws is not None:
-                self._persist_ws(model_id, ws)
+                self._persist_ws(model_id, ws, loader)
         ws_elapsed = time.monotonic() - t_ws
 
         log.info(
@@ -443,6 +504,7 @@ class ModelProvenanceScanner:
             mfi_cache_hit=mfi_cache_hit,
             tfv_cache_hit=tfv_cache_hit,
             ws_cache_hit=ws_cache_hit,
+            ws_loader=loader,
         )
 
     def _extract_base(
@@ -493,9 +555,11 @@ class ModelProvenanceScanner:
 
         entry = CachedEntry(
             model_id=model_id,
+            extraction_params=self._settings.extraction_params(),
             mfi=fp.model_dump(),
             tfv=tfv.model_dump(),
             ws=cached.ws if cached is not None else None,
+            ws_loader=cached.ws_loader if cached is not None else None,
         )
         self._cache.put(model_id, entry)
         return fp, tfv, tokenizer
@@ -518,12 +582,19 @@ class ModelProvenanceScanner:
             )
             return None
 
-    def _persist_ws(self, model_id: str, ws: WeightSignalFeatures) -> None:
+    def _persist_ws(
+        self,
+        model_id: str,
+        ws: WeightSignalFeatures,
+        loader: dict[str, str | None] | None = None,
+    ) -> None:
         """Merge weight-signal features into the existing cache entry."""
         cached = self._cache.get(model_id)
         if cached is None:
             cached = CachedEntry(model_id=model_id)
+        cached.extraction_params = self._settings.extraction_params()
         cached.ws = ws.to_cache_dict()
+        cached.ws_loader = loader
         self._cache.put(model_id, cached)
         log.info("cache_stored_ws", model_id=model_id)
 
@@ -532,18 +603,22 @@ class ModelProvenanceScanner:
         if tokenizer is None:
             return None
         try:
-            return list(tokenizer.get_vocab().keys())
+            return [
+                k.decode("utf-8", errors="replace") if isinstance(k, bytes) else k
+                for k in tokenizer.get_vocab()
+            ]
         except Exception:  # noqa: BLE001
             return None
 
     def _extract_weight_signals(
         self, model_id: str, tokenizer: Any
-    ) -> WeightSignalFeatures | None:
+    ) -> tuple[WeightSignalFeatures | None, dict[str, str | None] | None]:
         """Extract weight-level signals, choosing full vs streaming.
 
-        Returns ``None`` when the model cannot be loaded or signals
+        Returns ``(None, …)`` when the model cannot be loaded or signals
         cannot be extracted — the comparison continues without weight
-        signals in that case.
+        signals in that case.  The second element records how the
+        weights were read (``None`` when loading failed).
         """
         log.info("weight_load_start", model_id=model_id)
         t_load = time.monotonic()
@@ -551,14 +626,16 @@ class ModelProvenanceScanner:
             result = load_state_dict(model_id, settings=self._settings)
         except ModelLoadError as exc:
             log.warning("model_load_failed", model_id=model_id, error=str(exc))
-            return None
+            return None, None
         load_elapsed = time.monotonic() - t_load
+        loader = _loader_info(result)
 
         log.info(
             "weight_load_done",
             model_id=model_id,
             strategy=result.strategy,
             source=result.source,
+            dtype=loader["dtype"],
             elapsed=f"{load_elapsed:.1f}s",
         )
 
@@ -580,7 +657,7 @@ class ModelProvenanceScanner:
                     model_id=model_id,
                     elapsed=f"{time.monotonic() - t_weight_compute:.1f}s",
                 )
-                return ws
+                return ws, loader
 
             if result.strategy == LoadStrategy.streaming:
                 log.info("weight_signals_start", model_id=model_id, mode="streaming")
@@ -595,14 +672,14 @@ class ModelProvenanceScanner:
                     model_id=model_id,
                     elapsed=f"{time.monotonic() - t_weight_compute:.1f}s",
                 )
-                return ws
+                return ws, loader
         except ExtractionError as exc:
             log.warning("signal_extraction_failed", model_id=model_id, error=str(exc))
-            return None
+            return None, loader
 
         log.warning(
             "no_weight_signals_available",
             model_id=model_id,
             source=result.source,
         )
-        return None
+        return None, loader

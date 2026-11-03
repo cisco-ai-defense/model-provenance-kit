@@ -28,7 +28,7 @@ Six public similarity functions compute NaN-aware pairwise scores from
 import gc
 import os
 from collections import defaultdict
-from pathlib import Path
+from collections.abc import Callable, Sequence
 from typing import Any
 
 import numpy as np
@@ -38,28 +38,38 @@ from transformers import AutoConfig
 
 from provenancekit.config.settings import Settings
 from provenancekit.core.signals.anchors import get_anchor_ids
+from provenancekit.core.signals.config_consistency import (
+    check_config_consistency,
+    collect_shapes,
+)
 from provenancekit.core.signals.streamers import create_streamer
 from provenancekit.exceptions import ExtractionError
-from provenancekit.models.signals import WeightSignalFeatures
+from provenancekit.models.signals import ConfigInconsistency, WeightSignalFeatures
 from provenancekit.services.model_loader import (
     is_local_hf_snapshot,
     resolve_hf_model_ref,
     try_hf_download,
 )
+from provenancekit.utils.paths import UnsafeShardPathError, safe_shard_join
 from provenancekit.utils.tensor import (
+    canonical_tensor_key,
     classify_tensor_name,
     cosine_clamp,
     extract_layer_index,
     find_embedding_in_state_dict,
     find_embedding_name_in_weight_map,
+    is_float8_dtype,
     is_norm_tensor_name,
+    is_quantization_aux_name,
     norm_vector_to_stats,
+    unsupported_quantization_format,
 )
 
 log = structlog.get_logger()
 
 _LIGHT_SAMPLE_SIZE: int = 131072  # 128K elements
 _MAX_EMBEDDING_ROWS: int = 1_000_000  # blocks adversarial shapes
+_SLICE_DISK_THRESHOLD_BYTES: float = 20e9  # row-slice LEP/WSP above this size
 
 
 def _to_float(t: torch.Tensor) -> torch.Tensor:
@@ -98,6 +108,19 @@ def _extract_signals_impl(
 ) -> WeightSignalFeatures | None:
     if settings is None:
         settings = Settings()
+    unsupported = unsupported_quantization_format(config)
+    if unsupported is None and any(
+        is_float8_dtype(getattr(tensor, "dtype", None))
+        for tensor in state_dict.values()
+    ):
+        unsupported = "fp8"
+    if unsupported is not None:
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            format=unsupported,
+        )
+        return None
+
     light = mode == "light"
 
     hidden_size = getattr(config, "hidden_size", 0) if config else 0
@@ -123,6 +146,8 @@ def _extract_signals_impl(
     )
     log.info("signal_lep_wsp_wvc_done")
 
+    config_inconsistencies = _safe_config_check(config, collect_shapes(state_dict))
+
     gc.collect()
 
     return WeightSignalFeatures(
@@ -137,6 +162,7 @@ def _extract_signals_impl(
         end_histogram=end_histogram,
         wsp_signature=wsp_signature,
         wvc_layer_sigs=wvc_layer_sigs,
+        config_inconsistencies=config_inconsistencies,
     )
 
 
@@ -205,6 +231,15 @@ def _extract_signals_streaming_impl(
             details={"model_id": model_name, "stage": "config_load"},
         ) from config_exc
 
+    unsupported = unsupported_quantization_format(config)
+    if unsupported is not None:
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            model_id=model_name,
+            format=unsupported,
+        )
+        return None
+
     hidden_size: int = getattr(config, "hidden_size", 0)
     num_layers: int = getattr(config, "num_hidden_layers", 0)
 
@@ -220,14 +255,13 @@ def _extract_signals_streaming_impl(
     def _get_shard_path(shard_file: str) -> str:
         if shard_file not in _shard_paths:
             if is_local_hf_snapshot(model_name):
-                joined = os.path.join(model_name, shard_file)  # noqa: PTH118
-                resolved = Path(joined).resolve()
-                if not resolved.is_relative_to(Path(model_name).resolve()):
+                try:
+                    _shard_paths[shard_file] = safe_shard_join(model_name, shard_file)
+                except UnsafeShardPathError as exc:
                     raise ExtractionError(
-                        f"Shard path escapes model directory: {shard_file}",
+                        str(exc),
                         details={"model_name": model_name, "shard": shard_file},
-                    )
-                _shard_paths[shard_file] = str(resolved)
+                    ) from exc
             else:
                 path = try_hf_download(model_name, shard_file)
                 if path is None:
@@ -248,16 +282,26 @@ def _extract_signals_streaming_impl(
         with streamer.open_shard(path) as handle:
             return streamer.get_tensor(handle, tensor_name)
 
+    if _has_float8_tensor(streamer, weight_map, _get_shard_path):
+        log.warning(
+            "unsupported_quantization_signals_skipped",
+            model_id=model_name,
+            format="fp8",
+        )
+        return None
+
     # ── EAS + END ──
     log.info("streaming_eas_end_start", model_id=model_name)
     eas_self_sim: np.ndarray | None = None
     eas_anchor_count = 0
     end_histogram: np.ndarray | None = None
+    tensor_shapes: dict[str, tuple[int, ...]] = {}
 
     emb_name = find_embedding_name_in_weight_map(weight_map)
     if emb_name is not None:
         try:
             emb_tensor = _to_float(_load_tensor(emb_name))
+            tensor_shapes[emb_name] = tuple(emb_tensor.shape)
             v_size, _ = emb_tensor.shape
             if v_size > _MAX_EMBEDDING_ROWS:
                 log.warning(
@@ -292,35 +336,25 @@ def _extract_signals_streaming_impl(
 
     # ── NLF ──
     log.info("streaming_nlf_start", model_id=model_name)
-    norm_weights: list[np.ndarray] = []
-    norm_layer_stats: list[dict[str, float]] = []
-    for tname in sorted(weight_map.keys()):
-        if not is_norm_tensor_name(tname):
+    named_norms: list[tuple[str, np.ndarray]] = []
+    for tname in weight_map:
+        if not is_norm_tensor_name(tname) or is_quantization_aux_name(tname):
             continue
         try:
-            t = _to_float(_load_tensor(tname)).flatten()
-            if t.dim() == 0 or t.numel() < 64:
+            raw = _load_tensor(tname)
+            if not raw.is_floating_point():
+                continue
+            t = _to_float(raw)
+            if t.dim() != 1 or t.numel() < 64:
                 del t
                 continue
-            w: np.ndarray = t.cpu().numpy()
-            norm_weights.append(w)
-            norm_layer_stats.append(
-                {
-                    "mean": float(w.mean()),
-                    "std": float(w.std()),
-                    "max": float(w.max()),
-                    "min": float(w.min()),
-                }
-            )
+            named_norms.append((tname, t.cpu().numpy()))
             del t
         except Exception as exc:  # noqa: BLE001
             log.debug("streaming_nlf_tensor_failed", tensor=tname, error=str(exc))
             continue
 
-    nlf_vector, nlf_mode, nlf_num_layers = _build_nlf(
-        norm_weights,
-        norm_layer_stats,
-    )
+    nlf_vector, nlf_mode, nlf_num_layers = _build_nlf(named_norms)
 
     log.info(
         "streaming_nlf_done", model_id=model_name, mode=nlf_mode, layers=nlf_num_layers
@@ -328,14 +362,13 @@ def _extract_signals_streaming_impl(
 
     # ── LEP + WSP + WVC: shard-by-shard scan ──
     log.info("streaming_lep_wsp_wvc_start", model_id=model_name)
-    _slice_disk_threshold = 20e9
     total_disk_bytes = sum(
         os.path.getsize(_get_shard_path(sf))  # noqa: PTH202
         for sf in shard_files
         if os.path.isfile(_get_shard_path(sf))  # noqa: PTH113
     )
     _use_slicing = (
-        total_disk_bytes > _slice_disk_threshold and streamer.supports_slicing
+        total_disk_bytes > _SLICE_DISK_THRESHOLD_BYTES and streamer.supports_slicing
     )
     _slice_sample_rows = 32
 
@@ -344,7 +377,7 @@ def _extract_signals_streaming_impl(
     layer_signs: dict[int, dict[str, int]] = defaultdict(
         lambda: {"positive": 0, "near_zero": 0, "total": 0},
     )
-    wvc_layer_data: dict[int, list[np.ndarray]] = defaultdict(list)
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]] = defaultdict(list)
 
     shard_to_tensors: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for tname, shard_file in weight_map.items():
@@ -372,6 +405,9 @@ def _extract_signals_streaming_impl(
                 for tname, layer_idx in tensors_in_shard:
                     try:
                         if _use_slicing:
+                            tensor_shapes[tname] = tuple(
+                                streamer.get_slice(handle, tname).get_shape()
+                            )
                             _process_tensor_sliced(
                                 handle,
                                 tname,
@@ -383,7 +419,13 @@ def _extract_signals_streaming_impl(
                                 wvc_layer_data,
                             )
                         else:
-                            tensor = _to_float(streamer.get_tensor(handle, tname))
+                            raw = streamer.get_tensor(handle, tname)
+                            tensor_shapes[tname] = tuple(raw.shape)
+                            if not _is_signal_tensor(tname, raw.is_floating_point()):
+                                del raw
+                                continue
+                            tensor = _to_float(raw)
+                            del raw
                             _process_tensor_full(
                                 tensor,
                                 tname,
@@ -412,6 +454,7 @@ def _extract_signals_streaming_impl(
     lep_profile = _build_lep(layer_energy)
     wsp_signature = _build_wsp(layer_signs)
     wvc_layer_sigs = _build_wvc(wvc_layer_data)
+    config_inconsistencies = _safe_config_check(config, tensor_shapes)
 
     gc.collect()
     log.info("streaming_complete", model_id=model_name)
@@ -427,7 +470,21 @@ def _extract_signals_streaming_impl(
         end_histogram=end_histogram,
         wsp_signature=wsp_signature,
         wvc_layer_sigs=wvc_layer_sigs,
+        config_inconsistencies=config_inconsistencies,
     )
+
+
+def _safe_config_check(
+    config: Any | None, shapes: dict[str, tuple[int, ...]]
+) -> list[ConfigInconsistency] | None:
+    """Run the config/shape check; ``None`` means it could not be run."""
+    if config is None or not shapes:
+        return None
+    try:
+        return check_config_consistency(config, shapes)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("config_consistency_check_failed", error=str(exc))
+        return None
 
 
 # ── Similarity functions (NaN-aware) ──────────────────────────────
@@ -629,39 +686,34 @@ def _extract_nlf(
     state_dict: dict[str, Any],
 ) -> tuple[np.ndarray | None, str | None, int]:
     """Extract NLF vector from norm-layer weights."""
-    norm_weights: list[np.ndarray] = []
-    norm_layer_stats: list[dict[str, float]] = []
-
-    for name, param in state_dict.items():
-        if is_norm_tensor_name(name) and param.dim() == 1 and param.numel() >= 64:
-            w: np.ndarray = param.detach().float().cpu().numpy()
-            norm_weights.append(w)
-            norm_layer_stats.append(
-                {
-                    "mean": float(w.mean()),
-                    "std": float(w.std()),
-                    "max": float(w.max()),
-                    "min": float(w.min()),
-                }
-            )
-
-    return _build_nlf(norm_weights, norm_layer_stats)
+    named_norms: list[tuple[str, np.ndarray]] = [
+        (name, param.detach().float().cpu().numpy())
+        for name, param in state_dict.items()
+        if is_norm_tensor_name(name)
+        and _is_signal_tensor(name, param.is_floating_point())
+        and param.dim() == 1
+        and param.numel() >= 64
+    ]
+    return _build_nlf(named_norms)
 
 
 def _build_nlf(
-    norm_weights: list[np.ndarray],
-    norm_layer_stats: list[dict[str, float]],
+    named_norms: list[tuple[str, np.ndarray]],
 ) -> tuple[np.ndarray | None, str | None, int]:
-    """Build final NLF vector from collected norm weights."""
-    if not norm_weights:
+    """Build final NLF vector from ``(tensor_name, weights)`` pairs."""
+    if not named_norms:
         return None, None, 0
 
+    norm_weights = [
+        w for _, w in sorted(named_norms, key=lambda nw: canonical_tensor_key(nw[0]))
+    ]
     sizes = {w.shape[0] for w in norm_weights}
     if len(sizes) == 1:
         return np.concatenate(norm_weights), "direct", len(norm_weights)
 
     stats_array = np.array(
-        [[s["mean"], s["std"], s["max"], s["min"]] for s in norm_layer_stats]
+        [[w.mean(), w.std(), w.max(), w.min()] for w in norm_weights],
+        dtype=np.float64,
     ).flatten()
     return stats_array, "stats", len(norm_weights)
 
@@ -676,11 +728,11 @@ def _extract_lep_wsp_wvc(
     layer_signs: dict[int, dict[str, int]] = defaultdict(
         lambda: {"positive": 0, "near_zero": 0, "total": 0},
     )
-    wvc_layer_data: dict[int, list[np.ndarray]] = defaultdict(list)
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]] = defaultdict(list)
 
     for name, param in state_dict.items():
         layer_idx = extract_layer_index(name)
-        if layer_idx is None:
+        if layer_idx is None or not _is_signal_tensor(name, param.is_floating_point()):
             continue
 
         n_elem = param.numel()
@@ -694,12 +746,9 @@ def _extract_lep_wsp_wvc(
 
             cat = classify_tensor_name(name)
             if cat not in ("norm", "embedding", "lm_head", "other"):
-                flat = param.detach().float().flatten()
-                n = flat.numel()
-                if n > wvc_subsample:
-                    stride = n // wvc_subsample
-                    flat = flat[::stride][:wvc_subsample]
-                wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+                wvc_layer_data[layer_idx].append(
+                    (name, _wvc_sample(param, wvc_subsample))
+                )
 
         if n_elem >= 1024:
             layer_signs[layer_idx]["positive"] += n_pos
@@ -748,7 +797,7 @@ def _process_tensor_full(
     wvc_subsample: int,
     layer_energy: dict[int, float],
     layer_signs: dict[int, dict[str, int]],
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> None:
     """Process a single tensor in the streaming non-sliced path."""
     n_elem = tensor.numel()
@@ -762,12 +811,9 @@ def _process_tensor_full(
 
         cat = classify_tensor_name(tname)
         if cat not in ("norm", "embedding", "lm_head", "other"):
-            flat = tensor.detach().float().flatten()
-            n = flat.numel()
-            if n > wvc_subsample:
-                stride = n // wvc_subsample
-                flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+            wvc_layer_data[layer_idx].append(
+                (tname, _wvc_sample(tensor, wvc_subsample))
+            )
 
     if n_elem >= 1024:
         layer_signs[layer_idx]["positive"] += n_pos
@@ -783,10 +829,12 @@ def _process_tensor_sliced(
     wvc_subsample: int,
     layer_energy: dict[int, float],
     layer_signs: dict[int, dict[str, int]],
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> None:
     """Process a tensor via row-slicing for very large models."""
     sl = f.get_slice(tname)
+    if not _is_signal_tensor(tname, str(sl.get_dtype()).startswith(("F", "BF"))):
+        return
     shape = sl.get_shape()
     ndim = len(shape)
     n_elem = 1
@@ -808,7 +856,7 @@ def _process_tensor_sliced(
             tensor = sl[:, :].float()
         scale_factor = total_rows / sample_rows
 
-        energy = float(torch.sum(tensor**2)) * scale_factor
+        energy = (float(torch.sum(tensor**2)) * scale_factor) ** 0.5
         layer_energy[layer_idx] += energy
 
         flat_t = tensor.flatten()
@@ -821,14 +869,109 @@ def _process_tensor_sliced(
 
         cat = classify_tensor_name(tname)
         if cat not in ("norm", "embedding", "lm_head", "other"):
-            flat = tensor.detach().float().flatten()
-            n = flat.numel()
-            if n > wvc_subsample:
-                stride = n // wvc_subsample
-                flat = flat[::stride][:wvc_subsample]
-            wvc_layer_data[layer_idx].append(flat.cpu().numpy())
+            wvc_layer_data[layer_idx].append(
+                (tname, _wvc_sample_from_slice(sl, shape, wvc_subsample))
+            )
 
         del tensor
+
+
+def _has_float8_tensor(
+    streamer: Any,
+    weight_map: dict[str, str],
+    shard_path: Callable[[str], str],
+) -> bool:
+    """Whether any tensor is stored as FP8, as checked on full loads.
+
+    Safetensors dtypes come from the shard header, so no weights are read.
+    Unreadable shards and tensors are skipped, as in the extraction loop.
+    """
+    by_shard: dict[str, list[str]] = defaultdict(list)
+    for name, shard in weight_map.items():
+        by_shard[shard].append(name)
+    for shard, names in sorted(by_shard.items()):
+        try:
+            with streamer.open_shard(shard_path(shard)) as handle:
+                for name in names:
+                    try:
+                        if streamer.supports_slicing:
+                            dtype = streamer.get_slice(handle, name).get_dtype()
+                        else:
+                            dtype = streamer.get_tensor(handle, name).dtype
+                    except Exception as exc:  # noqa: BLE001
+                        log.debug(
+                            "fp8_check_tensor_failed", tensor=name, error=str(exc)
+                        )
+                        continue
+                    if is_float8_dtype(dtype):
+                        return True
+        except Exception as exc:  # noqa: BLE001
+            log.debug("fp8_check_shard_failed", shard=shard, error=str(exc))
+    return False
+
+
+def _is_signal_tensor(name: str, is_floating: bool) -> bool:
+    """Whether a tensor's values are comparable weights.
+
+    Quantized checkpoints store packed integers (GPTQ/AWQ ``qweight``,
+    bitsandbytes uint8 packs) plus scale/zero-point side tensors; reading
+    those as weights gives misleading LEP, WSP, WVC and NLF values.
+    """
+    return is_floating and not is_quantization_aux_name(name)
+
+
+def _wvc_sample_indices(n_elem: int, wvc_subsample: int) -> np.ndarray | None:
+    """Flat element positions sampled for WVC, or ``None`` to keep all.
+
+    Every load path must sample these exact positions so the same weights
+    give the same WVC signature.
+    """
+    if n_elem <= wvc_subsample:
+        return None
+    stride = n_elem // wvc_subsample
+    return np.arange(0, n_elem, stride, dtype=np.int64)[:wvc_subsample]
+
+
+def _wvc_sample(tensor: Any, wvc_subsample: int) -> np.ndarray:
+    """WVC sample from an in-memory tensor."""
+    flat = tensor.detach().float().flatten()
+    idx = _wvc_sample_indices(flat.numel(), wvc_subsample)
+    if idx is not None:
+        flat = flat[torch.from_numpy(idx)]
+    sample: np.ndarray = flat.cpu().numpy()
+    return sample
+
+
+def _wvc_sample_from_slice(
+    sl: Any, shape: Sequence[int], wvc_subsample: int
+) -> np.ndarray:
+    """WVC sample read row-by-row from a safetensors slice.
+
+    Reads only the rows (and column span) that contain sampled positions,
+    giving the same values as ``_wvc_sample`` on the fully loaded tensor.
+    """
+    total_rows = int(shape[0])
+    row_len = 1
+    for s in shape[1:]:
+        row_len *= int(s)
+    idx = _wvc_sample_indices(total_rows * row_len, wvc_subsample)
+    if idx is None:
+        full: np.ndarray = sl[:].float().flatten().cpu().numpy()
+        return full
+
+    rows, cols = np.divmod(idx, row_len)
+    pieces: list[torch.Tensor] = []
+    for row in np.unique(rows):
+        row_cols = cols[rows == row]
+        r = int(row)
+        if len(shape) == 2:
+            lo, hi = int(row_cols.min()), int(row_cols.max()) + 1
+            segment = sl[r : r + 1, lo:hi].flatten()
+            pieces.append(segment[torch.from_numpy(row_cols - lo)])
+        else:
+            segment = sl[r : r + 1].flatten()
+            pieces.append(segment[torch.from_numpy(row_cols)])
+    return torch.cat(pieces).float().cpu().numpy()
 
 
 # ── Signal aggregation builders ────────────────────────────────────
@@ -864,11 +1007,19 @@ def _build_wsp(
 
 
 def _build_wvc(
-    wvc_layer_data: dict[int, list[np.ndarray]],
+    wvc_layer_data: dict[int, list[tuple[str, np.ndarray]]],
 ) -> dict[int, np.ndarray] | None:
-    """Build WVC per-layer signatures."""
+    """Build WVC per-layer signatures from ``(tensor_name, sample)`` pairs."""
     if not wvc_layer_data:
         return None
     return {
-        li: np.concatenate(wvc_layer_data[li]) for li in sorted(wvc_layer_data.keys())
+        li: np.concatenate(
+            [
+                sample
+                for _, sample in sorted(
+                    wvc_layer_data[li], key=lambda ns: canonical_tensor_key(ns[0])
+                )
+            ]
+        )
+        for li in sorted(wvc_layer_data.keys())
     }

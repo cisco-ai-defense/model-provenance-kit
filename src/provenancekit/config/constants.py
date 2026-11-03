@@ -72,3 +72,10 @@ TOKENIZER_WEIGHTS: dict[str, float] = {"tfv": 0.25, "voa": 0.75}
 # Calibrated on 111-pair benchmark (best F1 via threshold sweep).
 
 SIMILARITY_THRESHOLD: float = 0.75
+
+# ── Extractor version ─────────────────────────────────────────────
+# Stamped on cache entries and the fingerprint database.  Bump whenever a
+# change alters stored feature values, so older features are re-extracted
+# (cache) or rejected (database) instead of being compared with new ones.
+
+EXTRACTOR_VERSION: str = "2"

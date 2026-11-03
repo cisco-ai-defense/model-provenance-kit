@@ -26,8 +26,10 @@ Loading cascade
 2. If > ``huge_model_params`` → return ``strategy="streaming"``.
 3. Try safetensors single-shard direct load (fast, no model init).
 4. Try safetensors multi-shard load (with disk-size guard).
-5. Fall back to ``AutoModelForCausalLM`` → ``AutoModel``.
-6. On failure → raise :class:`~provenancekit.exceptions.ModelLoadError`.
+5. Try raw ``pytorch_model.bin`` tensors (single or sharded,
+   ``weights_only=True``).
+6. Fall back to ``AutoModelForCausalLM`` → ``AutoModel``.
+7. On failure → raise :class:`~provenancekit.exceptions.ModelLoadError`.
 """
 
 import json as _json
@@ -46,6 +48,7 @@ from provenancekit.config.settings import Settings
 from provenancekit.exceptions import ModelLoadError
 from provenancekit.models.parsing import ModelFormat
 from provenancekit.models.results import LoadResult, LoadStrategy
+from provenancekit.utils.paths import UnsafeShardPathError, safe_shard_join
 from provenancekit.utils.tensor import estimate_param_count
 
 log = structlog.get_logger()
@@ -56,13 +59,13 @@ _LOCAL_HF_MARKER = "config.json"
 
 def _safe_shard_path(base_dir: str, shard: str) -> str:
     """Join base_dir and shard, rejecting path traversal attempts."""
-    result = Path(os.path.join(base_dir, shard)).resolve()  # noqa: PTH118
-    if not result.is_relative_to(Path(base_dir).resolve()):
+    try:
+        return safe_shard_join(base_dir, shard)
+    except UnsafeShardPathError as exc:
         raise ModelLoadError(
-            f"Shard path escapes model directory: {shard}",
+            str(exc),
             details={"base_dir": base_dir, "shard": shard},
-        )
-    return str(result)
+        ) from exc
 
 
 def resolve_hf_model_ref(model_ref: str) -> str:
@@ -332,7 +335,17 @@ def load_state_dict(
         log.info("safetensors_loaded", model_id=model_name, source=result.source)
         return result
 
-    log.info("trying_automodel", model_id=model_name)
+    # Raw tensors keep every stored weight in its stored dtype.  AutoModel
+    # builds a module from config instead: *ForCausalLM drops the encoder
+    # of encoder-decoder models, weights are cast to fp16, and a config
+    # that contradicts the tensors fails to load at all.
+    log.info("trying_pytorch_bin", model_id=model_name)
+    result = _try_pytorch_bin(model_name, config)
+    if result is not None:
+        log.info("pytorch_bin_loaded", model_id=model_name, source=result.source)
+        return result
+
+    log.warning("automodel_fallback", model_id=model_name)
     return _try_automodel(
         model_name, config, trust_remote_code=settings.trust_remote_code
     )
@@ -573,6 +586,13 @@ def _try_safetensors_sharded(
                 strategy=LoadStrategy.full,
                 source="safetensors_sharded",
             )
+        except ModelLoadError as exc:
+            log.warning(
+                "safetensors_shard_rejected",
+                model_id=model_name,
+                error=str(exc),
+            )
+            return None
         except Exception as exc:  # noqa: BLE001
             log.debug(
                 "safetensors_sharded_probe_failed",
@@ -581,6 +601,66 @@ def _try_safetensors_sharded(
                 error=str(exc),
             )
     return None
+
+
+def _load_bin(path: str) -> dict[str, Any]:
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    if not isinstance(state, dict):
+        return {}
+    return {k: v for k, v in state.items() if isinstance(v, torch.Tensor)}
+
+
+def _try_pytorch_bin(model_name: str, config: Any) -> LoadResult | None:
+    """Load raw ``pytorch_model.bin`` tensors without building the module."""
+    try:
+        if is_local_hf_snapshot(model_name):
+            base_dir = model_name
+            index_file = os.path.join(  # noqa: PTH118
+                base_dir, "pytorch_model.bin.index.json"
+            )
+            index_path: str | None = (
+                index_file if os.path.isfile(index_file) else None  # noqa: PTH113
+            )
+            single_path: str | None = os.path.join(  # noqa: PTH118
+                base_dir, "pytorch_model.bin"
+            )
+        else:
+            index_path = try_hf_download(model_name, "pytorch_model.bin.index.json")
+            single_path = (
+                None if index_path else try_hf_download(model_name, "pytorch_model.bin")
+            )
+            base_dir = os.path.dirname(index_path or single_path or "")  # noqa: PTH120
+
+        state: dict[str, Any] = {}
+        if index_path is not None:
+            with open(index_path, encoding="utf-8") as f:  # noqa: PTH123
+                idx = _json.load(f)
+            for shard in sorted(set(idx["weight_map"].values())):
+                shard_path = _safe_shard_path(base_dir, shard)
+                if not os.path.isfile(shard_path):  # noqa: PTH113
+                    if is_local_hf_snapshot(model_name):
+                        return None
+                    shard_path = hf_hub_download(model_name, shard)
+                state.update(_load_bin(shard_path))
+        elif single_path is not None and os.path.isfile(single_path):  # noqa: PTH113
+            state = _load_bin(single_path)
+        else:
+            return None
+    except ModelLoadError as exc:
+        log.warning("pytorch_bin_shard_rejected", model_id=model_name, error=str(exc))
+        return None
+    except Exception as exc:  # noqa: BLE001
+        log.debug("pytorch_bin_raw_load_failed", model_id=model_name, error=str(exc))
+        return None
+    if not state:
+        return None
+
+    return LoadResult(
+        state_dict=state,
+        config=config,
+        strategy=LoadStrategy.full,
+        source="pytorch_bin_raw",
+    )
 
 
 def _try_automodel(

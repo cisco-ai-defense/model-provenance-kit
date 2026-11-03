@@ -32,7 +32,10 @@ Scoring recap::
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from provenancekit.config.constants import EXTRACTOR_VERSION
+from provenancekit.models.signals import ConfigInconsistency
 
 # ── Model loading result ──────────────────────────────────────────
 
@@ -77,11 +80,15 @@ class SignalScores(BaseModel):
 
 
 class PipelineScore(BaseModel):
-    """Decomposed scoring output with MFI gate.
+    """Decomposed scoring output.
 
-    ``pipeline_score`` is the final decision value: equal to
-    ``mfi_score`` when ``mfi_tier <= 2``, otherwise equal to
-    ``identity_score``.
+    ``pipeline_score`` normally equals ``identity_score`` whenever weight
+    evidence exists, otherwise ``mfi_score``.  It is capped in the Weak Match
+    band when only embedding-level weight signals are available and the
+    metadata/tokenizer guard does not confirm them.  ``verification`` states
+    whether the decision is backed by weights: ``weights_agree``,
+    ``weights_weak``, ``weights_conflict``, ``weights_only``,
+    ``weights_shallow`` (limited evidence without LEP/WVC), or ``unverified``.
     """
 
     mfi_score: float
@@ -91,6 +98,7 @@ class PipelineScore(BaseModel):
     tokenizer_score: float | None
     pipeline_score: float
     provenance_decision: str
+    verification: str = "unverified"
 
 
 class ScoreInterpretation(BaseModel):
@@ -109,11 +117,21 @@ class TimingBreakdown(BaseModel):
     cache_hit: str
 
 
+class ModelConfigInconsistency(ConfigInconsistency):
+    """A :class:`ConfigInconsistency` attributed to one compared model."""
+
+    model: str
+
+
 class CompareResult(BaseModel):
     """Full top-level comparison output for a model pair.
 
     Matches the structure produced by the benchmark pipeline and
     serialised to JSON.
+
+    ``config_inconsistent`` lists ``config.json`` fields that contradict
+    the stored tensors of either model.  When non-empty, MFI Tier 1/2
+    is not applied for the pair.
     """
 
     model_a: str
@@ -125,6 +143,7 @@ class CompareResult(BaseModel):
     interpretation: ScoreInterpretation
     time_seconds: float
     timing: TimingBreakdown | None = None
+    config_inconsistent: list[ModelConfigInconsistency] = Field(default_factory=list)
 
 
 class CachedEntry(BaseModel):
@@ -136,12 +155,21 @@ class CachedEntry(BaseModel):
     convert with ``MFIFingerprint.model_validate(entry.mfi)`` or
     ``WeightSignalFeatures.from_cache_dict(entry.ws)`` when they need
     typed objects.
+
+    ``extractor_version`` defaults to the running version for new
+    entries; files on disk without it are treated as stale.
+    ``extraction_params`` holds the settings used for extraction and
+    ``ws_loader`` records how the weights were read (strategy, source,
+    dtype).
     """
 
     model_id: str
+    extractor_version: str = EXTRACTOR_VERSION
+    extraction_params: dict[str, int] | None = None
     mfi: dict[str, Any] | None = None
     tfv: dict[str, Any] | None = None
     ws: dict[str, Any] | None = None
+    ws_loader: dict[str, str | None] | None = None
     vocab: list[str] | None = None
 
 
@@ -152,7 +180,8 @@ class ScanMatchScores(BaseModel):
     """Score breakdown for a single scan match against a DB model.
 
     All signal values are ``None`` when the signal could not be
-    computed (e.g. missing deep-signals parquet).
+    computed (e.g. missing deep-signals parquet).  ``verification`` has
+    the same meaning as in :class:`PipelineScore`.
     """
 
     pipeline_score: float | None
@@ -167,6 +196,7 @@ class ScanMatchScores(BaseModel):
     end: float | None
     wvc: float | None
     tfv: float | None
+    verification: str = "unverified"
 
 
 class ScanMatch(BaseModel):
@@ -184,7 +214,12 @@ class ScanMatch(BaseModel):
 
 
 class ScanModelInfo(BaseModel):
-    """Extracted metadata about the scanned (query) model."""
+    """Extracted metadata about the scanned (query) model.
+
+    ``config_inconsistent`` lists ``config.json`` fields that contradict
+    the query model's stored tensors.  When non-empty, MFI Tier 1/2 is
+    not applied to any database candidate.
+    """
 
     model_path: str
     model_type: str
@@ -203,6 +238,7 @@ class ScanModelInfo(BaseModel):
     family_hash: str
     param_bucket: str
     has_weight_signals: bool
+    config_inconsistent: list[ConfigInconsistency] = Field(default_factory=list)
 
 
 class ScanResult(BaseModel):
