@@ -25,7 +25,8 @@ existing database, re-extracts every model with the same code path that
 Each model is downloaded at a pinned commit (recorded as
 ``source_revision``) and extracted from that local snapshot.  Finished
 models are skipped on re-runs, so an interrupted build can be resumed;
-models built with a different extractor version or settings are rebuilt.
+models built with a different extractor version, settings or transformers
+minor version are rebuilt.
 
 Usage::
 
@@ -377,6 +378,7 @@ def _build_one(
         updated_at=datetime.now(UTC).isoformat(),
         extractor_version=EXTRACTOR_VERSION,
         extraction_params=settings.extraction_params(),
+        transformers_version=transformers.__version__,
         source_revision=revision,
         ws_loader=data.ws_loader,
         missing_signals=missing,
@@ -421,7 +423,13 @@ def _is_built(out: Path, job: _Job, settings: Settings) -> bool:
     return (
         bundle.extractor_version == EXTRACTOR_VERSION
         and bundle.extraction_params == settings.extraction_params()
+        and _minor(bundle.transformers_version) == _minor(transformers.__version__)
     )
+
+
+def _minor(version: str | None) -> list[str] | None:
+    """Major and minor parts; tokenizer fingerprints change between minors."""
+    return version.split(".")[:2] if version else None
 
 
 # ?? Catalog and archive ???????????????????????????????????????????

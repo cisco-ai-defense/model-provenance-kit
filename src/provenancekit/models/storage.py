@@ -172,6 +172,7 @@ class FeatureBundle(BaseModel):
     updated_at: str = ""
     extractor_version: str | None = None
     extraction_params: dict[str, int] | None = None
+    transformers_version: str | None = None
     source_revision: str | None = None
     ws_loader: dict[str, str | None] | None = None
     missing_signals: list[str] = Field(default_factory=list)
