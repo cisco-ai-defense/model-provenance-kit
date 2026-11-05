@@ -89,6 +89,9 @@ class TokenizerFeatures(BaseModel):
     fields default to ``None`` / empty so that DB feature bundles (which
     may store a subset) can be loaded via ``model_validate`` without
     requiring every key.
+
+    ``all_merges_str`` holds a ``sha256:<hex>`` digest of the full merge
+    list; older cached features may hold the list itself.
     """
 
     vocab_size: int
