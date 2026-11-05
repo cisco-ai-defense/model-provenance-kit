@@ -159,6 +159,18 @@ class TestTfvSimilarity:
         score = tfv_similarity(fa, fb)
         assert score < 0.5
 
+    def test_merge_digest_matches_full_list(self) -> None:
+        from provenancekit.core.signals.tokenizer import merges_digest
+
+        merges = "Ġ t\nĠ a\nh e"
+        full = _make_tfv(all_merges_str=merges)
+        digest = _make_tfv(all_merges_str=merges_digest(merges))
+        other = _make_tfv(all_merges_str=merges_digest(merges + "\ni n"))
+        assert merges_digest(merges).startswith("sha256:")
+        assert merges_digest(merges_digest(merges)) == merges_digest(merges)
+        assert tfv_similarity(full, digest) == tfv_similarity(full, full)
+        assert tfv_similarity(digest, other) < tfv_similarity(digest, digest)
+
     def test_no_merges_both(self) -> None:
         fa = _make_tfv(
             num_merges=0,

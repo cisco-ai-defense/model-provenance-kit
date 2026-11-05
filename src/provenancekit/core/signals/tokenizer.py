@@ -149,7 +149,7 @@ def extract_tokenizer_features(
         first_50.encode(),
     ).hexdigest()
 
-    f["all_merges_str"] = all_merges_str
+    f["all_merges_str"] = merges_digest(all_merges_str)
 
     f["special_token_ids"] = {
         "pad": tokenizer.pad_token_id,
@@ -294,13 +294,30 @@ def _special_token_sim(
     return 0.10 * (sp_matches / sp_total if sp_total > 0 else 0.5)
 
 
+_MERGES_DIGEST_PREFIX = "sha256:"
+
+
+def merges_digest(merges: str) -> str:
+    """Return the SHA-256 digest of a merge list, or the value if already one.
+
+    Merge lists are only compared for exact equality, so the digest gives
+    the same result as the full text while keeping feature bundles small.
+    """
+    if not merges or (
+        merges.startswith(_MERGES_DIGEST_PREFIX)
+        and len(merges) == len(_MERGES_DIGEST_PREFIX) + 64
+    ):
+        return merges
+    return _MERGES_DIGEST_PREFIX + hashlib.sha256(merges.encode()).hexdigest()
+
+
 def _merge_identity_sim(
     fa: TokenizerFeatures,
     fb: TokenizerFeatures,
 ) -> float:
     """Merge rule identity — binary full-merge comparison (weight 0.15)."""
-    merges_a = fa.all_merges_str
-    merges_b = fb.all_merges_str
+    merges_a = merges_digest(fa.all_merges_str)
+    merges_b = merges_digest(fb.all_merges_str)
     if merges_a and merges_b:
         return 0.15 * (1.0 if merges_a == merges_b else 0.0)
     if not merges_a and not merges_b:

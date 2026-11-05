@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0 (unreleased)
+## 1.2.0 (2026-11-05)
 
 1.1.0 was set in `pyproject.toml` but never published; its changes (NVIDIA
 Nemotron fingerprints and dependency updates) are included here.
@@ -96,6 +96,9 @@ Reported through coordinated disclosure by Huan Bui
   deep-signals archive from an existing catalog.
 - The catalog manifest records the transformers version used for the build
   (`transformers_version`).
+- Feature bundles store a SHA-256 digest of the tokenizer merge list rather
+  than the full list. Merge lists are only compared for equality, so scores
+  are unchanged, and the bundled database stays under 1 MB.
 
 ### Known limitations
 
@@ -106,7 +109,7 @@ Reported through coordinated disclosure by Huan Bui
 - Repos that ship only a SentencePiece `tokenizer.model` can lose EAS anchor
   alignment and score lower against their parent.
 - In `scan`, vocabulary overlap (VOA) is not computed, so `tokenizer_score` is
-  partial (0.25 × TFV, at most 0.25). The scan table now says so; use the `tfv`
+  partial (0.25 Ã— TFV, at most 0.25). The scan table now says so; use the `tfv`
   field or `compare` for tokenizer similarity.
 
 ## 1.0.0
