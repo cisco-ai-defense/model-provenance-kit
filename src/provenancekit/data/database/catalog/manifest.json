@@ -6,6 +6,7 @@
     "anchor_k": 64,
     "wvc_subsample": 4096
   },
+  "transformers_version": "5.5.0",
   "shards": [
     {
       "family_id": "01ai--yi",

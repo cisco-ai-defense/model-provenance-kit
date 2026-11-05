@@ -18,10 +18,13 @@
 
 import json
 import sys
+from collections.abc import Iterator
 from io import StringIO
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from provenancekit.cli import main
 from provenancekit.models.results import (
@@ -78,6 +81,7 @@ def _fake_result() -> CompareResult:
 _SCANNER_PATH = "provenancekit.core.scanner.ModelProvenanceScanner"
 _CACHE_PATH = "provenancekit.services.cache.CacheService"
 _SETTINGS_PATH = "provenancekit.cli.Settings"
+_MISMATCH_PATH = "provenancekit.services.database.DatabaseService.transformers_mismatch"
 _DL_PATH = "provenancekit.cli.download_deep_signals"
 _DL_STATUS_PATH = "provenancekit.cli.show_deep_signals_status"
 
@@ -233,6 +237,42 @@ def _fake_scan_result() -> ScanResult:
 
 
 class TestScanCommand:
+    @pytest.fixture(autouse=True)
+    def _no_transformers_mismatch(self) -> Iterator[MagicMock]:
+        with patch(_MISMATCH_PATH, return_value=None) as mismatch:
+            yield mismatch
+
+    def test_transformers_mismatch_hint(
+        self, _no_transformers_mismatch: MagicMock
+    ) -> None:
+        _no_transformers_mismatch.return_value = "5.5.0"
+        mock_scanner = MagicMock()
+        mock_scanner.return_value.scan.return_value = _fake_scan_result()
+
+        with (
+            patch(_SCANNER_PATH, mock_scanner),
+            patch(_CACHE_PATH),
+            patch(_SETTINGS_PATH),
+        ):
+            _, stderr, code = _run_cli(["scan", "gpt2"])
+
+        assert code == 0
+        assert "built with transformers 5.5.0" in stderr
+
+    def test_no_hint_when_versions_match(self) -> None:
+        mock_scanner = MagicMock()
+        mock_scanner.return_value.scan.return_value = _fake_scan_result()
+
+        with (
+            patch(_SCANNER_PATH, mock_scanner),
+            patch(_CACHE_PATH),
+            patch(_SETTINGS_PATH),
+        ):
+            _, stderr, code = _run_cli(["scan", "gpt2"])
+
+        assert code == 0
+        assert "built with transformers" not in stderr
+
     def test_json_flag(self) -> None:
         mock_scanner = MagicMock()
         mock_scanner.return_value.scan.return_value = _fake_scan_result()

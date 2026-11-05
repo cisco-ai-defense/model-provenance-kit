@@ -112,6 +112,11 @@ commit, recorded as `source_revision`. Repos with custom modelling code are
 loaded only when listed in `--trust-remote-code-for`. See the script's
 docstring for options.
 
+Build from the locked environment (`uv sync --frozen`). Tokenizer hashes and
+class names depend on the transformers release, so the manifest records it as
+`transformers_version`, and `scan` prints a hint when the installed minor
+version differs.
+
 Check installation status or update at any time:
 
 ```bash

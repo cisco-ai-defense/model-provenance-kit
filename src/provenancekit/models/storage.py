@@ -103,13 +103,16 @@ class CatalogManifest(BaseModel):
     Loaded from ``catalog/manifest.json``.  ``extractor_version`` and
     ``extraction_params`` describe how every feature bundle and
     deep-signals parquet in the database was extracted; ``None`` means
-    the database predates versioning.
+    the database predates versioning.  ``transformers_version`` is the
+    transformers release used for the build, since tokenizer hashes and
+    class names depend on it.
     """
 
     updated_at: str = ""
     shard_strategy: str = "by_family"
     extractor_version: str | None = None
     extraction_params: dict[str, int] | None = None
+    transformers_version: str | None = None
     shards: list[ShardRef] = Field(default_factory=list)
 
 
@@ -169,6 +172,7 @@ class FeatureBundle(BaseModel):
     updated_at: str = ""
     extractor_version: str | None = None
     extraction_params: dict[str, int] | None = None
+    transformers_version: str | None = None
     source_revision: str | None = None
     ws_loader: dict[str, str | None] | None = None
     missing_signals: list[str] = Field(default_factory=list)

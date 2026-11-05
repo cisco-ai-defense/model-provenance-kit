@@ -43,26 +43,36 @@ build_database = _load_script()
 
 class TestIsBuilt:
     @pytest.mark.parametrize(
-        ("version", "params", "built"),
+        ("version", "params", "transformers_version", "built"),
         [
-            (EXTRACTOR_VERSION, "current", True),
-            ("1", "current", False),
-            (EXTRACTOR_VERSION, {"anchor_k": 1, "wvc_subsample": 1}, False),
-            (EXTRACTOR_VERSION, None, False),
+            (EXTRACTOR_VERSION, "current", "5.5.0", True),
+            (EXTRACTOR_VERSION, "current", "5.5.3", True),
+            ("1", "current", "5.5.0", False),
+            (EXTRACTOR_VERSION, {"anchor_k": 1, "wvc_subsample": 1}, "5.5.0", False),
+            (EXTRACTOR_VERSION, None, "5.5.0", False),
+            (EXTRACTOR_VERSION, "current", "5.6.0", False),
+            (EXTRACTOR_VERSION, "current", None, False),
         ],
     )
     def test_bundle_must_match_extractor_and_settings(
         self,
         tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
         version: str,
         params: dict[str, int] | str | None,
+        transformers_version: str | None,
         built: bool,
     ) -> None:
+        monkeypatch.setattr(build_database.transformers, "__version__", "5.5.0")
         settings = Settings()
         if params == "current":
             params = settings.extraction_params()
         job = SimpleNamespace(bundle_rel=lambda: "features/a.json")
-        bundle = FeatureBundle(extractor_version=version, extraction_params=params)
+        bundle = FeatureBundle(
+            extractor_version=version,
+            extraction_params=params,
+            transformers_version=transformers_version,
+        )
         (tmp_path / "features").mkdir()
         (tmp_path / "features/a.json").write_text(bundle.model_dump_json())
         assert build_database._is_built(tmp_path, job, settings) is built

@@ -349,6 +349,28 @@ def _run_scan(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
 
+    import transformers
+
+    from provenancekit.services.database import DatabaseService
+
+    try:
+        built = DatabaseService(settings.db_root).transformers_mismatch(
+            transformers.__version__
+        )
+    except ProvenanceError:
+        built = None
+    if built:
+        minor = ".".join(built.split(".")[:2])
+        print(
+            f"\nHint: The fingerprint database was built with transformers {built}, "
+            f"but {transformers.__version__} is installed. Tokenizer fingerprints "
+            "differ between transformers releases, so some Tier 2 metadata "
+            "matches may be missed and verdicts can be weaker than they should "
+            f"be. Install transformers {minor}.x for results that match the "
+            "database.",
+            file=sys.stderr,
+        )
+
     return 0
 
 
